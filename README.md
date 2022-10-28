@@ -38,5 +38,6 @@ Doc for Hmm from PKU
 
 git clone --recursive git@github.com:xiaohu-cern/CROWN.git
 
-source init.sh
+source init.sh hmm
+
 
