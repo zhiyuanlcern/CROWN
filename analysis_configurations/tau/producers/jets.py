@@ -143,6 +143,25 @@ GoodJets = ProducerGroup(
     scopes=["global"],
     subproducers=[JetPtCut, JetEtaCut, JetIDCut, JetPUIDCut],
 )
+
+PreBJetEtaCut = Producer(
+    name="PreBJetEtaCut",
+    call="physicsobject::CutEta({df}, {input}, {output}, {max_bjet_eta})",
+    input=[nanoAOD.Jet_eta],
+    output=[],
+    scopes=["global"],
+)
+
+PreBJetPtCut = Producer(
+    name="PreBJetPtCut",
+    call="physicsobject::CutPt({df}, {input}, {output}, {min_bjet_pt})",
+    input=[q.Jet_pt_corrected],
+    output=[],
+    scopes=["global"],
+)
+
+
+
 GoodBJets = ProducerGroup(
     name="GoodBJets",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
@@ -152,6 +171,14 @@ GoodBJets = ProducerGroup(
     subproducers=[BJetPtCut, BJetEtaCut, BTagCut],
 )
 
+GoodPreBJets = ProducerGroup(
+    name="GoodPreBJets",
+    call="physicsobject::CombineMasks({df}, {output}, {input})",
+    input=[q.jet_id_mask, q.jet_puid_mask],
+    output=[q.good_prebjet_mask],
+    scopes=["global"],
+    subproducers=[PreBJetPtCut, PreBJetEtaCut],
+)
 ####################
 # Set of producers to apply a veto of jets overlapping with ditaupair candidates and ordering jets by their pt
 # 1. check all jets vs the two lepton candidates, if they are not within deltaR = 0.5, keep them --> mask
@@ -159,6 +186,7 @@ GoodBJets = ProducerGroup(
 # 3. Generate JetCollection, an RVec containing all indices of good Jets in pt order
 # 4. generate jet quantity outputs
 ####################
+
 VetoOverlappingJets = Producer(
     name="VetoOverlappingJets",
     call="jet::VetoOverlappingJets({df}, {output}, {input}, {deltaR_jet_veto})",
@@ -202,6 +230,24 @@ BJetCollection = ProducerGroup(
     subproducers=[GoodBJetsWithVeto],
 )
 
+GoodPreBJetsWithVeto = Producer(
+    name="GoodPreBJetsWithVeto",
+    call="physicsobject::CombineMasks({df}, {output}, {input})",
+    input=[q.good_prebjet_mask, q.jet_overlap_veto_mask],
+    output=[],
+    scopes=["mt", "et", "tt", "em", "mm", "ee"],
+)
+
+PreBJetCollection = ProducerGroup(
+    name="PreBJetCollection",
+    call="jet::OrderJetsByPt({df}, {output}, {input})",
+    input=[q.Jet_pt_corrected],
+    output=[q.good_prebjet_collection],
+    scopes=["mt", "et", "tt", "em", "mm", "ee"],
+    subproducers=[GoodPreBJetsWithVeto],
+)
+
+
 ##########################
 # Basic Jet Quantities
 # njets, pt, eta, phi, b-tag value
@@ -240,6 +286,15 @@ NumberOfJets = Producer(
     output=[q.njets],
     scopes=["mt", "et", "tt", "em", "mm", "ee"],
 )
+
+NumberOfPreBJets = Producer(
+    name="NumberOfPreBJets",
+    call="quantities::jet::NumberOfJets({df}, {output}, {input})",
+    input=[q.good_prebjet_collection],
+    output=[q.nprebjets],
+    scopes=["mt", "et", "tt", "em", "mm", "ee"],
+)
+
 jpt_1 = Producer(
     name="jpt_1",
     call="quantities::pt({df}, {output}, {input})",
@@ -313,6 +368,7 @@ BasicJetQuantities = ProducerGroup(
         LVJet1,
         LVJet2,
         NumberOfJets,
+        NumberOfPreBJets,
         jpt_1,
         jeta_1,
         jphi_1,
