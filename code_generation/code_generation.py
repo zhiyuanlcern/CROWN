@@ -465,7 +465,7 @@ class CodeGenerator(object):
                     scope=scope,
                     counter=self.main_counter[scope],
                     outputname=self._outputfiles_generated[scope],
-                    outputstring=outputstring,
+                    outputstring=outputstring + '","genEventSumW',
                 )
                 runcommands += '    ROOT::RDataFrame df{counter}_{scope}_runs("Runs", input_files); \n'.format(
                     scope=scope,
