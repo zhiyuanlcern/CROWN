@@ -85,9 +85,10 @@ int main(int argc, char *argv[]) {
     // {MULTITHREADING}
 
     // initialize df
-    ROOT::RDataFrame df0("Events", input_files);
+    ROOT::RDataFrame df00("Events", input_files);
     Logger::get("main")->info("Starting Setup of Dataframe with {} events",
                               nevents);
+    auto df0 = basefunctions::DefineQuantity(df00, "genEventSumW",sumofweight );
 
     // {CODE_GENERATION}
 

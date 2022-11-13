@@ -543,7 +543,7 @@ class CodeGenerator(object):
                 outputname=self._outputfiles_generated[scope]
             )
             output_quantities += '", "'.join(quantityset)
-            output_quantities += '"} },'
+            output_quantities +='", "genEventSumW"} },'
         output_quantities = output_quantities[:-1] + "}"
         return output_quantities
 
