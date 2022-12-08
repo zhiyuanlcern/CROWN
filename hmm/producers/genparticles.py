@@ -10,7 +10,7 @@ MMGenPair = Producer(
     call="ditau_pairselection::buildgenpair({df}, {input}, {output})",
     input=[q.dileptonpair, nanoAOD.Muon_indexToGen, nanoAOD.Muon_indexToGen],
     output=[q.gen_dileptonpair],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 
 MMTrueGenPair = Producer(
@@ -24,7 +24,7 @@ MMTrueGenPair = Producer(
         nanoAOD.GenParticle_pt,
     ],
     output=[q.truegenpair],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 ####################
 # Set of general producers for Gen DiTauPair Quantities
@@ -41,7 +41,7 @@ LVGenParticle1 = Producer(
         nanoAOD.GenParticle_mass,
     ],
     output=[q.gen_p4_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 LVGenParticle2 = Producer(
     name="LVGenParticle2",
@@ -54,7 +54,7 @@ LVGenParticle2 = Producer(
         nanoAOD.GenParticle_mass,
     ],
     output=[q.gen_p4_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 LVTrueGenParticle1 = Producer(
     name="LVTrueGenParticle1",
@@ -67,7 +67,7 @@ LVTrueGenParticle1 = Producer(
         nanoAOD.GenParticle_mass,
     ],
     output=[q.gen_p4_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 LVTrueGenParticle2 = Producer(
     name="LVTrueGenParticle2",
@@ -80,91 +80,91 @@ LVTrueGenParticle2 = Producer(
         nanoAOD.GenParticle_mass,
     ],
     output=[q.gen_p4_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_pt_1 = Producer(
     name="gen_pt_1",
     call="quantities::pt({df}, {output}, {input})",
     input=[q.gen_p4_1],
     output=[q.gen_pt_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_pt_2 = Producer(
     name="gen_pt_2",
     call="quantities::pt({df}, {output}, {input})",
     input=[q.gen_p4_2],
     output=[q.gen_pt_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_eta_1 = Producer(
     name="gen_eta_1",
     call="quantities::eta({df}, {output}, {input})",
     input=[q.gen_p4_1],
     output=[q.gen_eta_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_eta_2 = Producer(
     name="gen_eta_2",
     call="quantities::eta({df}, {output}, {input})",
     input=[q.gen_p4_2],
     output=[q.gen_eta_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_phi_1 = Producer(
     name="gen_phi_1",
     call="quantities::phi({df}, {output}, {input})",
     input=[q.gen_p4_1],
     output=[q.gen_phi_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_phi_2 = Producer(
     name="gen_phi_2",
     call="quantities::phi({df}, {output}, {input})",
     input=[q.gen_p4_2],
     output=[q.gen_phi_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_mass_1 = Producer(
     name="gen_mass_1",
     call="quantities::mass({df}, {output}, {input})",
     input=[q.gen_p4_1],
     output=[q.gen_mass_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_mass_2 = Producer(
     name="gen_mass_2",
     call="quantities::mass({df}, {output}, {input})",
     input=[q.gen_p4_2],
     output=[q.gen_mass_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_pdgid_1 = Producer(
     name="gen_pdgid_1",
     call="quantities::pdgid({df}, {output}, 0, {input})",
     input=[q.gen_dileptonpair, nanoAOD.GenParticle_pdgId],
     output=[q.gen_pdgid_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_pdgid_2 = Producer(
     name="gen_pdgid_2",
     call="quantities::pdgid({df}, {output}, 1, {input})",
     input=[q.gen_dileptonpair, nanoAOD.GenParticle_pdgId],
     output=[q.gen_pdgid_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_m_vis = Producer(
     name="gen_m_vis",
     call="quantities::m_vis({df}, {output}, {input_vec})",
     input=[q.gen_p4_1, q.gen_p4_2],
     output=[q.gen_m_vis],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_match_2 = Producer(
     name="gen_match_2",
     call="quantities::tau::genmatch({df}, {output}, 1, {input})",
     input=[q.dileptonpair, nanoAOD.Tau_genMatch],
     output=[q.gen_match_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_taujet_pt_1 = Producer(
     name="gen_taujet_pt_1",
@@ -176,7 +176,7 @@ gen_taujet_pt_1 = Producer(
         nanoAOD.GenJet_pt,
     ],
     output=[q.gen_taujet_pt_1],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 gen_taujet_pt_2 = Producer(
     name="gen_taujet_pt_2",
@@ -188,14 +188,14 @@ gen_taujet_pt_2 = Producer(
         nanoAOD.GenJet_pt,
     ],
     output=[q.gen_taujet_pt_2],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 UnrollGenMuLV1 = ProducerGroup(
     name="UnrollGenMuLV1",
     call=None,
     input=None,
     output=None,
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
     subproducers=[gen_pt_1, gen_eta_1, gen_phi_1, gen_mass_1, gen_pdgid_1],
 )
 UnrollGenMuLV2 = ProducerGroup(
@@ -203,7 +203,7 @@ UnrollGenMuLV2 = ProducerGroup(
     call=None,
     input=None,
     output=None,
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
     subproducers=[gen_pt_2, gen_eta_2, gen_phi_2, gen_mass_2, gen_pdgid_2],
 )
 
@@ -213,7 +213,7 @@ MMGenDiTauPairQuantities = ProducerGroup(
     call=None,
     input=None,
     output=None,
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
     subproducers=[
         MMGenPair,
         LVGenParticle1,
@@ -228,7 +228,7 @@ MMTrueGenDiTauPairQuantities = ProducerGroup(
     call=None,
     input=None,
     output=None,
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
     subproducers=[
         MMTrueGenPair,
         LVTrueGenParticle1,

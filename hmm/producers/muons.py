@@ -34,6 +34,14 @@ MuonDzCut = Producer(
     output=[],
     scopes=["global"],
 )
+MuonSIP3DCut = Producer(
+    name="MuonSIP3DCut",
+    call="physicsobject::CutVarMax({df}, {input}, {output}, {max_sip3d})", # vh developed CutVarMax/Min, TODO apply to others
+    input=[nanoAOD.Muon_sip3d],
+    output=[],
+    scopes=["global"],
+)
+# TODO vh LepMVA
 MuonIDCut = Producer(
     name="MuonIDCut",
     call='physicsobject::muon::CutID({df}, {output}, "{muon_id}")',
@@ -44,7 +52,7 @@ MuonIDCut = Producer(
 MuonIsoCut = Producer(
     name="MuonIsoCut",
     call="physicsobject::muon::CutIsolation({df}, {output}, {input}, {muon_iso_cut})",
-    input=[nanoAOD.Muon_iso],
+    input=[nanoAOD.Muon_pfRelIso04_all], # vh
     output=[],
     scopes=["global"],
 )
@@ -59,6 +67,8 @@ BaseMuons = ProducerGroup(
         MuonEtaCut,
         MuonDxyCut,
         MuonDzCut,
+        MuonSIP3DCut,
+        # TODO vh add LepMVA
         MuonIDCut,
         MuonIsoCut,
     ],
@@ -68,45 +78,49 @@ BaseMuons = ProducerGroup(
 # Set of producers used for more specific selection of muons in channels
 ####################
 
+# vh just in case different muon selections are needed (e.g. loose vs tight id for fakes)
+# do cuts again for ALL the channels
+
 GoodMuonPtCut = Producer(
     name="GoodMuonPtCut",
     call="physicsobject::CutPt({df}, {input}, {output}, {min_muon_pt})",
     input=[nanoAOD.Muon_pt],
     output=[],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 GoodMuonEtaCut = Producer(
     name="GoodMuonEtaCut",
     call="physicsobject::CutEta({df}, {input}, {output}, {max_muon_eta})",
     input=[nanoAOD.Muon_eta],
     output=[],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 GoodMuonIsoCut = Producer(
     name="GoodMuonIsoCut",
     call="physicsobject::electron::CutIsolation({df}, {output}, {input}, {muon_iso_cut})",
-    input=[nanoAOD.Muon_iso],
+    input=[nanoAOD.Muon_pfRelIso04_all],
     output=[],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 GoodMuons = ProducerGroup(
     name="GoodMuons",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
     input=[q.base_muons_mask],
-    output=[q.good_muons_mask],
-    scopes=["mm"],
+    output=[q.good_muons_mask], # vh these are the final selection muons' mask
+    scopes=["e2m","m2m", "2e2m","4m"],
     subproducers=[
         GoodMuonPtCut,
         GoodMuonEtaCut,
         GoodMuonIsoCut,
     ],
 )
+#
 NumberOfGoodMuons = Producer(
     name="NumberOfGoodMuons",
-    call="quantities::NumberOfGoodLeptons({df}, {output}, {input})",
+    call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
     input=[q.good_muons_mask],
     output=[q.nmuons],
-    scopes=["mm"],
+    scopes=["e2m","m2m", "2e2m","4m"],
 )
 VetoMuons = Producer(
     name="VetoMuons",
@@ -176,3 +190,53 @@ DiMuonVeto = ProducerGroup(
     scopes=["global"],
     subproducers=[DiMuonVetoMuons],
 )
+
+
+### Muon collection and their properties
+MuonCollection = Producer(
+    name="MuonCollection",
+    call="jet::OrderJetsByPt({df}, {output}, {input})",
+    input=[nanoAOD.Muon_pt, q.good_muons_mask],
+    output=[q.good_muon_collection],
+    scopes=["e2m","m2m", "2e2m","4m"],
+)
+LVMu1 = Producer(
+    name="LVMu1",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.good_muon_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_p4_1],
+    scopes=["e2m","m2m", "2e2m","4m"],
+)
+LVMu2 = Producer(
+    name="LVMu2",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.good_muon_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_p4_2],
+    scopes=["e2m","m2m", "2e2m","4m"],
+)
+LVMu3 = Producer(
+    name="LVMu3",
+    call="lorentzvectors::build({df}, {input_vec}, 2, {output})",
+    input=[
+        q.good_muon_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_p4_3],
+    scopes=["m2m", "4m"],
+)
+

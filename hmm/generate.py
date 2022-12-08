@@ -7,17 +7,18 @@ from code_generation.code_generation import CodeGenerator
 
 def run(args):
 
-    analysis_name = "template_analysis"
+    analysis_name = "hmm"
     available_samples = [
         "data",
+        "vhmm", # vh
         "embedding",
         "ttbar",
         "dyjets",
         "wjets",
         "diboson",
     ]
-    available_eras = ["2018"]
-    available_scopes = ["mm"]
+    available_eras = ["2016","2017","2018","2022"]
+    available_scopes = ["e2m","m2m", "2e2m","4m"]
 
     ## setup variables
     shifts = set([shift.lower() for shift in args.shifts])

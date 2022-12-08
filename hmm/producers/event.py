@@ -118,3 +118,27 @@ PUweights = Producer(
     output=[q.puweight],
     scopes=["global"],
 )
+
+VetottHLooseB = Producer(
+    name="VetottHLooseB",
+    call='basefunctions::FilterThreshold({df}, {input}, {vetottH_max_nbjets_loose}, "<=", "Veto ttH <= 1 bjet loose")',
+    input=[q.nbjets_loose],
+    output=None,
+    scopes=["global"],
+)
+VetottHMediumB = Producer(
+    name="VetottHMediumB",
+    call='basefunctions::FilterThreshold({df}, {input}, {vetottH_max_nbjets_medium}, "<=", "Veto ttH <= 0 bjet medium")',
+    input=[q.nbjets_medium],
+    output=None,
+    scopes=["global"],
+)
+
+FilterNMuons = Producer(
+    name="FilterNMuons",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_m2m_nmuons}, "==", "Number of muons 3")',
+    input=[q.nmuons],
+    output=None,
+    scopes=["m2m"],
+)
+
