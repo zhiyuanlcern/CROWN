@@ -539,7 +539,7 @@ ROOT::RDF::RNode GenerateTripleTriggerORFlag(
                 DeltaR_threshold, p3_pt_cut, p3_eta_cut,
                 p3_trigger_particle_id_cut, p3_triggerbit_cut);
         }
-        result = hltpath || match_result_p1 || match_result_p2 || match_result_p3;
+        result = hltpath && ( match_result_p1 || match_result_p2 || match_result_p3 );
         Logger::get("GenerateTripleTriggerORFlag")
             ->debug("---> HLT Match: {}", hltpath);
         Logger::get("GenerateTripleTriggerORFlag")
