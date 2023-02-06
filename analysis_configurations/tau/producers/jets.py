@@ -247,7 +247,10 @@ PreBJetCollection = ProducerGroup(
     subproducers=[GoodPreBJetsWithVeto],
 )
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 2444dc44eefa6ed10b3ca1b67a41c8b0029c1c8e
 ##########################
 # Basic Jet Quantities
 # njets, pt, eta, phi, b-tag value
