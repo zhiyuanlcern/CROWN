@@ -160,6 +160,7 @@ PreBJetPtCut = Producer(
     scopes=["global"],
 )
 
+
 GoodBJets = ProducerGroup(
     name="GoodBJets",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
@@ -185,6 +186,7 @@ GoodPreBJets = ProducerGroup(
 # 3. Generate JetCollection, an RVec containing all indices of good Jets in pt order
 # 4. generate jet quantity outputs
 ####################
+
 VetoOverlappingJets = Producer(
     name="VetoOverlappingJets",
     call="jet::VetoOverlappingJets({df}, {output}, {input}, {deltaR_jet_veto})",
@@ -244,6 +246,7 @@ PreBJetCollection = ProducerGroup(
     scopes=["mt", "et", "tt", "em", "mm", "ee"],
     subproducers=[GoodPreBJetsWithVeto],
 )
+
 
 ##########################
 # Basic Jet Quantities

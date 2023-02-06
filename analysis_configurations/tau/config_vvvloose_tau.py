@@ -230,9 +230,12 @@ def build_config(
             ),
             "btag_cut": EraModifier(  # medium
                 {
-                    "2016": 0.3093,
-                    "2017": 0.3040,
-                    "2018": 0.2783,
+                    #"2016": 0.3093, default in CROWN
+                    #"2017": 0.3040, default in CROWN
+                    #"2018": 0.2783, default in CROWN
+                    "2016": 0.3093, # definition in AN
+                    "2017": 0.3033, # definition in AN
+                    "2018": 0.2770, # definition in AN
                 }
             ),
         },
@@ -622,6 +625,7 @@ def build_config(
             jets.JetEnergyCorrection,
             jets.GoodJets,
             jets.GoodBJets,
+            jets.GoodPreBJets,
             event.DiLeptonVeto,
             met.MetBasics,
         ],
@@ -641,6 +645,7 @@ def build_config(
             jets.JetCollection,
             jets.BasicJetQuantities,
             jets.BJetCollection,
+            jets.PreBJetCollection,
             jets.BasicBJetQuantities,
             scalefactors.btagging_SF,
             met.MetCorrections,
@@ -671,7 +676,7 @@ def build_config(
     )
     configuration.add_producers(
         "mt",
-        [
+        [   
             muons.GoodMuons,
             muons.NumberOfGoodMuons,
             muons.VetoMuons,
@@ -1053,6 +1058,7 @@ def build_config(
             q.phi_1,
             q.phi_2,
             q.njets,
+            q.nprebjets,
             q.jpt_1,
             q.jpt_2,
             q.jeta_1,
