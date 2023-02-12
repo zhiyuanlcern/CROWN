@@ -8,6 +8,9 @@ from .producers import genparticles as genparticles
 from .producers import muons as muons
 from .producers import jets as jets
 from .producers import scalefactors as scalefactors
+# add by botao
+from .producers import lepton as lepton
+# end 
 from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
 from code_generation.configuration import Configuration
@@ -298,7 +301,8 @@ def build_config(
     configuration.add_config_parameters(
         "m2m",
         {
-            "vh_m2m_nmuons" : 1,
+            "vh_m2m_nmuons" : 3,
+            "min_dilepton_mass" : 12,
         }
     )
 
@@ -337,10 +341,14 @@ def build_config(
             muons.GoodMuons, # vh tighter selections on muons
             muons.NumberOfGoodMuons,
             event.FilterNMuons, # vh ==3 muons
+            # write by botao
+            lepton.CalcSmallestDileptonMass,
+            event.DileptonMassCut,
+            # end
             muons.MuonCollection, # vh
             muons.LVMu1, # vh
             muons.LVMu2, # vh
-            muons.LVMu3, # vh
+            muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             # vh veto e
             # vh total charge = +/-1
@@ -389,6 +397,10 @@ def build_config(
             #q.id_wgt_mu_2,
             #q.iso_wgt_mu_1,
             #q.iso_wgt_mu_2,
+            q.muon_p4_1,
+            q.muon_p4_2,
+            q.muon_p4_3,
+            q.nmuons,
         ],
     )
 

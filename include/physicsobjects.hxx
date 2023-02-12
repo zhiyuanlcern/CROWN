@@ -2,6 +2,14 @@
 #define GUARD_PHYSICSOBJECTS_H
 
 namespace physicsobject {
+/// write by botao
+ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons);
+///
 ROOT::RDF::RNode CutVarMin(ROOT::RDF::RNode df, const std::string &quantity,
                        const std::string &maskname, const float &threshold);
 ROOT::RDF::RNode CutVarMax(ROOT::RDF::RNode df, const std::string &quantity,

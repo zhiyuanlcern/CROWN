@@ -142,3 +142,11 @@ FilterNMuons = Producer(
     scopes=["m2m"],
 )
 
+# write by botao
+DileptonMassCut = Producer(
+    name="DileptonMassCut",
+    call='basefunctions::FilterThreshold({df}, {input}, {min_dilepton_mass}, ">=", "No mll < 12 GeV")',
+    input=[q.smallest_dilepton_mass],
+    output=None,
+    scopes=["global","m2m"],
+)

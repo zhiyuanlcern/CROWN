@@ -27,6 +27,50 @@
 /// physicsobject::CombineMasks.
 namespace physicsobject {
 
+/// write by botao
+/// function to select the smallest mass of dilepton pair
+ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons) {
+    auto mass_calculation = [](const ROOT::RVec<float> &particle_pts,
+                               const ROOT::RVec<float> &particle_etas,
+                               const ROOT::RVec<float> &particle_phis,
+                               const ROOT::RVec<float> &particle_masses,
+                               const ROOT::RVec<int> &goodmuons) {
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 for (unsigned int k = 0; k < (int)ROOT::VecOps::Nonzero(goodmuons).size(); ++k) {
+                                    try {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(k), particle_etas.at(k),
+                                                                         particle_phis.at(k),particle_masses.at(k)));
+                                    } catch (const std::out_of_range &e) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
+                                    }
+                                 }
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_1;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_2;
+                                 p4_1 = p4;
+                                 p4_2 = p4;
+                                 std::vector<float> masses;
+                                 for (unsigned int i = 0; i < p4_1.size(); ++i) {
+                                     for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
+                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
+                                             continue;
+                                         auto const dileptonsystem = p4_1[i] + p4_2[j];
+                                         masses.push_back((float)dileptonsystem.mass());
+                                     }
+                                 }
+                                 std::sort(masses.begin(), masses.end());
+                                 return masses[0];
+                             };
+    // std::vector<std::string> column_names = {particle_pts, particle_etas, particle_phis, particle_masses, muon_size};
+    auto df1 = 
+        df.Define(outputname, mass_calculation, {particle_pts, particle_etas, particle_phis, particle_masses, goodmuons});
+    return df1;
+}
+
 /// [begin] a couple of general functions added in developing vhmm analysis
 ///
 /// Function to select objects above a threshold on a variable, using
