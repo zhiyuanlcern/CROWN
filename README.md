@@ -38,6 +38,10 @@ Doc for Hmm from PKU
 
 git clone --recursive git@github.com:xiaohu-cern/CROWN.git
 
+Use this command to git clone
+
+git clone --recursive git@github.com:botaoguo/CROWN.git
+
 source init.sh hmm
 
 
