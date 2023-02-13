@@ -10,6 +10,7 @@ from .producers import jets as jets
 from .producers import scalefactors as scalefactors
 # add by botao
 from .producers import lepton as lepton
+from .producers import electrons as electrons
 # end 
 from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
@@ -173,6 +174,21 @@ def build_config(
             "muon_iso_cut": 0.25, # vh PFIsoLoose dR=0.4 https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
         },
     )
+    # electron base selection:
+    configuration.add_config_parameters(
+        "global",
+        {
+            "min_ele_pt": 20.0,
+            "max_ele_eta": 2.5,
+            "upper_threshold_barrel": 1.444,
+            "lower_threshold_endcap": 1.566,
+            "max_ele_dxy": 0.05,
+            "max_ele_dz": 0.10,
+            "ele_id": "Electron_mvaFall17V2noIso_WP90", 
+            # also need max_sip3d
+            # "min_lepmva": 0.4,
+        }
+    )
     # MM scope Muon selection
     configuration.add_config_parameters(
         ["m2m"],
@@ -324,7 +340,7 @@ def build_config(
             muons.BaseMuons, # vh
             # vh muon Rochester corr, FSR recovery, GeoFit? TODO
             # vh muon FSR recovery
-            #electrons.BaseElectrons, # vh TODO
+            electrons.BaseElectrons,
             jets.JetEnergyCorrection, # vh
             jets.GoodJets, # vh overlap removal with ?base? muons done [need validation]
             jets.GoodBJetsLoose, # vh TODO update btag
@@ -401,6 +417,7 @@ def build_config(
             q.muon_p4_2,
             q.muon_p4_3,
             q.nmuons,
+            q.smallest_dilepton_mass,
         ],
     )
 

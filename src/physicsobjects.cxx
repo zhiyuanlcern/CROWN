@@ -71,6 +71,28 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
     return df1;
 }
 
+/// function to veto ECal Gap
+/// \param[in] etaBoundary The upper boundary of the eta, such as 2.5
+///
+ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnName,
+                              const std::string &maskname,
+                              const float &etaBoundary, const float &lowerThresholdBarrel,
+                              const float &upperThresholdBarrel, const float &lowerThresholdEndcap) {
+    auto lambda = [etaBoundary, lowerThresholdBarrel, upperThresholdBarrel,
+                   lowerThresholdEndcap](const ROOT::RVec<float> &eta) {
+        ROOT::RVec<int> mask =
+            ( ( (abs(eta) >= lowerThresholdBarrel) && (abs(eta) < upperThresholdBarrel) ) || 
+              ( ( abs(eta) >= lowerThresholdEndcap ) && ( abs(eta) < etaBoundary ) ) );
+        return mask;
+    };
+
+    auto df1 = df.Define(maskname, lambda, {etaColumnName});
+    return df1;
+}
+///
+/// end write by botao
+
+
 /// [begin] a couple of general functions added in developing vhmm analysis
 ///
 /// Function to select objects above a threshold on a variable, using

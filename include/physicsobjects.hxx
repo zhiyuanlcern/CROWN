@@ -9,6 +9,12 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
                                  const std::string &goodmuons);
+ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnName,
+                              const std::string &maskname,
+                              const float &etaBoundary,
+                              const float &lowerThresholdBarrel,
+                              const float &upperThresholdBarrel,
+                              const float &lowerThresholdEndcap);
 ///
 ROOT::RDF::RNode CutVarMin(ROOT::RDF::RNode df, const std::string &quantity,
                        const std::string &maskname, const float &threshold);
