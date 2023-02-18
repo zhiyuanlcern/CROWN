@@ -136,7 +136,7 @@ VetottHMediumB = Producer(
 
 FilterNMuons = Producer(
     name="FilterNMuons",
-    call='basefunctions::FilterThreshold({df}, {input}, {vh_m2m_nmuons}, "==", "Number of muons 3")',
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_m2m_nmuons}, ">=", "Number of muons 3")',
     input=[q.nmuons],
     output=None,
     scopes=["m2m"],
@@ -150,3 +150,41 @@ DileptonMassCut = Producer(
     output=None,
     scopes=["global","m2m"],
 )
+HiggsToDiMuonPair_p4 = Producer(
+    name="HiggsToDiMuonPair_p4",
+    call='physicsobject::HiggsToDiMuonPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           q.good_muons_mask,
+           q.good_muon_collection],
+    output=[q.dimuon_p4_byPt],
+    scopes=["global","e2m","m2m","2e2m","4m"],
+)
+DiMuonMassFromZVeto = Producer(
+    name="DiMuonMassFromZVeto",
+    call='physicsobject::DiMuonFromZVeto({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           q.good_muons_mask,
+           q.good_muon_collection],
+    output=[q.Flag_dimuon_Zmass_veto], # 1 stands for noZmass, 0 stands for has dimuon from Zmass
+    scopes=["global","e2m","m2m","2e2m","4m"],
+)
+# Mask_DiMuonPair = Producer(
+#     name="Mask_DiMuonPair",
+#     call='physicsobject::HiggsToMuMu_Cand({df}, {output}, {input})',
+#     input=[q.dimuon_p4_byPt],
+#     output=[q.HiggsToMuMu_mask],
+#     scopes=["global","e2m","m2m","2e2m","4m"],
+# )
+# HiggsToDiMuonCand = Producer(
+#     name="HiggsToDiMuonCand",
+#     call='physicsobject::GetFirstElement({df}, {input}, {output})',
+#     input=[q.dimuon_p4_byPt],
+#     output=[q.dimuon_p4_HiggsCand],
+#     scopes=["global","e2m","m2m","2e2m","4m"],
+# )

@@ -222,3 +222,8 @@ iso_wgt_mu_2 = Quantity("iso_wgt_mu_2")
 
 # write by botao
 smallest_dilepton_mass = Quantity("smallest_dilepton_mass")
+dimuon_p4_byPt = Quantity("dimuon_p4_byPt")
+Flag_dimuon_Zmass_veto = Quantity("Flag_dimuon_Zmass_veto")
+Flag_LeptonChargeSumVeto = Quantity("Flag_LeptonChargeSumVeto")
+#HiggsToMuMu_mask = Quantity("HiggsToMuMu_mask")
+#dimuon_p4_HiggsCand = Quantity("dimuon_p4_HiggsCand")

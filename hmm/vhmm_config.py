@@ -319,6 +319,7 @@ def build_config(
         {
             "vh_m2m_nmuons" : 3,
             "min_dilepton_mass" : 12,
+            # "dimuon_pair" : 1, # dimuon_pair in [110,150] >=1
         }
     )
 
@@ -358,8 +359,11 @@ def build_config(
             muons.NumberOfGoodMuons,
             event.FilterNMuons, # vh ==3 muons
             # write by botao
+            event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
+            event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
             lepton.CalcSmallestDileptonMass,
             event.DileptonMassCut,
+            lepton.LeptonChargeSumVeto,
             # end
             muons.MuonCollection, # vh
             muons.LVMu1, # vh
@@ -368,10 +372,10 @@ def build_config(
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             # vh veto e
             # vh total charge = +/-1
-            # vh low mll veto, mll>12 GeV
-            # vh m(mumu) in [110, 150] GeV, >=1 pair
-            # vh select higher pT mumu pair as Higgs if there are >=1
-            # vh no m(mumu) in [81, 101] GeV, 0 pair
+            # vh low mll veto, mll>12 GeV   Done
+            # vh m(mumu) in [110, 150] GeV, >=1 pair    Done
+            # vh select higher pT mumu pair as Higgs if there are >=1   Done   
+            # vh no m(mumu) in [81, 101] GeV, 0 pair    Done
             # vh
             triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
@@ -418,7 +422,15 @@ def build_config(
             q.muon_p4_3,
             q.nmuons,
             q.smallest_dilepton_mass,
-        ],
+            q.dimuon_p4_byPt,
+            q.Flag_dimuon_Zmass_veto,
+            q.Flag_LeptonChargeSumVeto,
+            # q.HiggsToMuMu_mask,
+            # q.dimuon_p4_pt_byPt,
+            # q.dimuon_p4_eta_byPt,
+            # q.dimuon_p4_phi_byPt,
+            # q.dimuon_p4_mass_byPt,
+       ],
     )
 
     configuration.add_modification_rule(

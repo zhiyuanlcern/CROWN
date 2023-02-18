@@ -8,13 +8,37 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons);
+                                 const std::string &goodmuons,
+                                 const std::string &goodmuons_index);
 ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnName,
                               const std::string &maskname,
                               const float &etaBoundary,
                               const float &lowerThresholdBarrel,
                               const float &upperThresholdBarrel,
                               const float &lowerThresholdEndcap);
+ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons,
+                                 const std::string &goodmuons_index);
+ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons,
+                                 const std::string &goodmuons_index);
+ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_charge,
+                                 const std::string &goodmuons,
+                                 const std::string &goodmuons_index);
+// ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
+//                         const std::string &dimuon_p4);
+// ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,
+//                                  const std::vector<ROOT::Math::PtEtaPhiMVector> &input_p4_vec,
+//                                  const std::string &outputname);
 ///
 ROOT::RDF::RNode CutVarMin(ROOT::RDF::RNode df, const std::string &quantity,
                        const std::string &maskname, const float &threshold);
