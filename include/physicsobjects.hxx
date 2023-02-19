@@ -8,7 +8,7 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index);
 ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnName,
                               const std::string &maskname,
@@ -21,18 +21,17 @@ ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::str
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index);
 ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &particle_pts,
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index);
 ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &muon_charge,
-                                 const std::string &goodmuons,
                                  const std::string &goodmuons_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);

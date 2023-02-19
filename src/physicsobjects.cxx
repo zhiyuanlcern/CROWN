@@ -36,16 +36,16 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index) {
     auto mass_calculation = [](const ROOT::RVec<float> &particle_pts,
                                const ROOT::RVec<float> &particle_etas,
                                const ROOT::RVec<float> &particle_phis,
                                const ROOT::RVec<float> &particle_masses,
-                               const ROOT::RVec<int> &goodmuons,
+                               const ROOT::RVec<int> &particle_charges,
                                const ROOT::RVec<int> &goodmuons_index) {
                                  std::vector<ROOT::Math::PtEtaPhiMVector> p4;
-                                 for (unsigned int k = 0; k < (int)ROOT::VecOps::Nonzero(goodmuons).size(); ++k) {
+                                 for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
                                     try {
                                         p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodmuons_index[k]), 
                                                                          particle_etas.at(goodmuons_index[k]),
@@ -62,18 +62,27 @@ ROOT::RDF::RNode M_dileptonMass(ROOT::RDF::RNode df, const std::string &outputna
                                  std::vector<float> masses;
                                  for (unsigned int i = 0; i < p4_1.size(); ++i) {
                                      for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
-                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
+                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0) {
                                              continue;
-                                         auto const dileptonsystem = p4_1[i] + p4_2[j];
+                                         }
+                                         if ( particle_charges[goodmuons_index[i]] + particle_charges[goodmuons_index[j]] != 0 ) {
+                                             continue;
+                                         }
+                                         auto dileptonsystem = p4_1[i] + p4_2[j];
                                          masses.push_back((float)dileptonsystem.mass());
                                      }
                                  }
                                  std::sort(masses.begin(), masses.end());
-                                 return masses[0];
+                                 if ( masses.size() <= 0 ) {
+                                    return 999.0f;
+                                 }
+                                 else {
+                                    return masses[0];
+                                 }
                              };
     // std::vector<std::string> column_names = {particle_pts, particle_etas, particle_phis, particle_masses, muon_size};
     auto df1 = 
-        df.Define(outputname, mass_calculation, {particle_pts, particle_etas, particle_phis, particle_masses, goodmuons, goodmuons_index});
+        df.Define(outputname, mass_calculation, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, goodmuons_index});
     return df1;
 }
 
@@ -102,16 +111,16 @@ ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::str
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index) {
     auto pair_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
                                const ROOT::RVec<float> &particle_etas,
                                const ROOT::RVec<float> &particle_phis,
                                const ROOT::RVec<float> &particle_masses,
-                               const ROOT::RVec<int> &goodmuons,
+                               const ROOT::RVec<int> &particle_charges,
                                const ROOT::RVec<int> &goodmuons_index) {
                                  std::vector<ROOT::Math::PtEtaPhiMVector> p4;
-                                 for (unsigned int k = 0; k < (int)ROOT::VecOps::Nonzero(goodmuons).size(); ++k) {
+                                 for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
                                     try {
                                         p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodmuons_index[k]), 
                                                                          particle_etas.at(goodmuons_index[k]),
@@ -132,6 +141,10 @@ ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::str
                                      for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
                                          if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
                                              continue; 
+                                         /// need opposite sign dimuons
+                                         if ( particle_charges[goodmuons_index[i]] + particle_charges[goodmuons_index[j]] != 0 ) {
+                                             continue;
+                                         }
                                          /// Add dimuon mass window
                                          if ( (p4_1[i] + p4_2[j]).mass() >= 110 && (p4_1[i] + p4_2[j]).mass() <= 150 )
                                              p4_dileptonsystem.push_back( p4_1[i] + p4_2[j] );
@@ -152,7 +165,7 @@ ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::str
                                  ///return p4_dimuon; /// return dimuon_pair_p4 order by pt
                              };
     auto df1 = 
-        df.Define(outputname, pair_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, goodmuons, goodmuons_index});
+        df.Define(outputname, pair_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, goodmuons_index});
     return df1;
 }
 ///
@@ -161,16 +174,16 @@ ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputn
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &goodmuons,
+                                 const std::string &particle_charges,
                                  const std::string &goodmuons_index) {
     auto pair_calc_mass = [](const ROOT::RVec<float> &particle_pts,
                                const ROOT::RVec<float> &particle_etas,
                                const ROOT::RVec<float> &particle_phis,
                                const ROOT::RVec<float> &particle_masses,
-                               const ROOT::RVec<int> &goodmuons,
+                               const ROOT::RVec<int> &particle_charges,
                                const ROOT::RVec<int> &goodmuons_index) {
                                  std::vector<ROOT::Math::PtEtaPhiMVector> p4;
-                                 for (unsigned int k = 0; k < (int)ROOT::VecOps::Nonzero(goodmuons).size(); ++k) {
+                                 for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
                                     try {
                                         p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodmuons_index[k]),
                                                                          particle_etas.at(goodmuons_index[k]),
@@ -186,8 +199,12 @@ ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputn
                                  p4_2 = p4;
                                  for (unsigned int i = 0; i < p4_1.size(); ++i) {
                                      for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
-                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
+                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0) {
                                              continue; 
+                                         }
+                                         if ( particle_charges[goodmuons_index[i]] + particle_charges[goodmuons_index[j]] != 0 ) {
+                                             continue;
+                                         }
                                          float dimuon_mass = (p4_1[i] + p4_2[j]).mass();
                                          if (dimuon_mass >= 81.0 && dimuon_mass <= 101.0)
                                              return 0;
@@ -196,17 +213,15 @@ ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputn
                                  return 1;
                              };
     auto df1 = 
-        df.Define(outputname, pair_calc_mass, {particle_pts, particle_etas, particle_phis, particle_masses, goodmuons, goodmuons_index});
+        df.Define(outputname, pair_calc_mass, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, goodmuons_index});
     return df1;
 }
 ///
 ///
 ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &muon_charge,
-                                 const std::string &goodmuons,
                                  const std::string &goodmuons_index) {
     auto calc_charge_sum = [](const ROOT::RVec<int> &muon_charges, 
-                              const ROOT::RVec<int> &goodmuons,
                               const ROOT::RVec<int> &goodmuons_index) {
         int charge_sum = 0;
         // for (unsigned int i = 0; i < ele_charges.size(); ++i) {
@@ -214,7 +229,7 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         //         charge_sum += ele_charges[i];
         //     }
         // }
-        for (unsigned int i = 0; i < (int)ROOT::VecOps::Nonzero(goodmuons).size(); ++i) {
+        for (unsigned int i = 0; i < (int)goodmuons_index.size(); ++i) {
             if (!std::isnan(muon_charges[goodmuons_index[i]])) {
                 charge_sum += muon_charges[goodmuons_index[i]];
             }
@@ -224,7 +239,7 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         //         charge_sum += tau_charges[i];
         //     }
         // }
-        std::cout << "charge_sum :" << charge_sum << std::endl;
+        // std::cout << "charge_sum :" << charge_sum << std::endl;
         if (charge_sum == 1 || charge_sum == -1) {
             return 1;
         } else {
@@ -232,7 +247,7 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         }
     };
     auto df1 =
-        df.Define(outputname, calc_charge_sum, {muon_charge, goodmuons, goodmuons_index});
+        df.Define(outputname, calc_charge_sum, {muon_charge, goodmuons_index});
     return df1;
 }
 

@@ -14,7 +14,7 @@ CalcSmallestDileptonMass = Producer(
            nanoAOD.Muon_eta, 
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
-           q.good_muons_mask,
+           nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.smallest_dilepton_mass],
     scopes=["global","m2m"],
@@ -23,7 +23,6 @@ LeptonChargeSumVeto = Producer(
     name="LeptonChargeSumVeto",
     call='physicsobject::LeptonChargeSum({df}, {output}, {input})',
     input=[nanoAOD.Muon_charge,
-           q.good_muons_mask,
            q.good_muon_collection],
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands passed, 0 stands failed
     scopes=["global","e2m","m2m","2e2m","4m"],

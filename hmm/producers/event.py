@@ -157,7 +157,7 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_eta, 
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
-           q.good_muons_mask,
+           nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.dimuon_p4_byPt],
     scopes=["global","e2m","m2m","2e2m","4m"],
@@ -169,7 +169,7 @@ DiMuonMassFromZVeto = Producer(
            nanoAOD.Muon_eta, 
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
-           q.good_muons_mask,
+           nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.Flag_dimuon_Zmass_veto], # 1 stands for noZmass, 0 stands for has dimuon from Zmass
     scopes=["global","e2m","m2m","2e2m","4m"],
