@@ -63,3 +63,10 @@ BaseElectrons = ProducerGroup(
         ElectronSIP3DCut,
     ],
 )
+Ele_Veto = Producer(
+    name="Ele_Veto",
+    call="physicsobject::Ele_Veto({df}, {output}, {input})",
+    input=[q.base_electrons_mask],
+    output=[q.Flag_Ele_Veto],
+    scopes=["global","m2m","4m"],
+)

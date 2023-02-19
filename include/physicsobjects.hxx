@@ -33,6 +33,9 @@ ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputn
 ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &muon_charge,
                                  const std::string &goodmuons_index);
+ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df, 
+                    const std::string& output_name, 
+                    const std::string& base_ele_mask);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

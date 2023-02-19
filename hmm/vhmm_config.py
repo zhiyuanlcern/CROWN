@@ -364,6 +364,7 @@ def build_config(
             lepton.CalcSmallestDileptonMass,
             event.DileptonMassCut,
             lepton.LeptonChargeSumVeto,
+            electrons.Ele_Veto,
             # end
             muons.MuonCollection, # vh
             muons.LVMu1, # vh
@@ -425,6 +426,7 @@ def build_config(
             q.dimuon_p4_byPt,
             q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
+            q.Flag_Ele_Veto,
             # q.HiggsToMuMu_mask,
             # q.dimuon_p4_pt_byPt,
             # q.dimuon_p4_eta_byPt,

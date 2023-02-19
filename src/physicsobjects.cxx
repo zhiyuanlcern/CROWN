@@ -250,7 +250,21 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         df.Define(outputname, calc_charge_sum, {muon_charge, goodmuons_index});
     return df1;
 }
-
+/// m2m and 4m channel to veto electrons
+///
+ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df, 
+                    const std::string& output_name, 
+                    const std::string& base_ele_mask) {
+    auto veto_electrons = [](const ROOT::RVec<int>& ele_mask) {
+        if ((int)ROOT::VecOps::Nonzero(ele_mask).size() >= 1) {
+            return 0;
+        } else {
+            return 1;
+        }
+    };
+    auto df1 = df.Define(output_name, veto_electrons, {base_ele_mask});
+    return df1;
+}
 ///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
