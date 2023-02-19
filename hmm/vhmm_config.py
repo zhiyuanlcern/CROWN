@@ -200,6 +200,15 @@ def build_config(
             "muon_iso_cut": 0.15,
         },
     )
+    configuration.add_config_parameters(
+        ["e2m"],
+        {
+            "TODO_GoodElectron?": 1,
+            "min_muon_pt": 23.0,
+            "max_muon_eta": 2.1,
+            "muon_iso_cut": 0.15,
+        }
+    )
     # Muon scale factors configuration
     configuration.add_config_parameters(
         ["m2m"],
@@ -322,6 +331,15 @@ def build_config(
             # "dimuon_pair" : 1, # dimuon_pair in [110,150] >=1
         }
     )
+    # e2m cuts
+    configuration.add_config_parameters(
+        "e2m",
+        {
+            "vh_e2m_nmuons" : 2,
+            "vh_e2m_nelectrons" : 1,
+            "min_dilepton_mass" : 12,
+        }
+    )
 
     ## all scopes misc settings
     configuration.add_config_parameters(
@@ -359,10 +377,10 @@ def build_config(
             muons.NumberOfGoodMuons,
             event.FilterNMuons, # vh ==3 muons
             # write by botao
-            event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
-            event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
             lepton.CalcSmallestDileptonMass,
             event.DileptonMassCut,
+            event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
+            event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
             lepton.LeptonChargeSumVeto,
             electrons.Ele_Veto,
             # end
@@ -381,6 +399,27 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
         ],
+    )
+    configuration.add_producers(
+        "e2m",
+        [
+            muons.GoodMuons, # missing good muons selection in NOTE
+            muons.NumberOfGoodMuons,
+            event.FilterNMuons_e2m, # nmuons == 2
+            electrons.NumberOfBaseElectrons,
+            event.FilterNElectrons_e2m, # nelectrons == 1
+            ###
+            lepton.CalcSmallestDileptonMass,
+            event.DileptonMassCut,
+            event.HiggsToDiMuonPair_p4, # select the first dimuon pairs in [110,150] that ordered by pt
+            lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
+            ###
+            muons.MuonCollection,
+            muons.LVMu1,
+            muons.LVMu2,
+            electrons.ElectronCollection,
+            electrons.LVEle1,
+        ]
     )
 
     configuration.add_outputs(
@@ -432,6 +471,28 @@ def build_config(
             # q.dimuon_p4_eta_byPt,
             # q.dimuon_p4_phi_byPt,
             # q.dimuon_p4_mass_byPt,
+       ],
+    )
+    configuration.add_outputs(
+        "e2m",
+        [
+            q.is_data,
+            q.is_embedding,
+            q.is_ttbar,
+            q.is_dyjets,
+            q.is_wjets,
+            q.is_diboson,
+            nanoAOD.run,
+            q.lumi,
+            nanoAOD.event,
+            q.puweight,
+            q.nmuons,
+            q.muon_p4_1,
+            q.muon_p4_2,
+            q.nelectrons,
+            q.electron_p4_1,
+            q.smallest_dilepton_mass,
+            q.Flag_LeptonChargeSumVeto
        ],
     )
 

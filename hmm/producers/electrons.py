@@ -36,7 +36,7 @@ ElectronDzCut = Producer(
 )
 ElectronIDCut = Producer(
     name="ElectronIDCut",
-    call='physicsobject::electron::CutID({df}, {output}, "{ele_id}")',
+    call='physicsobject::electron::CutID({df}, {output}, "{ele_id}")', # notice here "{ele_id}"
     input=[],
     output=[],
     scopes=["global"],
@@ -63,10 +63,51 @@ BaseElectrons = ProducerGroup(
         ElectronSIP3DCut,
     ],
 )
+NumberOfBaseElectrons = Producer(
+    name="NumberOfBaseElectrons",
+    call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
+    input=[q.base_electrons_mask],
+    output=[q.nelectrons],
+    scopes=["e2m","m2m", "2e2m","4m"],
+)
 Ele_Veto = Producer(
     name="Ele_Veto",
     call="physicsobject::Ele_Veto({df}, {output}, {input})",
     input=[q.base_electrons_mask],
     output=[q.Flag_Ele_Veto],
     scopes=["global","m2m","4m"],
+)
+### Electron collection and their properties
+ElectronCollection = Producer(
+    name="ElectronCollection",
+    call="jet::OrderJetsByPt({df}, {output}, {input})",
+    input=[nanoAOD.Electron_pt, q.base_electrons_mask],
+    output=[q.base_electron_collection],
+    scopes=["e2m","2e2m"],
+)
+LVEle1 = Producer(
+    name="LVEle1",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.base_electron_collection,
+        nanoAOD.Electron_pt,
+        nanoAOD.Electron_eta,
+        nanoAOD.Electron_phi,
+        nanoAOD.Electron_mass,
+    ],
+    output=[q.electron_p4_1],
+    scopes=["e2m","2e2m"],
+)
+LVEle2 = Producer(
+    name="LVEle2",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.base_electron_collection,
+        nanoAOD.Electron_pt,
+        nanoAOD.Electron_eta,
+        nanoAOD.Electron_phi,
+        nanoAOD.Electron_mass,
+    ],
+    output=[q.electron_p4_2],
+    scopes=["2e2m"],
 )

@@ -242,6 +242,8 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         // std::cout << "charge_sum :" << charge_sum << std::endl;
         if (charge_sum == 1 || charge_sum == -1) {
             return 1;
+        } else if (charge_sum == 0) {
+            return 2;
         } else {
             return 0;
         }
@@ -250,6 +252,47 @@ ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputn
         df.Define(outputname, calc_charge_sum, {muon_charge, goodmuons_index});
     return df1;
 }
+///
+///
+ROOT::RDF::RNode LeptonChargeSumEleMu(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_charge,
+                                 const std::string &ele_charge,
+                                 const std::string &goodmuons_index,
+                                 const std::string &base_electrons_index) {
+    auto calc_charge_sum = [](const ROOT::RVec<int> &muon_charges,
+                              const ROOT::RVec<int> &ele_charges,
+                              const ROOT::RVec<int> &goodmuons_index,
+                              const ROOT::RVec<int> &base_electrons_index) {
+        int charge_sum = 0;
+        for (unsigned int i = 0; i < (int)base_electrons_index.size(); ++i) {
+            if (!std::isnan(ele_charges[base_electrons_index[i]])) {
+                charge_sum += ele_charges[base_electrons_index[i]];
+            }
+        }
+        for (unsigned int i = 0; i < (int)goodmuons_index.size(); ++i) {
+            if (!std::isnan(muon_charges[goodmuons_index[i]])) {
+                charge_sum += muon_charges[goodmuons_index[i]];
+            }
+        }
+        // for (unsigned int i = 0; i < tau_charges.size(); ++i) {
+        //     if (!std::isnan(tau_charges[i])) {
+        //         charge_sum += tau_charges[i];
+        //     }
+        // }
+        // std::cout << "charge_sum :" << charge_sum << std::endl;
+        if (charge_sum == 1 || charge_sum == -1) {
+            return 1;
+        } else if (charge_sum == 0) {
+            return 2;
+        } else {
+            return 0;
+        }
+    };
+    auto df1 =
+        df.Define(outputname, calc_charge_sum, {muon_charge, ele_charge, goodmuons_index, base_electrons_index});
+    return df1;
+}
+///
 /// m2m and 4m channel to veto electrons
 ///
 ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df, 

@@ -136,19 +136,33 @@ VetottHMediumB = Producer(
 
 FilterNMuons = Producer(
     name="FilterNMuons",
-    call='basefunctions::FilterThreshold({df}, {input}, {vh_m2m_nmuons}, ">=", "Number of muons 3")',
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_m2m_nmuons}, "==", "Number of muons 3")',
     input=[q.nmuons],
     output=None,
     scopes=["m2m"],
 )
 
 # write by botao
+FilterNMuons_e2m = Producer(
+    name="FilterNMuons_e2m",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_e2m_nmuons}, "==", "Number of muons 2 in e2m")',
+    input=[q.nmuons],
+    output=None,
+    scopes=["e2m"],
+)
+FilterNElectrons_e2m = Producer(
+    name="FilterNElectrons_e2m",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_e2m_nelectrons}, "==", "Number of electrons 1 in e2m")',
+    input=[q.nelectrons],
+    output=None,
+    scopes=["e2m"],
+)
 DileptonMassCut = Producer(
     name="DileptonMassCut",
     call='basefunctions::FilterThreshold({df}, {input}, {min_dilepton_mass}, ">=", "No mll < 12 GeV")',
     input=[q.smallest_dilepton_mass],
     output=None,
-    scopes=["global","m2m"],
+    scopes=["global","m2m","e2m"],
 )
 HiggsToDiMuonPair_p4 = Producer(
     name="HiggsToDiMuonPair_p4",

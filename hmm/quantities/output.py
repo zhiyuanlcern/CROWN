@@ -228,3 +228,8 @@ Flag_LeptonChargeSumVeto = Quantity("Flag_LeptonChargeSumVeto")
 Flag_Ele_Veto = Quantity("Flag_Ele_Veto")
 #HiggsToMuMu_mask = Quantity("HiggsToMuMu_mask")
 #dimuon_p4_HiggsCand = Quantity("dimuon_p4_HiggsCand")
+
+# e2m
+base_electron_collection = Quantity("base_electron_collection")
+electron_p4_1 = Quantity("electron_p4_1")
+electron_p4_2 = Quantity("electron_p4_2")

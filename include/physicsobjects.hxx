@@ -33,6 +33,11 @@ ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputn
 ROOT::RDF::RNode LeptonChargeSum(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &muon_charge,
                                  const std::string &goodmuons_index);
+ROOT::RDF::RNode LeptonChargeSumEleMu(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_charge,
+                                 const std::string &ele_charge,
+                                 const std::string &goodmuons_index,
+                                 const std::string &base_electrons_index);
 ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df, 
                     const std::string& output_name, 
                     const std::string& base_ele_mask);
