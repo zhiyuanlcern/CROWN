@@ -41,7 +41,13 @@ is_data = Producer(
     output=[q.is_data],
     scopes=["global"],
 )
-
+is_vhmm = Producer(
+    name="is_vhmm",
+    call="basefunctions::DefineQuantity({df}, {output}, {is_vhmm})",
+    input=[],
+    output=[q.is_vhmm],
+    scopes=["global"],
+)
 is_embedding = Producer(
     name="is_embedding",
     call="basefunctions::DefineQuantity({df}, {output}, {is_embedding})",
@@ -91,6 +97,7 @@ SampleFlags = ProducerGroup(
         is_dyjets,
         is_wjets,
         is_diboson,
+        is_vhmm,
     ],
 )
 
@@ -164,6 +171,13 @@ DileptonMassCut = Producer(
     output=None,
     scopes=["global","m2m","e2m"],
 )
+Flag_DiMuonFromHiggs = Producer(
+    name="Flag_DiMuonFromHiggs",
+    call='physicsobject::DiMuonFromHiggs({df}, {output}, {input})',
+    input=[q.dimuon_HiggsCand_collection],
+    output=[q.Flag_DiMuonFromHiggs],
+    scopes=["global","e2m","m2m","2e2m","4m"],
+)
 HiggsToDiMuonPair_p4 = Producer(
     name="HiggsToDiMuonPair_p4",
     call='physicsobject::HiggsToDiMuonPairCollection({df}, {output}, {input})',
@@ -171,8 +185,7 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_eta, 
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
-           nanoAOD.Muon_charge,
-           q.good_muon_collection],
+           q.dimuon_HiggsCand_collection],
     output=[q.dimuon_p4_byPt],
     scopes=["global","e2m","m2m","2e2m","4m"],
 )
@@ -188,13 +201,18 @@ DiMuonMassFromZVeto = Producer(
     output=[q.Flag_dimuon_Zmass_veto], # 1 stands for noZmass, 0 stands for has dimuon from Zmass
     scopes=["global","e2m","m2m","2e2m","4m"],
 )
-# Mask_DiMuonPair = Producer(
-#     name="Mask_DiMuonPair",
-#     call='physicsobject::HiggsToMuMu_Cand({df}, {output}, {input})',
-#     input=[q.dimuon_p4_byPt],
-#     output=[q.HiggsToMuMu_mask],
-#     scopes=["global","e2m","m2m","2e2m","4m"],
-# )
+Mask_DiMuonPair = Producer(
+    name="Mask_DiMuonPair",
+    call='physicsobject::HiggsCandDiMuonPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           nanoAOD.Muon_charge,
+           q.good_muon_collection],
+    output=[q.dimuon_HiggsCand_collection], # index about the two selected muons may from Higgs
+    scopes=["global","e2m","m2m","2e2m","4m"],
+)
 # HiggsToDiMuonCand = Producer(
 #     name="HiggsToDiMuonCand",
 #     call='physicsobject::GetFirstElement({df}, {input}, {output})',

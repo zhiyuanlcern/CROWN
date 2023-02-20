@@ -48,6 +48,20 @@ ElectronSIP3DCut = Producer(
     output=[],
     scopes=["global"],
 )
+ElectronConvVeto = Producer(
+    name="ElectronConvVeto",
+    call='physicsobject::electron::CutID({df}, {output}, "{ele_conv_veto}")',
+    input=[],
+    output=[],
+    scopes=["global"],
+)
+ElectronMissingHitsCut = Producer(
+    name="ElectronMissingHitsCut",
+    call="physicsobject::CutVarMax({df}, {input}, {output}, {ele_missing_hits})",
+    input=[nanoAOD.Electron_lostHits],
+    output=[],
+    scopes=["global"],
+)
 BaseElectrons = ProducerGroup(
     name="BaseElectrons",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
@@ -61,6 +75,8 @@ BaseElectrons = ProducerGroup(
         ElectronDzCut,
         ElectronIDCut,
         ElectronSIP3DCut,
+        ElectronConvVeto,
+        ElectronMissingHitsCut,
     ],
 )
 NumberOfBaseElectrons = Producer(

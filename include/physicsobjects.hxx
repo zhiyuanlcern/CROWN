@@ -16,13 +16,14 @@ ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnNa
                               const float &lowerThresholdBarrel,
                               const float &upperThresholdBarrel,
                               const float &lowerThresholdEndcap);
+ROOT::RDF::RNode DiMuonFromHiggs(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &dimuons_index);
 ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &particle_pts,
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &particle_charges,
-                                 const std::string &goodmuons_index);
+                                 const std::string &dimuons_index);
 ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &particle_pts,
                                  const std::string &particle_etas,
@@ -41,6 +42,13 @@ ROOT::RDF::RNode LeptonChargeSumEleMu(ROOT::RDF::RNode df, const std::string &ou
 ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df, 
                     const std::string& output_name, 
                     const std::string& base_ele_mask);
+ROOT::RDF::RNode HiggsCandDiMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &particle_charges,
+                                 const std::string &goodmuons_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

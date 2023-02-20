@@ -105,69 +105,59 @@ ROOT::RDF::RNode ECalGapVeto(ROOT::RDF::RNode df, const std::string &etaColumnNa
     return df1;
 }
 ///
+/// function to make a flag that if exist dimuon pair from Higgs
+ROOT::RDF::RNode DiMuonFromHiggs(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &dimuons_index) {
+    auto HiggsCand_Flag = [](const ROOT::RVec<int> &dimuons_index) {
+                                 ROOT::Math::PtEtaPhiMVector p4_dimuon;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( dimuons_index.at(0) == -1 || dimuons_index.at(1) == -1 ) {
+                                    return 0;
+                                 } else { // else exist a dimuon pair that may from Higgs
+                                    return 1;
+                                 }
+                             };
+    auto df1 = 
+        df.Define(outputname, HiggsCand_Flag, {dimuons_index});
+    return df1;
+}
 /// function to pick dimuon pair from Higgs
 ROOT::RDF::RNode HiggsToDiMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &particle_pts,
                                  const std::string &particle_etas,
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
-                                 const std::string &particle_charges,
-                                 const std::string &goodmuons_index) {
-    auto pair_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
-                               const ROOT::RVec<float> &particle_etas,
-                               const ROOT::RVec<float> &particle_phis,
-                               const ROOT::RVec<float> &particle_masses,
-                               const ROOT::RVec<int> &particle_charges,
-                               const ROOT::RVec<int> &goodmuons_index) {
-                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
-                                 for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
-                                    try {
-                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodmuons_index[k]), 
-                                                                         particle_etas.at(goodmuons_index[k]),
-                                                                         particle_phis.at(goodmuons_index[k]),
-                                                                         particle_masses.at(goodmuons_index[k])));
-                                    } catch (const std::out_of_range &e) {
-                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
-                                    }
-                                 }
-                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_1;
-                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_2;
-                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_dileptonsystem;
+                                 const std::string &dimuons_index) {
+    auto dimuon_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
+                                 const ROOT::RVec<float> &particle_etas,
+                                 const ROOT::RVec<float> &particle_phis,
+                                 const ROOT::RVec<float> &particle_masses,
+                                 const ROOT::RVec<int> &dimuons_index) {
                                  ROOT::Math::PtEtaPhiMVector p4_dimuon;
-                                 p4_1 = p4;
-                                 p4_2 = p4;
-                                 std::vector<float> masses;
-                                 for (unsigned int i = 0; i < p4_1.size(); ++i) {
-                                     for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
-                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
-                                             continue; 
-                                         /// need opposite sign dimuons
-                                         if ( particle_charges[goodmuons_index[i]] + particle_charges[goodmuons_index[j]] != 0 ) {
-                                             continue;
-                                         }
-                                         /// Add dimuon mass window
-                                         if ( (p4_1[i] + p4_2[j]).mass() >= 110 && (p4_1[i] + p4_2[j]).mass() <= 150 )
-                                             p4_dileptonsystem.push_back( p4_1[i] + p4_2[j] );
-                                     }
-                                 }
-                                 std::sort( p4_dileptonsystem.begin(), p4_dileptonsystem.end(),
-                                     [](const ROOT::Math::PtEtaPhiMVector &a, const ROOT::Math::PtEtaPhiMVector &b) {
-                                        return a.pt() > b.pt();
-                                     });
-                                 /// maybe can return two part TODO
-                                 if (p4_dileptonsystem.size() > 0) {
-                                    p4_dimuon = p4_dileptonsystem[0];
-                                    return p4_dimuon;
-                                 } else {
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( dimuons_index.at(0) == -1 || dimuons_index.at(1) == -1 ) {
                                     return ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float,default_float);
+                                 } else {
+                                    // int leading    mu1 = dimuons_index[0];
+                                    // int subleading mu2 = dimuons_index[1];
+                                    for (unsigned int k = 0; k < (int)dimuons_index.size(); ++k) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(dimuons_index[k]),
+                                                                                particle_etas.at(dimuons_index[k]),
+                                                                                particle_phis.at(dimuons_index[k]),
+                                                                                particle_masses.at(dimuons_index[k])));
+                                    }
+                                    p4_dimuon = ROOT::Math::PtEtaPhiMVector((p4[0]+p4[1]).pt(),
+                                                                            (p4[0]+p4[1]).eta(),
+                                                                            (p4[0]+p4[1]).phi(),
+                                                                            (p4[0]+p4[1]).mass());
+                                    return p4_dimuon;
                                  }
-                                 ///p4_dimuon = p4_dileptonsystem[0];
-                                 ///return p4_dimuon; /// return dimuon_pair_p4 order by pt
                              };
     auto df1 = 
-        df.Define(outputname, pair_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, goodmuons_index});
+        df.Define(outputname, dimuon_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, dimuons_index});
     return df1;
 }
+///
 ///
 ROOT::RDF::RNode DiMuonFromZVeto(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &particle_pts,
@@ -308,6 +298,73 @@ ROOT::RDF::RNode Ele_Veto(ROOT::RDF::RNode df,
     auto df1 = df.Define(output_name, veto_electrons, {base_ele_mask});
     return df1;
 }
+///
+///
+/// function to pick dimuon pair from Higgs
+ROOT::RDF::RNode HiggsCandDiMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &particle_charges,
+                                 const std::string &goodmuons_index) {
+    auto pair_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
+                               const ROOT::RVec<float> &particle_etas,
+                               const ROOT::RVec<float> &particle_phis,
+                               const ROOT::RVec<float> &particle_masses,
+                               const ROOT::RVec<int> &particle_charges,
+                               const ROOT::RVec<int> &goodmuons_index) {
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
+                                    try {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodmuons_index[k]),  ///goodmuons_index[k] points to the good muon index k
+                                                                         particle_etas.at(goodmuons_index[k]),          // k = 0, points to goodmuon_index[0]
+                                                                         particle_phis.at(goodmuons_index[k]),          // k ,points to goodmuon_index[k]
+                                                                         particle_masses.at(goodmuons_index[k])));      // index what I want is goodmuon_index[k] k,i or j
+                                    } catch (const std::out_of_range &e) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
+                                    }
+                                 }
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_1;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_2;
+                                 p4_1 = p4;
+                                 p4_2 = p4;
+                                 float ptsum = -1;
+                                 int index1 = -1,index2 = -1;
+                                 for (unsigned int i = 0; i < p4_1.size(); ++i) {
+                                     for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
+                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
+                                             continue; 
+                                         /// need opposite sign dimuons
+                                         if ( particle_charges[goodmuons_index[i]] + particle_charges[goodmuons_index[j]] != 0 ) {
+                                             continue;
+                                         }
+                                         /// Add dimuon mass window
+                                         if ( (p4_1[i] + p4_2[j]).mass() < 110 || (p4_1[i] + p4_2[j]).mass() > 150 ) {
+                                             continue;
+                                         }
+                                         if ( p4_1[i].pt() + p4_2[j].pt() > ptsum) {
+                                             ptsum = p4_1[i].pt() + p4_2[j].pt();
+                                             if ( p4_1[i].pt() > p4_1[j].pt() ) {
+                                                index1 = goodmuons_index[i];
+                                                index2 = goodmuons_index[j];
+                                             } else {
+                                                index1 = goodmuons_index[j];
+                                                index2 = goodmuons_index[i]; /// need to return the index1 and index2 as goodmuons pair collection.
+                                             }
+                                         }
+                                     }
+                                 }
+                                 ROOT::RVec<int> DiMuonPair = {index1, index2};
+                                 return DiMuonPair;
+                                 ///p4_dimuon = p4_dileptonsystem[0];
+                                 ///return p4_dimuon; /// return dimuon_pair_p4 order by pt
+                             };
+    auto df1 = 
+        df.Define(outputname, pair_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, goodmuons_index});
+    return df1;
+}
+///
 ///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,

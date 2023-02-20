@@ -185,6 +185,8 @@ def build_config(
             "max_ele_dxy": 0.05,
             "max_ele_dz": 0.10,
             "ele_id": "Electron_mvaFall17V2noIso_WP90", 
+            "ele_conv_veto": "Electron_convVeto",
+            "ele_missing_hits": 2,
             # also need max_sip3d
             # "min_lepmva": 0.4,
         }
@@ -379,7 +381,11 @@ def build_config(
             # write by botao
             lepton.CalcSmallestDileptonMass,
             event.DileptonMassCut,
+            ###
+            event.Mask_DiMuonPair,
+            event.Flag_DiMuonFromHiggs,
             event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
+            ###
             event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
             lepton.LeptonChargeSumVeto,
             electrons.Ele_Veto,
@@ -411,7 +417,11 @@ def build_config(
             ###
             lepton.CalcSmallestDileptonMass,
             event.DileptonMassCut,
+            ###
+            event.Mask_DiMuonPair,
+            event.Flag_DiMuonFromHiggs,
             event.HiggsToDiMuonPair_p4, # select the first dimuon pairs in [110,150] that ordered by pt
+            ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
             ###
             muons.MuonCollection,
@@ -431,6 +441,7 @@ def build_config(
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
+            q.is_vhmm,
             nanoAOD.run,
             q.lumi,
             nanoAOD.event,
@@ -466,6 +477,7 @@ def build_config(
             q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
+            q.Flag_DiMuonFromHiggs,
             # q.HiggsToMuMu_mask,
             # q.dimuon_p4_pt_byPt,
             # q.dimuon_p4_eta_byPt,
@@ -482,6 +494,7 @@ def build_config(
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
+            q.is_vhmm,
             nanoAOD.run,
             q.lumi,
             nanoAOD.event,
@@ -492,7 +505,9 @@ def build_config(
             q.nelectrons,
             q.electron_p4_1,
             q.smallest_dilepton_mass,
-            q.Flag_LeptonChargeSumVeto
+            q.Flag_LeptonChargeSumVeto,
+            q.dimuon_p4_byPt,
+            q.Flag_DiMuonFromHiggs,
        ],
     )
 

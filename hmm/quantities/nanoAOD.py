@@ -46,6 +46,8 @@ Electron_indexToGen = NanoAODQuantity("Electron_genPartIdx")
 # write by botao
 Electron_sip3d = NanoAODQuantity("Electron_sip3d")
 Electron_mvaFall17V2noIso_WP90 = NanoAODQuantity("Electron_mvaFall17V2noIso_WP90")
+Electron_convVeto = NanoAODQuantity("Electron_convVeto")
+Electron_lostHits = NanoAODQuantity("Electron_lostHits")
 # end write
 
 GenJet_pt = NanoAODQuantity("GenJet_pt")
