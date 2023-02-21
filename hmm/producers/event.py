@@ -150,6 +150,7 @@ FilterNMuons = Producer(
 )
 
 # write by botao
+### e2m
 FilterNMuons_e2m = Producer(
     name="FilterNMuons_e2m",
     call='basefunctions::FilterThreshold({df}, {input}, {vh_e2m_nmuons}, "==", "Number of muons 2 in e2m")',
@@ -164,19 +165,42 @@ FilterNElectrons_e2m = Producer(
     output=None,
     scopes=["e2m"],
 )
-DileptonMassCut = Producer(
-    name="DileptonMassCut",
-    call='basefunctions::FilterThreshold({df}, {input}, {min_dilepton_mass}, ">=", "No mll < 12 GeV")',
-    input=[q.smallest_dilepton_mass],
+###  2e2m
+FilterNMuons_2e2m = Producer(
+    name="FilterNMuons_2e2m",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_2e2m_nmuons}, "==", "Number of muons 2 in 2e2m")',
+    input=[q.nmuons],
     output=None,
-    scopes=["global","m2m","e2m"],
+    scopes=["eemm"],
 )
+FilterNElectrons_2e2m = Producer(
+    name="FilterNElectrons_2e2m",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_2e2m_nelectrons}, "==", "Number of electrons 2 in 2e2m")',
+    input=[q.nelectrons],
+    output=None,
+    scopes=["eemm"],
+)
+DimuonMinMassCut = Producer(
+    name="DimuonMinMassCut",
+    call='basefunctions::FilterThreshold({df}, {input}, {min_dimuon_mass}, ">=", "No m(mm) < 12 GeV")',
+    input=[q.smallest_dimuon_mass],
+    output=None,
+    scopes=["global","m2m","e2m","eemm","mmmm"],
+)
+DielectronMinMassCut = Producer(
+    name="DielectronMinMassCut",
+    call='basefunctions::FilterThreshold({df}, {input}, {min_dielectron_mass}, ">=", "No m(ee) < 12 GeV")',
+    input=[q.smallest_dielectron_mass],
+    output=None,
+    scopes=["global","eemm"],
+)
+#
 Flag_DiMuonFromHiggs = Producer(
     name="Flag_DiMuonFromHiggs",
     call='physicsobject::DiMuonFromHiggs({df}, {output}, {input})',
     input=[q.dimuon_HiggsCand_collection],
     output=[q.Flag_DiMuonFromHiggs],
-    scopes=["global","e2m","m2m","2e2m","4m"],
+    scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 HiggsToDiMuonPair_p4 = Producer(
     name="HiggsToDiMuonPair_p4",
@@ -187,7 +211,7 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_mass,
            q.dimuon_HiggsCand_collection],
     output=[q.dimuon_p4_byPt],
-    scopes=["global","e2m","m2m","2e2m","4m"],
+    scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 DiMuonMassFromZVeto = Producer(
     name="DiMuonMassFromZVeto",
@@ -199,7 +223,7 @@ DiMuonMassFromZVeto = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.Flag_dimuon_Zmass_veto], # 1 stands for noZmass, 0 stands for has dimuon from Zmass
-    scopes=["global","e2m","m2m","2e2m","4m"],
+    scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 Mask_DiMuonPair = Producer(
     name="Mask_DiMuonPair",
@@ -211,12 +235,12 @@ Mask_DiMuonPair = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.dimuon_HiggsCand_collection], # index about the two selected muons may from Higgs
-    scopes=["global","e2m","m2m","2e2m","4m"],
+    scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 # HiggsToDiMuonCand = Producer(
 #     name="HiggsToDiMuonCand",
 #     call='physicsobject::GetFirstElement({df}, {input}, {output})',
 #     input=[q.dimuon_p4_byPt],
 #     output=[q.dimuon_p4_HiggsCand],
-#     scopes=["global","e2m","m2m","2e2m","4m"],
+#     scopes=["global","e2m","m2m","eemm","mmmm"],
 # )

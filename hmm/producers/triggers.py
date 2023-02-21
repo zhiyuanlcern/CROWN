@@ -20,6 +20,6 @@ GenerateSingleMuonTriggerFlags = ExtendedVectorProducer(
         nanoAOD.TriggerObject_phi,
     ],
     output="flagname",
-    scope=["e2m","m2m", "2e2m","4m"],
+    scope=["e2m","m2m", "eemm","mmmm"],
     vec_config="singlemuon_trigger",
 )

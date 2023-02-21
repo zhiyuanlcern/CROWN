@@ -7,8 +7,9 @@ from code_generation.producer import Producer, ProducerGroup
 # Set of producers used for select the smallest mass of di-lepton
 ####################
 
-CalcSmallestDileptonMass = Producer(
-    name="CalcSmallestDileptonMass",
+# dilepton mass > 12 GeV need SFOS
+CalcSmallestDiMuonMass = Producer(
+    name="CalcSmallestDiMuonMass",
     call='physicsobject::M_dileptonMass({df}, {output}, {input})',
     input=[nanoAOD.Muon_pt,
            nanoAOD.Muon_eta, 
@@ -16,8 +17,20 @@ CalcSmallestDileptonMass = Producer(
            nanoAOD.Muon_mass,
            nanoAOD.Muon_charge,
            q.good_muon_collection],
-    output=[q.smallest_dilepton_mass],
-    scopes=["global","m2m","e2m"],
+    output=[q.smallest_dimuon_mass],
+    scopes=["global","m2m","e2m","eemm","mmmm"],
+)
+CalcSmallestDiElectronMass = Producer(
+    name="CalcSmallestDiElectronMass",
+    call='physicsobject::M_dileptonMass({df}, {output}, {input})',
+    input=[nanoAOD.Electron_pt,
+           nanoAOD.Electron_eta, 
+           nanoAOD.Electron_phi, 
+           nanoAOD.Electron_mass,
+           nanoAOD.Electron_charge,
+           q.base_electron_collection],
+    output=[q.smallest_dielectron_mass],
+    scopes=["global","eemm"],
 )
 LeptonChargeSumVeto = Producer(
     name="LeptonChargeSumVeto",
@@ -25,7 +38,7 @@ LeptonChargeSumVeto = Producer(
     input=[nanoAOD.Muon_charge,  # only in m2m and 4m can input only muon charge
            q.good_muon_collection],
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands pm1, 2 stands 0, 0 stands others
-    scopes=["global","m2m","4m"],
+    scopes=["global","m2m","mmmm"],
 )
 LeptonChargeSumVeto_elemu = Producer(
     name="LeptonChargeSumVeto_elemu",
@@ -35,5 +48,5 @@ LeptonChargeSumVeto_elemu = Producer(
            q.good_muon_collection,
            q.base_electron_collection],
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands pm1, 2 stands 0, 0 stands others
-    scopes=["global","e2m","2e2m"],
+    scopes=["global","e2m","eemm"],
 )

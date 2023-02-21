@@ -221,7 +221,8 @@ iso_wgt_mu_1 = Quantity("iso_wgt_mu_1")
 iso_wgt_mu_2 = Quantity("iso_wgt_mu_2")
 
 # write by botao
-smallest_dilepton_mass = Quantity("smallest_dilepton_mass")
+smallest_dimuon_mass = Quantity("smallest_dimuon_mass")
+smallest_dielectron_mass = Quantity("smallest_dielectron_mass")
 dimuon_p4_byPt = Quantity("dimuon_p4_byPt")
 Flag_dimuon_Zmass_veto = Quantity("Flag_dimuon_Zmass_veto")
 Flag_LeptonChargeSumVeto = Quantity("Flag_LeptonChargeSumVeto")
