@@ -365,6 +365,121 @@ ROOT::RDF::RNode HiggsCandDiMuonPairCollection(ROOT::RDF::RNode df, const std::s
     return df1;
 }
 ///
+/// need Zee mass cut in [70,110]
+ROOT::RDF::RNode ZCandDiElectronPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &particle_charges,
+                                 const std::string &base_electrons_index) {
+    auto pair_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
+                               const ROOT::RVec<float> &particle_etas,
+                               const ROOT::RVec<float> &particle_phis,
+                               const ROOT::RVec<float> &particle_masses,
+                               const ROOT::RVec<int> &particle_charges,
+                               const ROOT::RVec<int> &base_electrons_index) {
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 for (unsigned int k = 0; k < (int)base_electrons_index.size(); ++k) {
+                                    try {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(base_electrons_index[k]),
+                                                                         particle_etas.at(base_electrons_index[k]),         
+                                                                         particle_phis.at(base_electrons_index[k]),          
+                                                                         particle_masses.at(base_electrons_index[k])));      
+                                    } catch (const std::out_of_range &e) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
+                                    }
+                                 }
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_1;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4_2;
+                                 p4_1 = p4;
+                                 p4_2 = p4;
+                                 float ptsum = -1;
+                                 int index1 = -1,index2 = -1;
+                                 for (unsigned int i = 0; i < p4_1.size(); ++i) {
+                                     for (unsigned int j = i + 1; j < p4_2.size(); ++j) {
+                                         if (p4_1[i].pt() < 0.0 || p4_2[j].pt() < 0.0)
+                                             continue; 
+                                         /// need opposite sign dimuons
+                                         if ( particle_charges[base_electrons_index[i]] + particle_charges[base_electrons_index[j]] != 0 ) {
+                                             continue;
+                                         }
+                                         /// Add dimuon mass window
+                                         if ( (p4_1[i] + p4_2[j]).mass() < 70 || (p4_1[i] + p4_2[j]).mass() > 110 ) {
+                                             continue;
+                                         }
+                                         if ( p4_1[i].pt() + p4_2[j].pt() > ptsum) {
+                                             ptsum = p4_1[i].pt() + p4_2[j].pt();
+                                             if ( p4_1[i].pt() > p4_1[j].pt() ) {
+                                                index1 = base_electrons_index[i];
+                                                index2 = base_electrons_index[j];
+                                             } else {
+                                                index1 = base_electrons_index[j];
+                                                index2 = base_electrons_index[i]; /// need to return the index1 and index2 as goodmuons pair collection.
+                                             }
+                                         }
+                                     }
+                                 }
+                                 ROOT::RVec<int> DiElectronPair = {index1, index2};
+                                 return DiElectronPair;
+                             };
+    auto df1 = 
+        df.Define(outputname, pair_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, particle_charges, base_electrons_index});
+    return df1;
+}
+/// function to make a flag that if exist dielectron pair from Z
+ROOT::RDF::RNode DiEleFromZ(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &dielectrons_index) {
+    auto ZCand_Flag = [](const ROOT::RVec<int> &dielectrons_index) {
+                                 ROOT::Math::PtEtaPhiMVector p4_dimuon;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( dielectrons_index.at(0) == -1 || dielectrons_index.at(1) == -1 ) {
+                                    return 0;
+                                 } else { // else exist a diele pair that may from Z
+                                    return 1;
+                                 }
+                             };
+    auto df1 = 
+        df.Define(outputname, ZCand_Flag, {dielectrons_index});
+    return df1;
+}
+/// function to pick dimuon pair from Higgs
+ROOT::RDF::RNode ZToDiElectronPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &dielectrons_index) {
+    auto dielectron_calc_p4byPt = [](const ROOT::RVec<float> &particle_pts,
+                                 const ROOT::RVec<float> &particle_etas,
+                                 const ROOT::RVec<float> &particle_phis,
+                                 const ROOT::RVec<float> &particle_masses,
+                                 const ROOT::RVec<int> &dielectrons_index) {
+                                 ROOT::Math::PtEtaPhiMVector p4_diele;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( dielectrons_index.at(0) == -1 || dielectrons_index.at(1) == -1 ) {
+                                    return ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float,default_float);
+                                 } else {
+                                    // int leading    ele1 = dielectrons_index[0];
+                                    // int subleading ele2 = dielectrons_index[1];
+                                    for (unsigned int k = 0; k < (int)dielectrons_index.size(); ++k) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(dielectrons_index[k]),
+                                                                                particle_etas.at(dielectrons_index[k]),
+                                                                                particle_phis.at(dielectrons_index[k]),
+                                                                                particle_masses.at(dielectrons_index[k])));
+                                    }
+                                    p4_diele = ROOT::Math::PtEtaPhiMVector((p4[0]+p4[1]).pt(),
+                                                                            (p4[0]+p4[1]).eta(),
+                                                                            (p4[0]+p4[1]).phi(),
+                                                                            (p4[0]+p4[1]).mass());
+                                    return p4_diele;
+                                 }
+                             };
+    auto df1 = 
+        df.Define(outputname, dielectron_calc_p4byPt, {particle_pts, particle_etas, particle_phis, particle_masses, dielectrons_index});
+    return df1;
+}
+///
 ///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,

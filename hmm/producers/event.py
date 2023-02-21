@@ -202,6 +202,15 @@ Flag_DiMuonFromHiggs = Producer(
     output=[q.Flag_DiMuonFromHiggs],
     scopes=["global","e2m","m2m","eemm","mmmm"],
 )
+### need a collection that di_ele after cut
+Flag_DiEleFromZ = Producer(
+    name="Flag_DiEleFromZ",
+    call='physicsobject::DiEleFromZ({df}, {output}, {input})',
+    input=[q.dielectron_ZCand_collection], # in eemm, dielectron_ZCand_collection need to be 2
+    output=[q.Flag_DiEleFromZ],
+    scopes=["global","eemm"],
+)
+###
 HiggsToDiMuonPair_p4 = Producer(
     name="HiggsToDiMuonPair_p4",
     call='physicsobject::HiggsToDiMuonPairCollection({df}, {output}, {input})',
@@ -211,6 +220,17 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_mass,
            q.dimuon_HiggsCand_collection],
     output=[q.dimuon_p4_byPt],
+    scopes=["global","e2m","m2m","eemm","mmmm"],
+)
+ZToDiElectronPair_p4 = Producer(
+    name="ZToDiElectronPair_p4",
+    call='physicsobject::ZToDiElectronPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Electron_pt,
+           nanoAOD.Electron_eta, 
+           nanoAOD.Electron_phi, 
+           nanoAOD.Electron_mass,
+           q.dielectron_ZCand_collection],
+    output=[q.dielectron_p4_byPt],
     scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 DiMuonMassFromZVeto = Producer(
@@ -236,6 +256,18 @@ Mask_DiMuonPair = Producer(
            q.good_muon_collection],
     output=[q.dimuon_HiggsCand_collection], # index about the two selected muons may from Higgs
     scopes=["global","e2m","m2m","eemm","mmmm"],
+)
+Mask_DiElectronPair = Producer(
+    name="Mask_DiElectronPair",
+    call='physicsobject::ZCandDiElectronPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Electron_pt,
+           nanoAOD.Electron_eta,
+           nanoAOD.Electron_phi,
+           nanoAOD.Electron_mass,
+           nanoAOD.Electron_charge,
+           q.base_electron_collection],
+    output=[q.dielectron_ZCand_collection], # index about the two selected electrons may from Z boson
+    scopes=["eemm"],
 )
 # HiggsToDiMuonCand = Producer(
 #     name="HiggsToDiMuonCand",

@@ -235,5 +235,8 @@ dimuon_HiggsCand_collection = Quantity("dimuon_HiggsCand_collection")
 
 # e2m
 base_electron_collection = Quantity("base_electron_collection")
+dielectron_ZCand_collection = Quantity("dielectron_ZCand_collection")
 electron_p4_1 = Quantity("electron_p4_1")
 electron_p4_2 = Quantity("electron_p4_2")
+Flag_DiEleFromZ = Quantity("Flag_DiEleFromZ")
+dielectron_p4_byPt = Quantity("dielectron_p4_byPt")

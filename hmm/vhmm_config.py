@@ -219,6 +219,14 @@ def build_config(
             "muon_iso_cut": 0.15,
         }
     )
+    configuration.add_config_parameters(
+        ["mmmm"],
+        {
+            "min_muon_pt": 23.0,
+            "max_muon_eta": 2.1,
+            "muon_iso_cut": 0.15,
+        }
+    )
     # Muon scale factors configuration
     configuration.add_config_parameters(
         ["m2m"],
@@ -359,6 +367,13 @@ def build_config(
             "min_dielectron_mass" : 12,
         }
     )
+    configuration.add_config_parameters(
+        "mmmm",
+        {
+            "vh_4m_nmuons" : 4,
+            "min_dimuon_mass" : 12,
+        }
+    )
 
     ## all scopes misc settings
     configuration.add_config_parameters(
@@ -459,7 +474,7 @@ def build_config(
             ###
             electrons.NumberOfBaseElectrons,
             event.FilterNElectrons_2e2m,
-            electrons.ElectronCollection, # collect ordered by pt
+            electrons.ElectronCollection, # collect ordered by pt (2 electrons)
             ###
             lepton.CalcSmallestDiMuonMass,  # both dimuon and diele
             lepton.CalcSmallestDiElectronMass,
@@ -470,8 +485,11 @@ def build_config(
             event.Flag_DiMuonFromHiggs,
             event.HiggsToDiMuonPair_p4, # select the first dimuon pairs in [110,150] that ordered by pt
             ###
+            event.Mask_DiElectronPair,
+            event.Flag_DiEleFromZ,  ### need ZCand m(ee) in [70,110]
+            event.ZToDiElectronPair_p4,
+            ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
-            ### need ZCand mll in [81,101]
             ###
             muons.LVMu1,
             muons.LVMu2,
@@ -582,7 +600,9 @@ def build_config(
             q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
             q.dimuon_p4_byPt,
+            q.dielectron_p4_byPt,
             q.Flag_DiMuonFromHiggs,
+            q.Flag_DiEleFromZ,
        ],
     )
 
