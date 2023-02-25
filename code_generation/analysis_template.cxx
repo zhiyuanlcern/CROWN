@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
-    double_t sumofweight = 0;
+    float_t sumofweight = 0;
     Logger::get("main")->info("Checking input files");
     for (int i = 2; i < argc; i++) {
         input_files.push_back(std::string(argv[i]));
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         }
         TTree *t1 = (TTree *)f1->Get("Events");
         TTree *t2 = (TTree *)f1->Get("Runs");
-        double_t variable;
+        float_t variable;
         t2->SetBranchAddress("genEventSumw", &variable);
         t2->GetEntry(0);
 
