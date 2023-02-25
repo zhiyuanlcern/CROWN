@@ -64,8 +64,16 @@ int main(int argc, char *argv[]) {
         }
         TTree *t1 = (TTree *)f1->Get("Events");
         nevents += t1->GetEntries();
+        TTree *t2 = (TTree *)f1->Get("Runs");
+        Double_t variable;
+        t2->SetBranchAddress("genEventSumw", &variable);
+        t2->GetEntry(0);
+        sumofweight += variable;
+
         Logger::get("main")->info("input_file {}: {} - {} Events", i - 1,
                                   argv[i], t1->GetEntries());
+        Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
+                                  argv[i], variable);  
     }
     const auto output_path = argv[1];
     Logger::get("main")->info("Output directory: {}", output_path);
@@ -126,6 +134,7 @@ int main(int argc, char *argv[]) {
         conditions_meta.Branch(config.c_str(), &setup_clean);
         conditions_meta.Branch(era.c_str(), &setup_clean);
         conditions_meta.Branch(sample.c_str(), &setup_clean);
+        conditions_meta.Branch(genEventSumw.c_str(), &sumofweight);
         conditions_meta.Write();
         TTree commit_meta = TTree("commit", "commit");
         commit_meta.Branch(commit_hash.c_str(), &setup_clean);
