@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
+    Double_t sumofweight = 0;
     Logger::get("main")->info("Checking input files");
     for (int i = 2; i < argc; i++) {
         input_files.push_back(std::string(argv[i]));
@@ -111,6 +112,7 @@ int main(int argc, char *argv[]) {
     const std::string era = {ERATAG};
     const std::string sample = {SAMPLETAG};
     const std::string commit_hash = {COMMITHASH};
+    const std::string genEventSumw = "genEventSumw";
     bool setup_clean = {CROWN_IS_CLEAN};
     const std::string analysis_commit_hash = {ANALYSIS_COMMITHASH};
     bool analysis_setup_clean = {ANALYSIS_IS_CLEAN};
@@ -135,6 +137,7 @@ int main(int argc, char *argv[]) {
         conditions_meta.Branch(era.c_str(), &setup_clean);
         conditions_meta.Branch(sample.c_str(), &setup_clean);
         conditions_meta.Branch(genEventSumw.c_str(), &sumofweight);
+        conditions_meta.Fill();
         conditions_meta.Write();
         TTree commit_meta = TTree("commit", "commit");
         commit_meta.Branch(commit_hash.c_str(), &setup_clean);
