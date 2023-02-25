@@ -180,6 +180,13 @@ FilterNElectrons_2e2m = Producer(
     output=None,
     scopes=["eemm"],
 )
+FilterNMuons_4m = Producer(
+    name="FilterNMuons_4m",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_4m_nmuons}, "==", "Number of muons 4")',
+    input=[q.nmuons],
+    output=None,
+    scopes=["mmmm"],
+)
 DimuonMinMassCut = Producer(
     name="DimuonMinMassCut",
     call='basefunctions::FilterThreshold({df}, {input}, {min_dimuon_mass}, ">=", "No m(mm) < 12 GeV")',
@@ -269,10 +276,23 @@ Mask_DiElectronPair = Producer(
     output=[q.dielectron_ZCand_collection], # index about the two selected electrons may from Z boson
     scopes=["eemm"],
 )
-# HiggsToDiMuonCand = Producer(
-#     name="HiggsToDiMuonCand",
-#     call='physicsobject::GetFirstElement({df}, {input}, {output})',
-#     input=[q.dimuon_p4_byPt],
-#     output=[q.dimuon_p4_HiggsCand],
-#     scopes=["global","e2m","m2m","eemm","mmmm"],
-# )
+# output: index about the four muons, first two stand HiggsCand, second two stand ZCand
+Mask_QuadMuonPair = Producer(
+    name="Mask_QuadMuonPair",
+    call='physicsobject::HiggsAndZFourMuonsCollection({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           nanoAOD.Muon_charge,
+           q.good_muon_collection],
+    output=[q.quadmuon_HiggsZCand_collection],
+    scopes=["mmmm"],
+)
+Flag_ZZVeto = Producer(
+    name="Flag_ZZVeto",
+    call='physicsobject::QuadMuonFromZZVeto({df}, {output}, {input})',
+    input=[q.quadmuon_HiggsZCand_collection],
+    output=[q.Flag_ZZVeto], # 0 stands two Z Cand
+    scopes=["mmmm"],
+)

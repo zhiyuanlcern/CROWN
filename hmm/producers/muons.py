@@ -42,6 +42,13 @@ MuonSIP3DCut = Producer(
     scopes=["global"],
 )
 # TODO vh LepMVA
+Muon_mvaTTH_Cut = Producer(
+    name="Muon_mvaTTH_Cut",
+    call="physicsobject::CutVarMin({df}, {input}, {output}, {min_muon_mvaTTH})",
+    input=[nanoAOD.Muon_mvaTTH],
+    output=[],
+    scopes=["global"],
+)
 MuonIDCut = Producer(
     name="MuonIDCut",
     call='physicsobject::muon::CutID({df}, {output}, "{muon_id}")',
@@ -69,6 +76,7 @@ BaseMuons = ProducerGroup(
         MuonDzCut,
         MuonSIP3DCut,
         # TODO vh add LepMVA
+        Muon_mvaTTH_Cut,
         MuonIDCut,
         MuonIsoCut,
     ],

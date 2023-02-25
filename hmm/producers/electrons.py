@@ -34,6 +34,13 @@ ElectronDzCut = Producer(
     output=[],
     scopes=["global"],
 )
+Electron_mvaTTH_Cut = Producer(
+    name="Electron_mvaTTH_Cut",
+    call="physicsobject::CutVarMin({df}, {input}, {output}, {min_electron_mvaTTH})",
+    input=[nanoAOD.Electron_mvaTTH],
+    output=[],
+    scopes=["global"],
+)
 ElectronIDCut = Producer(
     name="ElectronIDCut",
     call='physicsobject::electron::CutID({df}, {output}, "{ele_id}")', # notice here "{ele_id}"
@@ -77,6 +84,7 @@ BaseElectrons = ProducerGroup(
         ElectronSIP3DCut,
         ElectronConvVeto,
         ElectronMissingHitsCut,
+        Electron_mvaTTH_Cut,
     ],
 )
 NumberOfBaseElectrons = Producer(

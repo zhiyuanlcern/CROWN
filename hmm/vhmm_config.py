@@ -170,6 +170,7 @@ def build_config(
             "max_muon_dz": 0.10, # vh
             "max_sip3d" : 8.0, # vh
             #"min_lepmva" : 0.4, # vh TODO
+            "min_muon_mvaTTH" : 0.4,
             "muon_id": "Muon_mediumId", # vh cut-based atm https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Medium_Muon
             "muon_iso_cut": 0.25, # vh PFIsoLoose dR=0.4 https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
         },
@@ -189,6 +190,7 @@ def build_config(
             "ele_missing_hits": 2,
             # also need max_sip3d
             # "min_lepmva": 0.4,
+            "min_electron_mvaTTH" : 0.4,
         }
     )
     # MM scope Muon selection
@@ -462,7 +464,7 @@ def build_config(
             muons.LVMu1,
             muons.LVMu2,
             electrons.LVEle1,
-        ]
+        ],
     )
     configuration.add_producers(
         "eemm",
@@ -495,7 +497,28 @@ def build_config(
             muons.LVMu2,
             electrons.LVEle1,
             electrons.LVEle2,
-        ]
+        ],
+    )
+    configuration.add_producers(
+        "mmmm",
+        [
+            muons.GoodMuons,
+            muons.NumberOfGoodMuons,
+            event.FilterNMuons_4m, # vh == 4 muons
+            muons.MuonCollection,
+            ###
+            lepton.CalcSmallestDiMuonMass,
+            event.DimuonMinMassCut,
+            ###
+            ### need make dimuon pair from Higgs and pair from Z
+            event.Mask_QuadMuonPair,
+            event.Flag_ZZVeto,
+            # Higgs p4
+            # Z p4
+            ###
+            lepton.LeptonChargeSumVeto,
+            electrons.Ele_Veto,
+        ],
     )
 
     configuration.add_outputs(
@@ -544,12 +567,7 @@ def build_config(
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
-            # q.HiggsToMuMu_mask,
-            # q.dimuon_p4_pt_byPt,
-            # q.dimuon_p4_eta_byPt,
-            # q.dimuon_p4_phi_byPt,
-            # q.dimuon_p4_mass_byPt,
-       ],
+        ],
     )
     configuration.add_outputs(
         "e2m",
@@ -574,7 +592,7 @@ def build_config(
             q.Flag_LeptonChargeSumVeto,
             q.dimuon_p4_byPt,
             q.Flag_DiMuonFromHiggs,
-       ],
+        ],
     )
     configuration.add_outputs(
         "eemm",
@@ -603,7 +621,36 @@ def build_config(
             q.dielectron_p4_byPt,
             q.Flag_DiMuonFromHiggs,
             q.Flag_DiEleFromZ,
-       ],
+        ],
+    )
+    configuration.add_outputs(
+        "mmmm",
+        [
+            q.is_data,
+            q.is_embedding,
+            q.is_ttbar,
+            q.is_dyjets,
+            q.is_wjets,
+            q.is_diboson,
+            q.is_vhmm,
+            nanoAOD.run,
+            q.lumi,
+            nanoAOD.event,
+            q.puweight,
+            q.nmuons,
+            #q.muon_p4_1,
+            #q.muon_p4_2,
+            #q.nelectrons,
+            #q.electron_p4_1,
+            #q.electron_p4_2,
+            q.smallest_dimuon_mass,
+            #q.smallest_dielectron_mass,
+            q.Flag_LeptonChargeSumVeto,
+            #q.dimuon_p4_byPt,
+            #q.dielectron_p4_byPt,
+            q.Flag_ZZVeto,
+            q.Flag_Ele_Veto,
+        ],
     )
 
     configuration.add_modification_rule(

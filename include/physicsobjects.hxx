@@ -64,6 +64,15 @@ ROOT::RDF::RNode ZToDiElectronPairCollection(ROOT::RDF::RNode df, const std::str
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
                                  const std::string &dielectrons_index);
+ROOT::RDF::RNode HiggsAndZFourMuonsCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &particle_charges,
+                                 const std::string &goodmuons_index);
+ROOT::RDF::RNode QuadMuonFromZZVeto(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &quadmuons_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

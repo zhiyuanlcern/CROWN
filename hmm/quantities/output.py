@@ -240,3 +240,6 @@ electron_p4_1 = Quantity("electron_p4_1")
 electron_p4_2 = Quantity("electron_p4_2")
 Flag_DiEleFromZ = Quantity("Flag_DiEleFromZ")
 dielectron_p4_byPt = Quantity("dielectron_p4_byPt")
+# 4m
+quadmuon_HiggsZCand_collection = Quantity("quadmuon_HiggsZCand_collection")
+Flag_ZZVeto = Quantity("Flag_ZZVeto")

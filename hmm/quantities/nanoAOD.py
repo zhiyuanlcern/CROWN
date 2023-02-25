@@ -33,6 +33,7 @@ Muon_genMatch = NanoAODQuantity("Muon_genPartFlav")
 Muon_indexToGen = NanoAODQuantity("Muon_genPartIdx")
 Muon_sip3d = NanoAODQuantity("Muon_sip3d") # vh
 Muon_pfRelIso04_all = NanoAODQuantity("Muon_pfRelIso04_all") # vh
+Muon_mvaTTH = NanoAODQuantity("Muon_mvaTTH")
 
 Electron_pt = NanoAODQuantity("Electron_pt")
 Electron_eta = NanoAODQuantity("Electron_eta")
@@ -48,6 +49,7 @@ Electron_sip3d = NanoAODQuantity("Electron_sip3d")
 Electron_mvaFall17V2noIso_WP90 = NanoAODQuantity("Electron_mvaFall17V2noIso_WP90")
 Electron_convVeto = NanoAODQuantity("Electron_convVeto")
 Electron_lostHits = NanoAODQuantity("Electron_lostHits")
+Electron_mvaTTH = NanoAODQuantity("Electron_mvaTTH")
 # end write
 
 GenJet_pt = NanoAODQuantity("GenJet_pt")
