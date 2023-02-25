@@ -227,7 +227,29 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_mass,
            q.dimuon_HiggsCand_collection],
     output=[q.dimuon_p4_byPt],
-    scopes=["global","e2m","m2m","eemm","mmmm"],
+    scopes=["global","e2m","m2m","eemm"],
+)
+HiggsToDiMuonPair_p4_4m = Producer(
+    name="HiggsToDiMuonPair_p4_4m",
+    call='physicsobject::HiggsToDiMuonPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           q.quadmuon_HiggsZCand_collection],
+    output=[q.dimuon_p4_Higgs],
+    scopes=["mmmm"],
+)
+ZToDiMuonPair_p4_4m = Producer(
+    name="ZToDiMuonPair_p4_4m",
+    call='physicsobject::ZToSecondMuonPairCollection({df}, {output}, {input})',
+    input=[nanoAOD.Muon_pt,
+           nanoAOD.Muon_eta, 
+           nanoAOD.Muon_phi, 
+           nanoAOD.Muon_mass,
+           q.quadmuon_HiggsZCand_collection],
+    output=[q.dimuon_p4_Z],
+    scopes=["mmmm"],
 )
 ZToDiElectronPair_p4 = Producer(
     name="ZToDiElectronPair_p4",
@@ -262,7 +284,7 @@ Mask_DiMuonPair = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.dimuon_HiggsCand_collection], # index about the two selected muons may from Higgs
-    scopes=["global","e2m","m2m","eemm","mmmm"],
+    scopes=["global","e2m","m2m","eemm"],
 )
 Mask_DiElectronPair = Producer(
     name="Mask_DiElectronPair",

@@ -247,4 +247,87 @@ LVMu3 = Producer(
     output=[q.muon_p4_3],
     scopes=["m2m", "mmmm"],
 )
-
+##### 
+##### The leading muon from Higgs
+Mu1_H = Producer(
+    name="Mu1_H",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.dimuon_HiggsCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_leadingp4_H],
+    scopes=["e2m","m2m", "eemm"],
+)
+##### The sub leading muon form Higgs
+Mu2_H = Producer(
+    name="Mu2_H",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.dimuon_HiggsCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_subleadingp4_H],
+    scopes=["e2m","m2m", "eemm"],
+)
+##### The leading muon from Higgs in 4m channel
+Mu1_H_4m = Producer(
+    name="Mu1_H_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_leadingp4_H],
+    scopes=["mmmm"],
+)
+##### The sub leading muon from Higgs in 4m channel
+Mu2_H_4m = Producer(
+    name="Mu2_H_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_subleadingp4_H],
+    scopes=["mmmm"],
+)
+##### The leading muon from Z Cand in 4m channel
+Mu1_Z_4m = Producer(
+    name="Mu1_Z_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 2, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_leadingp4_Z],
+    scopes=["mmmm"],
+)
+Mu2_Z_4m = Producer(
+    name="Mu2_Z_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 3, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_subleadingp4_Z],
+    scopes=["mmmm"],
+)

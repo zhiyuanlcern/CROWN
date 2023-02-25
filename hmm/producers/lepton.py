@@ -50,3 +50,45 @@ LeptonChargeSumVeto_elemu = Producer(
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands pm1, 2 stands 0, 0 stands others
     scopes=["global","e2m","eemm"],
 )
+### extra lepton (muon) in m2m channel
+Mu1_W_m2m_index = Producer(
+    name="Mu1_W_m2m_index",
+    call="physicsobject::ExtraMuonIndexFromW({df}, {output}, {input})",
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+        q.good_muon_collection,
+        q.dimuon_HiggsCand_collection,
+    ],
+    output=[q.extra_muon_index],
+    scopes=["m2m"],
+)
+Mu1_W_m2m = Producer(
+    name="Mu1_W_m2m",
+    call="physicsobject::ExtraMuonFromW({df}, {output}, {input})",
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+        q.extra_muon_index,
+    ],
+    output=[q.extra_lep_p4],
+    scopes=["m2m"],
+)
+### extra lepton (electron) in e2m channel
+Ele1_W_e2m = Producer(
+    name="Ele1_W_e2m",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.base_electron_collection,
+        nanoAOD.Electron_pt,
+        nanoAOD.Electron_eta,
+        nanoAOD.Electron_phi,
+        nanoAOD.Electron_mass,
+    ],
+    output=[q.extra_lep_p4],
+    scopes=["e2m"],
+)

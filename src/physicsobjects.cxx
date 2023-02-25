@@ -613,6 +613,107 @@ ROOT::RDF::RNode QuadMuonFromZZVeto(ROOT::RDF::RNode df, const std::string &outp
     return df1;
 }
 ///
+/// pick the third and fourth muon as Z Cand
+ROOT::RDF::RNode ZToSecondMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &fourmuons_index) {
+    auto dimuonZ_calc_p4 = [](const ROOT::RVec<float> &particle_pts,
+                                 const ROOT::RVec<float> &particle_etas,
+                                 const ROOT::RVec<float> &particle_phis,
+                                 const ROOT::RVec<float> &particle_masses,
+                                 const ROOT::RVec<int> &fourmuons_index) {
+                                 ROOT::Math::PtEtaPhiMVector p4_dimuZ;
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( fourmuons_index.at(2) == -1 || fourmuons_index.at(3) == -1 ) {
+                                    return ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float,default_float);
+                                 } else {
+                                    // int leading    Zmu1 = fourmuons_index[2];
+                                    // int subleading Zmu2 = fourmuons_index[3];
+                                    for (unsigned int k = 2; k < (int)fourmuons_index.size(); ++k) {
+                                        /// push back [2] and [3] 
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(fourmuons_index[k]),
+                                                                                particle_etas.at(fourmuons_index[k]),
+                                                                                particle_phis.at(fourmuons_index[k]),
+                                                                                particle_masses.at(fourmuons_index[k])));
+                                    }
+                                    p4_dimuZ = ROOT::Math::PtEtaPhiMVector((p4[0]+p4[1]).pt(),
+                                                                            (p4[0]+p4[1]).eta(),
+                                                                            (p4[0]+p4[1]).phi(),
+                                                                            (p4[0]+p4[1]).mass());
+                                    return p4_dimuZ;
+                                 }
+                             };
+    auto df1 = 
+        df.Define(outputname, dimuonZ_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, fourmuons_index});
+    return df1;
+}
+///
+/// extra muon in the m2m channel
+ROOT::RDF::RNode ExtraMuonIndexFromW(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons_index,
+                                 const std::string &dimuons_index) {
+    auto extra_muonW_calc_p4 = [](const ROOT::RVec<float> &particle_pts,
+                                const ROOT::RVec<float> &particle_etas,
+                                const ROOT::RVec<float> &particle_phis,
+                                const ROOT::RVec<float> &particle_masses,
+                                const ROOT::RVec<int> &goodmuons_index,
+                                const ROOT::RVec<int> &dimuons_index) {
+                                ROOT::Math::PtEtaPhiMVector p4_dimuZ;
+                                std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                /// dimuons_index [0] and [1] stands the Higgs Mu1 and Mu2
+                                /// goodmuons_index [0] [1] [2] stands 3 muons
+                                /// do a loop to find the extra muon index 
+                                for (unsigned int k = 0; k < (int)goodmuons_index.size(); ++k) {
+                                    if ( goodmuons_index[k] != dimuons_index[0] && goodmuons_index[k] != dimuons_index[1] ) {
+                                        if ( dimuons_index[0] != -1 && dimuons_index[1] != -1 ) {
+                                            ROOT::RVec<int> extra_muon_index(1, goodmuons_index[k]);
+                                            return extra_muon_index;
+                                        }
+                                    }
+                                }
+                                ROOT::RVec<int> NO_Index(1, -1);
+                                return NO_Index;
+                            };
+    auto df1 = 
+        df.Define(outputname, extra_muonW_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, goodmuons_index, dimuons_index});
+    return df1;
+}
+///
+/// extra muon p4 in the m2m channel
+ROOT::RDF::RNode ExtraMuonFromW(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &extra_muon_index) {
+    auto extra_muonW_calc_p4 = [](const ROOT::RVec<float> &particle_pts,
+                                const ROOT::RVec<float> &particle_etas,
+                                const ROOT::RVec<float> &particle_phis,
+                                const ROOT::RVec<float> &particle_masses,
+                                const ROOT::RVec<int> &extra_muon_index) {
+                                std::vector<ROOT::Math::PtEtaPhiMVector> p4_lepFromW;
+                                if ( extra_muon_index[0] == -1 ) {
+                                    p4_lepFromW.push_back( ROOT::Math::PtEtaPhiMVector(default_float,default_float,default_float,default_float) );
+                                } else {
+                                    p4_lepFromW.push_back( ROOT::Math::PtEtaPhiMVector(particle_pts.at(extra_muon_index[0]),
+                                                                                    particle_etas.at(extra_muon_index[0]),
+                                                                                    particle_phis.at(extra_muon_index[0]),
+                                                                                    particle_masses.at(extra_muon_index[0])) );
+                                }
+                                return p4_lepFromW[0];
+                            };
+    auto df1 = 
+        df.Define(outputname, extra_muonW_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, extra_muon_index});
+    return df1;
+}
+///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4) {

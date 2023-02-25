@@ -417,25 +417,27 @@ def build_config(
             lepton.CalcSmallestDiMuonMass,  # SFOS, m2m only has m
             event.DimuonMinMassCut,
             ###
-            event.Mask_DiMuonPair,
+            event.Mask_DiMuonPair, # dimuonHiggs index
             event.Flag_DiMuonFromHiggs,
             event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
             ###
             event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
             lepton.LeptonChargeSumVeto,
+            ###
+            electrons.NumberOfBaseElectrons,
             electrons.Ele_Veto,
             # end
-            muons.LVMu1, # vh
-            muons.LVMu2, # vh
-            muons.LVMu3, # vh 
+            muons.Mu1_H, # vh
+            muons.Mu2_H, # vh
+            ### extra muon in m2m
+            lepton.Mu1_W_m2m_index, # extra muon index
+            lepton.Mu1_W_m2m, # extra muon p4 (From W)
+            ###
+            #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
-            # vh veto e
-            # vh total charge = +/-1
-            # vh low mll veto, mll>12 GeV   Done
-            # vh m(mumu) in [110, 150] GeV, >=1 pair    Done
-            # vh select higher pT mumu pair as Higgs if there are >=1   Done   
-            # vh no m(mumu) in [81, 101] GeV, 0 pair    Done
-            # vh
+            muons.LVMu1,
+            muons.LVMu2,
+            muons.LVMu3,
             triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
         ],
@@ -461,9 +463,10 @@ def build_config(
             ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
             ###
-            muons.LVMu1,
-            muons.LVMu2,
-            electrons.LVEle1,
+            muons.Mu1_H,
+            muons.Mu2_H,
+            lepton.Ele1_W_e2m,
+            #electrons.LVEle1,
         ],
     )
     configuration.add_producers(
@@ -493,8 +496,8 @@ def build_config(
             ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
             ###
-            muons.LVMu1,
-            muons.LVMu2,
+            muons.Mu1_H,
+            muons.Mu2_H,
             electrons.LVEle1,
             electrons.LVEle2,
         ],
@@ -514,10 +517,16 @@ def build_config(
             event.Mask_QuadMuonPair,
             event.Flag_ZZVeto,
             # Higgs p4
+            event.HiggsToDiMuonPair_p4_4m,
+            event.ZToDiMuonPair_p4_4m,
             # Z p4
             ###
             lepton.LeptonChargeSumVeto,
             electrons.Ele_Veto,
+            muons.Mu1_H_4m,
+            muons.Mu2_H_4m,
+            muons.Mu1_Z_4m,
+            muons.Mu2_Z_4m,
         ],
     )
 
@@ -535,32 +544,15 @@ def build_config(
             q.lumi,
             nanoAOD.event,
             q.puweight,
-            #q.pt_1,
-            #q.pt_2,
-            #q.eta_1,
-            #q.eta_2,
-            #q.phi_1,
-            #q.phi_2,
-            #q.m_vis,
-            #q.gen_pt_1,
-            #q.gen_eta_1,
-            #q.gen_phi_1,
-            #q.gen_mass_1,
-            #q.gen_pdgid_1,
-            #q.gen_pt_2,
-            #q.gen_eta_2,
-            #q.gen_phi_2,
-            #q.gen_mass_2,
-            #q.gen_pdgid_2,
-            #q.gen_m_vis,
-            #q.id_wgt_mu_1,
-            #q.id_wgt_mu_2,
-            #q.iso_wgt_mu_1,
-            #q.iso_wgt_mu_2,
-            q.muon_p4_1,
-            q.muon_p4_2,
-            q.muon_p4_3,
+            q.muon_leadingp4_H,
+            q.muon_subleadingp4_H,
+            #q.muon_p4_3,
+            # extra lepton p4
+            q.extra_lep_p4,
+            #
             q.nmuons,
+            q.nelectrons,
+            ###
             q.smallest_dimuon_mass,
             q.dimuon_p4_byPt,
             q.Flag_dimuon_Zmass_veto,
@@ -584,10 +576,13 @@ def build_config(
             nanoAOD.event,
             q.puweight,
             q.nmuons,
-            q.muon_p4_1,
-            q.muon_p4_2,
+            #q.muon_p4_1,
+            #q.muon_p4_2,
+            q.muon_leadingp4_H,
+            q.muon_subleadingp4_H,
             q.nelectrons,
-            q.electron_p4_1,
+            q.extra_lep_p4,
+            #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,
             q.dimuon_p4_byPt,
@@ -609,8 +604,10 @@ def build_config(
             nanoAOD.event,
             q.puweight,
             q.nmuons,
-            q.muon_p4_1,
-            q.muon_p4_2,
+            q.muon_leadingp4_H,
+            q.muon_subleadingp4_H,
+            #q.muon_p4_1,
+            #q.muon_p4_2,
             q.nelectrons,
             q.electron_p4_1,
             q.electron_p4_2,
@@ -646,10 +643,14 @@ def build_config(
             q.smallest_dimuon_mass,
             #q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
-            #q.dimuon_p4_byPt,
-            #q.dielectron_p4_byPt,
+            q.dimuon_p4_Higgs,
+            q.dimuon_p4_Z,
             q.Flag_ZZVeto,
             q.Flag_Ele_Veto,
+            q.muon_leadingp4_H,
+            q.muon_subleadingp4_H,
+            q.muon_leadingp4_Z,
+            q.muon_subleadingp4_Z,
         ],
     )
 

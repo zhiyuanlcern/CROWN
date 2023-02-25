@@ -243,3 +243,15 @@ dielectron_p4_byPt = Quantity("dielectron_p4_byPt")
 # 4m
 quadmuon_HiggsZCand_collection = Quantity("quadmuon_HiggsZCand_collection")
 Flag_ZZVeto = Quantity("Flag_ZZVeto")
+dimuon_p4_Higgs = Quantity("dimuon_p4_Higgs")
+dimuon_p4_Z = Quantity("dimuon_p4_Z")
+
+### 
+muon_leadingp4_H = Quantity("muon_leadingp4_H")
+muon_subleadingp4_H = Quantity("muon_subleadingp4_H")
+muon_leadingp4_Z = Quantity("muon_leadingp4_Z")
+muon_subleadingp4_Z = Quantity("muon_subleadingp4_Z")
+###
+extra_muon_index = Quantity("extra_muon_index")
+extra_lep_p4 = Quantity("extra_lep_p4")
+### extra electron can get from base electron collection

@@ -73,6 +73,25 @@ ROOT::RDF::RNode HiggsAndZFourMuonsCollection(ROOT::RDF::RNode df, const std::st
                                  const std::string &goodmuons_index);
 ROOT::RDF::RNode QuadMuonFromZZVeto(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &quadmuons_index);
+ROOT::RDF::RNode ZToSecondMuonPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &fourmuons_index);
+ROOT::RDF::RNode ExtraMuonIndexFromW(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodmuons_index,
+                                 const std::string &dimuons_index);
+ROOT::RDF::RNode ExtraMuonFromW(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &extra_muon_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,
