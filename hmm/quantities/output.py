@@ -255,3 +255,6 @@ muon_subleadingp4_Z = Quantity("muon_subleadingp4_Z")
 extra_muon_index = Quantity("extra_muon_index")
 extra_lep_p4 = Quantity("extra_lep_p4")
 ### extra electron can get from base electron collection
+mt_W = Quantity("mt_W")
+lep_H_dR = Quantity("lep_H_dR")
+mumuH_dR = Quantity("mumuH_dR")

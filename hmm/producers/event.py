@@ -318,3 +318,23 @@ Flag_ZZVeto = Producer(
     output=[q.Flag_ZZVeto], # 0 stands two Z Cand
     scopes=["mmmm"],
 )
+lepton_H_dR = Producer(
+    name="lepton_H_dR",
+    call='quantities::deltaR({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.dimuon_p4_byPt,
+    ],
+    output=[q.lep_H_dR],
+    scopes=["e2m","m2m"],
+)
+mumuH_dR = Producer(
+    name="mumuH_dR",
+    call='quantities::deltaR({df}, {output}, {input})',
+    input=[
+      q.muon_leadingp4_H,
+      q.muon_subleadingp4_H,
+    ],
+    output=[q.mumuH_dR],
+    scopes=["e2m","m2m","eemm","mmmm"],
+)

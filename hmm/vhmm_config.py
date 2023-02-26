@@ -11,6 +11,7 @@ from .producers import scalefactors as scalefactors
 # add by botao
 from .producers import lepton as lepton
 from .producers import electrons as electrons
+from .producers import met as met
 # end 
 from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
@@ -404,6 +405,7 @@ def build_config(
             jets.NumberOfMediumB, # vh count medium bjets for ttH veto
             event.VetottHLooseB, # vh veto ttH no more than 1 loose bjet
             event.VetottHMediumB, # vh veto ttH no more than 1 medium bjet
+            met.MetBasics, # build met vector for calculation
         ],
     )
     configuration.add_producers(
@@ -432,6 +434,10 @@ def build_config(
             ### extra muon in m2m
             lepton.Mu1_W_m2m_index, # extra muon index
             lepton.Mu1_W_m2m, # extra muon p4 (From W)
+            ###
+            lepton.Calc_MT_W,
+            event.lepton_H_dR,
+            event.mumuH_dR,
             ###
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
@@ -465,7 +471,10 @@ def build_config(
             ###
             muons.Mu1_H,
             muons.Mu2_H,
-            lepton.Ele1_W_e2m,
+            lepton.Ele1_W_e2m, # output extra lep p4
+            lepton.Calc_MT_W,
+            event.lepton_H_dR,
+            event.mumuH_dR,
             #electrons.LVEle1,
         ],
     )
@@ -498,6 +507,7 @@ def build_config(
             ###
             muons.Mu1_H,
             muons.Mu2_H,
+            event.mumuH_dR,
             electrons.LVEle1,
             electrons.LVEle2,
         ],
@@ -525,6 +535,7 @@ def build_config(
             electrons.Ele_Veto,
             muons.Mu1_H_4m,
             muons.Mu2_H_4m,
+            event.mumuH_dR,
             muons.Mu1_Z_4m,
             muons.Mu2_Z_4m,
         ],
@@ -549,9 +560,14 @@ def build_config(
             #q.muon_p4_3,
             # extra lepton p4
             q.extra_lep_p4,
+            q.mt_W,
+            q.lep_H_dR,
+            q.mumuH_dR,
             #
             q.nmuons,
             q.nelectrons,
+            ###
+            q.met_p4,
             ###
             q.smallest_dimuon_mass,
             q.dimuon_p4_byPt,
@@ -582,6 +598,10 @@ def build_config(
             q.muon_subleadingp4_H,
             q.nelectrons,
             q.extra_lep_p4,
+            q.mt_W,
+            q.lep_H_dR,
+            q.mumuH_dR,
+            q.met_p4,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,
@@ -606,11 +626,13 @@ def build_config(
             q.nmuons,
             q.muon_leadingp4_H,
             q.muon_subleadingp4_H,
+            q.mumuH_dR,
             #q.muon_p4_1,
             #q.muon_p4_2,
             q.nelectrons,
             q.electron_p4_1,
             q.electron_p4_2,
+            q.met_p4,
             q.smallest_dimuon_mass,
             q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
@@ -640,6 +662,7 @@ def build_config(
             #q.nelectrons,
             #q.electron_p4_1,
             #q.electron_p4_2,
+            q.met_p4,
             q.smallest_dimuon_mass,
             #q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
@@ -649,6 +672,7 @@ def build_config(
             q.Flag_Ele_Veto,
             q.muon_leadingp4_H,
             q.muon_subleadingp4_H,
+            q.mumuH_dR,
             q.muon_leadingp4_Z,
             q.muon_subleadingp4_Z,
         ],
