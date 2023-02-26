@@ -338,3 +338,91 @@ mumuH_dR = Producer(
     output=[q.mumuH_dR],
     scopes=["e2m","m2m","eemm","mmmm"],
 )
+### e2m channel 
+muSSwithElectronW_p4 = Producer(
+    name="muSSwithElectronW_p4",
+    call='physicsobject::muSSorOSwithLeptonW_p4({df}, {output}, {input}, 1)',
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta, 
+        nanoAOD.Muon_phi, 
+        nanoAOD.Muon_mass,
+        nanoAOD.Muon_charge,
+        nanoAOD.Electron_charge,
+        q.dimuon_HiggsCand_collection,
+        q.base_electron_collection,
+    ],
+    output=[q.mu_p4_SSwithLep],
+    scopes=["e2m"],
+)
+muOSwithElectronW_p4 = Producer(
+    name="muOSwithElectronW_p4",
+    call='physicsobject::muSSorOSwithLeptonW_p4({df}, {output}, {input}, 0)',
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta, 
+        nanoAOD.Muon_phi, 
+        nanoAOD.Muon_mass,
+        nanoAOD.Muon_charge,
+        nanoAOD.Electron_charge,
+        q.dimuon_HiggsCand_collection,
+        q.base_electron_collection,
+    ],
+    output=[q.mu_p4_OSwithLep],
+    scopes=["e2m"],
+)
+### m2m channel 
+muSSwithMuonW_p4 = Producer(
+    name="muSSwithMuonW_p4",
+    call='physicsobject::muSSorOSwithLeptonW_p4({df}, {output}, {input}, 1)',
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta, 
+        nanoAOD.Muon_phi, 
+        nanoAOD.Muon_mass,
+        nanoAOD.Muon_charge,
+        nanoAOD.Muon_charge,
+        q.dimuon_HiggsCand_collection,
+        q.extra_muon_index,
+    ],
+    output=[q.mu_p4_SSwithLep],
+    scopes=["m2m"],
+)
+muOSwithMuonW_p4 = Producer(
+    name="muOSwithMuonW_p4",
+    call='physicsobject::muSSorOSwithLeptonW_p4({df}, {output}, {input}, 0)',
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta, 
+        nanoAOD.Muon_phi, 
+        nanoAOD.Muon_mass,
+        nanoAOD.Muon_charge,
+        nanoAOD.Muon_charge,
+        q.dimuon_HiggsCand_collection,
+        q.extra_muon_index,
+    ],
+    output=[q.mu_p4_OSwithLep],
+    scopes=["m2m"],
+)
+### dR lepW and muSS
+lepton_muSS_dR = Producer(
+    name="lepton_muSS_dR",
+    call='quantities::deltaR({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_SSwithLep,
+    ],
+    output=[q.lep_muSS_dR],
+    scopes=["e2m","m2m"],
+)
+### dR lepW and muOS
+lepton_muOS_dR = Producer(
+    name="lepton_muOS_dR",
+    call='quantities::deltaR({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_OSwithLep,
+    ],
+    output=[q.lep_muOS_dR],
+    scopes=["e2m","m2m"],
+)

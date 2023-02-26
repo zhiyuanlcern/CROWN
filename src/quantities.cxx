@@ -13,8 +13,17 @@
 /// The namespace that is used to hold the functions for basic quantities that
 /// are needed for every event
 namespace quantities {
-
-
+///
+//// function to calc the delta Eta
+ROOT::RDF::RNode deltaEta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_deltaEta = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                               ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        return (float)fabs(p_1_p4.eta() - p_2_p4.eta());
+    };
+    return df.Define(outputname, calculate_deltaEta, {p_1_p4, p_2_p4});
+}
+///
 /// Function to calculate the pt from a given lorentz vector and add it to the
 /// dataframe
 ///

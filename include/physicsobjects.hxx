@@ -92,6 +92,16 @@ ROOT::RDF::RNode ExtraMuonFromW(ROOT::RDF::RNode df, const std::string &outputna
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
                                  const std::string &extra_muon_index);
+ROOT::RDF::RNode muSSorOSwithLeptonW_p4(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_pts,
+                                 const std::string &muon_etas,
+                                 const std::string &muon_phis,
+                                 const std::string &muon_masses,
+                                 const std::string &muon_charges,
+                                 const std::string &lep_charges,
+                                 const std::string &dimuons_index,
+                                 const std::string &lep_index,
+                                 const int SameSign);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

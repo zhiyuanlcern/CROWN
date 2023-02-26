@@ -713,6 +713,57 @@ ROOT::RDF::RNode ExtraMuonFromW(ROOT::RDF::RNode df, const std::string &outputna
         df.Define(outputname, extra_muonW_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, extra_muon_index});
     return df1;
 }
+/// function that calc the p4 of the SS or OS mu compared to extra lepton from W
+ROOT::RDF::RNode muSSorOSwithLeptonW_p4(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_pts,
+                                 const std::string &muon_etas,
+                                 const std::string &muon_phis,
+                                 const std::string &muon_masses,
+                                 const std::string &muon_charges,
+                                 const std::string &lep_charges,
+                                 const std::string &dimuons_index,
+                                 const std::string &lep_index,
+                                 const int SameSign) {
+    auto calc_p4 = [SameSign](const ROOT::RVec<float> &muon_pts,
+                                 const ROOT::RVec<float> &muon_etas,
+                                 const ROOT::RVec<float> &muon_phis,
+                                 const ROOT::RVec<float> &muon_masses,
+                                 const ROOT::RVec<int> &muon_charges,
+                                 const ROOT::RVec<int> &lep_charges,
+                                 const ROOT::RVec<int> &dimuons_index,
+                                 const ROOT::RVec<int> &lep_index) {
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 if ( dimuons_index.at(0) == -1 || dimuons_index.at(1) == -1 || lep_index.at(0) == -1 ) {
+                                    return ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float,default_float);
+                                 } else {
+                                    if ( SameSign == 1 ) {
+                                        for (unsigned int k = 0; k < (int)dimuons_index.size(); ++k) {
+                                            /// same sign
+                                            if ( lep_charges[lep_index[0]] ==  muon_charges[dimuons_index[k]] ) {
+                                                p4.push_back(ROOT::Math::PtEtaPhiMVector(muon_pts.at(dimuons_index[k]),
+                                                                                        muon_etas.at(dimuons_index[k]),
+                                                                                        muon_phis.at(dimuons_index[k]),
+                                                                                        muon_masses.at(dimuons_index[k])));
+                                            }
+                                        }
+                                    } else {
+                                        for (unsigned int k = 0; k < (int)dimuons_index.size(); ++k) {
+                                            /// opposite sign
+                                            if ( lep_charges[lep_index[0]] + muon_charges[dimuons_index[k]] == 0) {
+                                                p4.push_back(ROOT::Math::PtEtaPhiMVector(muon_pts.at(dimuons_index[k]),
+                                                                                        muon_etas.at(dimuons_index[k]),
+                                                                                        muon_phis.at(dimuons_index[k]),
+                                                                                        muon_masses.at(dimuons_index[k])));
+                                            }
+                                        }
+                                    }
+                                    return p4[0];
+                                 }
+                             };
+    auto df1 = 
+        df.Define(outputname, calc_p4, {muon_pts, muon_etas, muon_phis, muon_masses, muon_charges, lep_charges, dimuons_index, lep_index});
+    return df1;
+}
 ///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
