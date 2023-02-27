@@ -158,4 +158,16 @@ NumberOfMediumB = Producer(
     scopes=["global"],
 )
 # define MHT from good_jet_mask
-#MHT = Producer
+Calc_MHT = Producer(
+    name="Calc_MHT",
+    call="physicsobject::MHT_Calculation({df}, {output}, {input})",
+    input=[
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+        q.good_jets_mask,
+    ],
+    output=[q.MHT_p4],
+    scopes=["global","e2m","m2m"],
+)

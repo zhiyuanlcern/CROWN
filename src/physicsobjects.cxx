@@ -765,6 +765,45 @@ ROOT::RDF::RNode muSSorOSwithLeptonW_p4(ROOT::RDF::RNode df, const std::string &
     return df1;
 }
 ///
+///// function to calc the MHT 
+ROOT::RDF::RNode MHT_Calculation(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodjets_index) {
+    auto MHT_calc_p4 = [](const ROOT::RVec<float> &particle_pts,
+                                 const ROOT::RVec<float> &particle_etas,
+                                 const ROOT::RVec<float> &particle_phis,
+                                 const ROOT::RVec<float> &particle_masses,
+                                 const ROOT::RVec<int> &goodjets_index) {
+                                 ROOT::Math::PtEtaPhiMVector p4_MHT(0, 0, 0, 0);
+                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 ///
+                                 for (unsigned int i = 0; i < (int)goodjets_index.size(); ++i ) {
+                                    try {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodjets_index[i]), 
+                                                                         particle_etas.at(goodjets_index[i]),
+                                                                         particle_phis.at(goodjets_index[i]),
+                                                                         particle_masses.at(goodjets_index[i])));
+                                    } catch (const std::out_of_range &e) {
+                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
+                                    }
+                                 }
+                                 for (unsigned int j = 0; j < p4.size(); ++j ) {
+                                    if ( p4[j].pt() > 30 && fabs( p4[j].eta() ) < 4.7 ) {
+                                        p4_MHT += p4[j];
+                                    }
+                                 }
+                                 ///
+                                 p4_MHT = ROOT::Math::PtEtaPhiMVector(-p4_MHT.pt(), p4_MHT.eta(), p4_MHT.phi(), p4_MHT.mass());
+                                 return p4_MHT;
+                             };
+    auto df1 = 
+        df.Define(outputname, MHT_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, goodjets_index});
+    return df1;
+}
+///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4) {

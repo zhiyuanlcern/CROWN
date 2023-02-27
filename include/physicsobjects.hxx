@@ -102,6 +102,12 @@ ROOT::RDF::RNode muSSorOSwithLeptonW_p4(ROOT::RDF::RNode df, const std::string &
                                  const std::string &dimuons_index,
                                  const std::string &lep_index,
                                  const int SameSign);
+ROOT::RDF::RNode MHT_Calculation(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &particle_pts,
+                                 const std::string &particle_etas,
+                                 const std::string &particle_phis,
+                                 const std::string &particle_masses,
+                                 const std::string &goodjets_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

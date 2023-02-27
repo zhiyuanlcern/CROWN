@@ -14,6 +14,18 @@
 /// are needed for every event
 namespace quantities {
 ///
+/// funciton to puls ele_pdgId and mu_pdgId
+
+/// function to calc the delta phi
+ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_deltaPhi = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                               ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        return (float)fabs(p_1_p4.phi() - p_2_p4.phi());
+    };
+    return df.Define(outputname, calculate_deltaPhi, {p_1_p4, p_2_p4});
+}
+///
 //// function to calc the delta Eta
 ROOT::RDF::RNode deltaEta(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &p_1_p4, const std::string &p_2_p4) {

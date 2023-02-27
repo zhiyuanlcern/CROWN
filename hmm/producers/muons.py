@@ -315,7 +315,7 @@ Mu1_Z_4m = Producer(
         nanoAOD.Muon_phi,
         nanoAOD.Muon_mass,
     ],
-    output=[q.muon_leadingp4_Z],
+    output=[q.lepton_leadingp4_Z],
     scopes=["mmmm"],
 )
 Mu2_Z_4m = Producer(
@@ -328,6 +328,6 @@ Mu2_Z_4m = Producer(
         nanoAOD.Muon_phi,
         nanoAOD.Muon_mass,
     ],
-    output=[q.muon_subleadingp4_Z],
+    output=[q.lepton_subleadingp4_Z],
     scopes=["mmmm"],
 )

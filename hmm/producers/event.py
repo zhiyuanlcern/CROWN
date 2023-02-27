@@ -226,7 +226,7 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
            q.dimuon_HiggsCand_collection],
-    output=[q.dimuon_p4_byPt],
+    output=[q.dimuon_p4_Higgs],
     scopes=["global","e2m","m2m","eemm"],
 )
 HiggsToDiMuonPair_p4_4m = Producer(
@@ -248,7 +248,7 @@ ZToDiMuonPair_p4_4m = Producer(
            nanoAOD.Muon_phi, 
            nanoAOD.Muon_mass,
            q.quadmuon_HiggsZCand_collection],
-    output=[q.dimuon_p4_Z],
+    output=[q.dilepton_p4_Z],
     scopes=["mmmm"],
 )
 ZToDiElectronPair_p4 = Producer(
@@ -259,7 +259,7 @@ ZToDiElectronPair_p4 = Producer(
            nanoAOD.Electron_phi, 
            nanoAOD.Electron_mass,
            q.dielectron_ZCand_collection],
-    output=[q.dielectron_p4_byPt],
+    output=[q.dilepton_p4_Z],
     scopes=["global","e2m","m2m","eemm","mmmm"],
 )
 DiMuonMassFromZVeto = Producer(
@@ -323,7 +323,7 @@ lepton_H_dR = Producer(
     call='quantities::deltaR({df}, {output}, {input})',
     input=[
       q.extra_lep_p4,
-      q.dimuon_p4_byPt,
+      q.dimuon_p4_Higgs,
     ],
     output=[q.lep_H_dR],
     scopes=["e2m","m2m"],
@@ -425,4 +425,82 @@ lepton_muOS_dR = Producer(
     ],
     output=[q.lep_muOS_dR],
     scopes=["e2m","m2m"],
+)
+#######################
+### deta lepW and mumuH
+lepton_H_deta = Producer(
+    name="lepton_H_deta",
+    call='quantities::deltaEta({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.lep_H_deta],
+    scopes=["e2m","m2m"],
+)
+### deta lepW and muSS
+lepton_muSS_deta = Producer(
+    name="lepton_muSS_deta",
+    call='quantities::deltaEta({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_SSwithLep,
+    ],
+    output=[q.lep_muSS_deta],
+    scopes=["e2m","m2m"],
+)
+### deta lepW and muOS
+lepton_muOS_deta = Producer(
+    name="lepton_muOS_deta",
+    call='quantities::deltaEta({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_OSwithLep,
+    ],
+    output=[q.lep_muOS_deta],
+    scopes=["e2m","m2m"],
+)
+### dR llZ
+leplepZ_dR = Producer(
+    name="leplepZ_dR",
+    call='quantities::deltaR({df}, {output}, {input})',
+    input=[
+        q.lepton_leadingp4_Z,
+        q.lepton_subleadingp4_Z,
+    ],
+    output=[q.llZ_dR],
+    scopes=["eemm","mmmm"],
+)
+### deta mumuH and llZ
+llZ_mmH_deta = Producer(
+    name="llZ_mmH_deta",
+    call='quantities::deltaEta({df}, {output}, {input})',
+    input=[
+      q.dilepton_p4_Z,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.Z_H_deta],
+    scopes=["eemm","mmmm"],
+)
+### dphi mumuH and llZ
+llZ_mmH_dphi = Producer(
+    name="llZ_mmH_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.dilepton_p4_Z,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.Z_H_dphi],
+    scopes=["eemm","mmmm"],
+)
+### dphi mu1H and mu2H
+mumuH_dphi = Producer(
+    name="mumuH_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.muon_leadingp4_H,
+      q.muon_subleadingp4_H,
+    ],
+    output=[q.mumuH_dphi],
+    scopes=["e2m","m2m","eemm","mmmm"],
 )

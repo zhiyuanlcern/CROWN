@@ -50,6 +50,8 @@ Electron_mvaFall17V2noIso_WP90 = NanoAODQuantity("Electron_mvaFall17V2noIso_WP90
 Electron_convVeto = NanoAODQuantity("Electron_convVeto")
 Electron_lostHits = NanoAODQuantity("Electron_lostHits")
 Electron_mvaTTH = NanoAODQuantity("Electron_mvaTTH")
+Electron_pdgId = NanoAODQuantity("Electron_pdgId")
+Muon_pdgId = NanoAODQuantity("Muon_pdgId")
 # end write
 
 GenJet_pt = NanoAODQuantity("GenJet_pt")

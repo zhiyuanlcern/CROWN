@@ -119,7 +119,7 @@ LVEle1 = Producer(
         nanoAOD.Electron_phi,
         nanoAOD.Electron_mass,
     ],
-    output=[q.electron_p4_1],
+    output=[q.lepton_leadingp4_Z],
     scopes=["e2m","eemm"],
 )
 LVEle2 = Producer(
@@ -132,6 +132,6 @@ LVEle2 = Producer(
         nanoAOD.Electron_phi,
         nanoAOD.Electron_mass,
     ],
-    output=[q.electron_p4_2],
+    output=[q.lepton_subleadingp4_Z],
     scopes=["eemm"],
 )

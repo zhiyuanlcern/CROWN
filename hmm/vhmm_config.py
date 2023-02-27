@@ -397,7 +397,7 @@ def build_config(
             # vh muon Rochester corr, FSR recovery, GeoFit? TODO
             # vh muon FSR recovery
             electrons.BaseElectrons,
-            jets.JetEnergyCorrection, # vh
+            jets.JetEnergyCorrection, # vh include pt corr and mass corr
             jets.GoodJets, # vh overlap removal with ?base? muons done [need validation]
             jets.GoodBJetsLoose, # vh TODO update btag
             jets.GoodBJetsMedium, # vh TODO update btag
@@ -406,6 +406,7 @@ def build_config(
             event.VetottHLooseB, # vh veto ttH no more than 1 loose bjet
             event.VetottHMediumB, # vh veto ttH no more than 1 medium bjet
             met.MetBasics, # build met vector for calculation
+            jets.Calc_MHT,
         ],
     )
     configuration.add_producers(
@@ -443,6 +444,10 @@ def build_config(
             event.muOSwithMuonW_p4,
             event.lepton_muSS_dR,
             event.lepton_muOS_dR,
+            ### 
+            event.lepton_H_deta,
+            event.lepton_muSS_deta,
+            event.lepton_muOS_deta,
             ###
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
@@ -485,6 +490,10 @@ def build_config(
             event.muOSwithElectronW_p4,
             event.lepton_muSS_dR,
             event.lepton_muOS_dR,
+            ###
+            event.lepton_H_deta,
+            event.lepton_muSS_deta,
+            event.lepton_muOS_deta,
             #electrons.LVEle1,
         ],
     )
@@ -518,8 +527,14 @@ def build_config(
             muons.Mu1_H,
             muons.Mu2_H,
             event.mumuH_dR,
-            electrons.LVEle1,
-            electrons.LVEle2,
+            electrons.LVEle1,  # leading lep from Z
+            electrons.LVEle2,  # subleading lep from Z
+            ###
+            event.leplepZ_dR,
+            #lepton.PlusLepID, # using pdgId to lep_ID
+            event.llZ_mmH_deta,
+            event.llZ_mmH_dphi,
+            event.mumuH_dphi,
         ],
     )
     configuration.add_producers(
@@ -546,8 +561,14 @@ def build_config(
             muons.Mu1_H_4m,
             muons.Mu2_H_4m,
             event.mumuH_dR,
-            muons.Mu1_Z_4m,
-            muons.Mu2_Z_4m,
+            muons.Mu1_Z_4m, # leading lep from Z
+            muons.Mu2_Z_4m, # subleading lep from Z
+            ###
+            event.leplepZ_dR,
+            #lepton.PlusLepID, # using pdgId to lep_ID
+            event.llZ_mmH_deta,
+            event.llZ_mmH_dphi,
+            event.mumuH_dphi,
         ],
     )
 
@@ -579,13 +600,18 @@ def build_config(
             q.lep_muSS_dR,
             q.lep_muOS_dR,
             #
+            q.lep_H_deta,
+            q.lep_muSS_deta,
+            q.lep_muOS_deta,
+            #
             q.nmuons,
             q.nelectrons,
             ###
             q.met_p4,
+            q.MHT_p4,
             ###
             q.smallest_dimuon_mass,
-            q.dimuon_p4_byPt,
+            q.dimuon_p4_Higgs,
             q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
@@ -621,10 +647,15 @@ def build_config(
             q.mu_p4_OSwithLep,
             q.lep_muSS_dR,
             q.lep_muOS_dR,
+            #
+            q.lep_H_deta,
+            q.lep_muSS_deta,
+            q.lep_muOS_deta,
+            q.MHT_p4,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,
-            q.dimuon_p4_byPt,
+            q.dimuon_p4_Higgs,
             q.Flag_DiMuonFromHiggs,
         ],
     )
@@ -649,14 +680,25 @@ def build_config(
             #q.muon_p4_1,
             #q.muon_p4_2,
             q.nelectrons,
-            q.electron_p4_1,
-            q.electron_p4_2,
+            ###
+            #q.electron_p4_1,
+            #q.electron_p4_2,
+            q.lepton_leadingp4_Z,
+            q.lepton_subleadingp4_Z,
+            ###
+            q.llZ_dR,
+            #q.lep_ID,
+            q.Z_H_deta,
+            q.Z_H_dphi,
+            q.mumuH_dphi,
+            ###
             q.met_p4,
+            q.MHT_p4,
             q.smallest_dimuon_mass,
             q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
-            q.dimuon_p4_byPt,
-            q.dielectron_p4_byPt,
+            q.dimuon_p4_Higgs,
+            q.dilepton_p4_Z,
             q.Flag_DiMuonFromHiggs,
             q.Flag_DiEleFromZ,
         ],
@@ -682,18 +724,25 @@ def build_config(
             #q.electron_p4_1,
             #q.electron_p4_2,
             q.met_p4,
+            q.MHT_p4,
             q.smallest_dimuon_mass,
             #q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
             q.dimuon_p4_Higgs,
-            q.dimuon_p4_Z,
+            q.dilepton_p4_Z,
             q.Flag_ZZVeto,
             q.Flag_Ele_Veto,
             q.muon_leadingp4_H,
             q.muon_subleadingp4_H,
             q.mumuH_dR,
-            q.muon_leadingp4_Z,
-            q.muon_subleadingp4_Z,
+            q.lepton_leadingp4_Z,
+            q.lepton_subleadingp4_Z,
+            ###
+            q.llZ_dR,
+            #q.lep_ID,
+            q.Z_H_deta,
+            q.Z_H_dphi,
+            q.mumuH_dphi,
         ],
     )
 
