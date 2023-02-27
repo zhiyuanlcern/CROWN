@@ -14,7 +14,16 @@
 /// are needed for every event
 namespace quantities {
 ///
-/// funciton to puls ele_pdgId and mu_pdgId
+/// funciton to calc mT contains MHT
+ROOT::RDF::RNode mT_MHT(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &particle_p4, const std::string &met) {
+    auto calculate_mt = [](ROOT::Math::PtEtaPhiMVector &particle_p4,
+                           ROOT::Math::PtEtaPhiMVector &met) {
+        return (float)sqrt(2 * fabs(particle_p4.Pt()) * fabs(met.Pt()) *
+                       (1. - cos(particle_p4.Phi() - met.Phi())));
+    };
+    return df.Define(outputname, calculate_mt, {particle_p4, met});
+}
 
 /// function to calc the delta phi
 ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,

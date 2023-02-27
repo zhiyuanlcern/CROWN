@@ -7,6 +7,8 @@
 #include "vectoroperations.hxx"
 #include <Math/Vector4D.h>
 namespace quantities {
+ROOT::RDF::RNode mT_MHT(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &particle_p4, const std::string &met);
 ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &p_1_p4, const std::string &p_2_p4);
 ROOT::RDF::RNode deltaEta(ROOT::RDF::RNode df, const std::string &outputname,

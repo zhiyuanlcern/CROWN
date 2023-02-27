@@ -796,7 +796,8 @@ ROOT::RDF::RNode MHT_Calculation(ROOT::RDF::RNode df, const std::string &outputn
                                     }
                                  }
                                  ///
-                                 p4_MHT = ROOT::Math::PtEtaPhiMVector(-p4_MHT.pt(), p4_MHT.eta(), p4_MHT.phi(), p4_MHT.mass());
+                                 p4_MHT = -p4_MHT;
+                                 ///p4_MHT = ROOT::Math::PtEtaPhiMVector(p4_MHT.pt(), p4_MHT.eta(), p4_MHT.phi(), p4_MHT.mass());
                                  return p4_MHT;
                              };
     auto df1 = 

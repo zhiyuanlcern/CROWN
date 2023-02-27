@@ -449,6 +449,11 @@ def build_config(
             event.lepton_muSS_deta,
             event.lepton_muOS_deta,
             ###
+            event.Calc_MT_muSS_MHT,
+            event.Calc_MT_muOS_MHT,
+            event.Calc_MT_lepton_MHT,
+            event.lepW_MHT_dphi,
+            ###
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             muons.LVMu1,
@@ -494,6 +499,11 @@ def build_config(
             event.lepton_H_deta,
             event.lepton_muSS_deta,
             event.lepton_muOS_deta,
+            ###
+            event.Calc_MT_muSS_MHT,
+            event.Calc_MT_muOS_MHT,
+            event.Calc_MT_lepton_MHT,
+            event.lepW_MHT_dphi,
             #electrons.LVEle1,
         ],
     )
@@ -609,6 +619,10 @@ def build_config(
             ###
             q.met_p4,
             q.MHT_p4,
+            q.mt_muSSAndMHT,
+            q.mt_muOSAndMHT,
+            q.mt_lepWAndMHT,
+            q.lep_MHT_dphi,
             ###
             q.smallest_dimuon_mass,
             q.dimuon_p4_Higgs,
@@ -652,6 +666,10 @@ def build_config(
             q.lep_muSS_deta,
             q.lep_muOS_deta,
             q.MHT_p4,
+            q.mt_muSSAndMHT,
+            q.mt_muOSAndMHT,
+            q.mt_lepWAndMHT,
+            q.lep_MHT_dphi,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,

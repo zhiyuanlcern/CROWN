@@ -504,3 +504,47 @@ mumuH_dphi = Producer(
     output=[q.mumuH_dphi],
     scopes=["e2m","m2m","eemm","mmmm"],
 )
+### calc MT(muSS and MHT)
+Calc_MT_muSS_MHT = Producer(
+    name="Calc_MT_muSS_MHT",
+    call="quantities::mT_MHT({df}, {output}, {input})",
+    input=[
+        q.mu_p4_SSwithLep,
+        q.MHT_p4,
+    ],
+    output=[q.mt_muSSAndMHT],
+    scopes=["e2m","m2m"],
+)
+### calc MT(muOS and MHT)
+Calc_MT_muOS_MHT = Producer(
+    name="Calc_MT_muOS_MHT",
+    call="quantities::mT_MHT({df}, {output}, {input})",
+    input=[
+        q.mu_p4_OSwithLep,
+        q.MHT_p4,
+    ],
+    output=[q.mt_muOSAndMHT],
+    scopes=["e2m","m2m"],
+)
+### calc MT(lepW and MHT)
+Calc_MT_lepton_MHT = Producer(
+    name="Calc_MT_lepton_MHT",
+    call="quantities::mT_MHT({df}, {output}, {input})",
+    input=[
+        q.extra_lep_p4,
+        q.MHT_p4,
+    ],
+    output=[q.mt_lepWAndMHT],
+    scopes=["e2m","m2m"],
+)
+### calc dphi(lepW and MHT)
+lepW_MHT_dphi = Producer(
+    name="lepW_MHT_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.MHT_p4,
+    ],
+    output=[q.lep_MHT_dphi],
+    scopes=["e2m","m2m"],
+)

@@ -103,25 +103,3 @@ Calc_MT_W = Producer(
     output=[q.mt_W],
     scopes=["e2m","m2m"],
 )
-### lepton id (pdgid)
-# RenameEleID = Producer(
-#     name="RenameEleID",
-#     call="basefunctions::rename({df}, {input}, {output})",
-#     input=[nanoAOD.Electron_pdgId],
-#     output=[q.ele_ID],
-#     scopes=["eemm","mmmm"],
-# )
-# RenameMuID = Producer(
-#     name="RenameMuID",
-#     call="basefunctions::rename({df}, {input}, {output})",
-#     input=[nanoAOD.Muon_pdgId],
-#     output=[q.mu_ID],
-#     scopes=["eemm","mmmm"],
-# )
-# PlusLepID = Producer(
-#     name="PlusLepID",
-#     call="quantities::PlusID({df}, {output}, {input})",
-#     input=[nanoAOD.Electron_pdgId,nanoAOD.Muon_pdgId],
-#     output=[q.lep_ID],
-#     scopes=["eemm","mmmm"],
-# )
