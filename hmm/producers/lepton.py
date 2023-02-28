@@ -95,7 +95,7 @@ Ele1_W_e2m = Producer(
 ### calc MT_W using lepton_p4 and met
 Calc_MT_W = Producer(
     name="Calc_MT_W",
-    call="quantities::mT({df}, {output}, {input})",
+    call="quantities::mT_MHT({df}, {output}, {input})",
     input=[
         q.extra_lep_p4,
         q.met_p4,
