@@ -108,6 +108,22 @@ ROOT::RDF::RNode MHT_Calculation(ROOT::RDF::RNode df, const std::string &outputn
                                  const std::string &particle_phis,
                                  const std::string &particle_masses,
                                  const std::string &goodjets_index);
+ROOT::RDF::RNode MHT_CalculationALL(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_pts,
+                                 const std::string &muon_etas,
+                                 const std::string &muon_phis,
+                                 const std::string &muon_masses,
+                                 const std::string &muon_index,
+                                 const std::string &ele_pts,
+                                 const std::string &ele_etas,
+                                 const std::string &ele_phis,
+                                 const std::string &ele_masses,
+                                 const std::string &ele_index,
+                                 const std::string &jet_pts,
+                                 const std::string &jet_etas,
+                                 const std::string &jet_phis,
+                                 const std::string &jet_masses,
+                                 const std::string &goodjets_index);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

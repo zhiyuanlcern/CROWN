@@ -548,3 +548,106 @@ lepW_MHT_dphi = Producer(
     output=[q.lep_MHT_dphi],
     scopes=["e2m","m2m"],
 )
+### cut flag
+FilterFlagDiMuFromH = Producer(
+    name="FilterFlagDiMuFromH",
+    call='basefunctions::FilterThreshold({df}, {input}, {flag_DiMuonFromHiggs}, "==", "DiMuon From Higgs")',
+    input=[q.Flag_DiMuonFromHiggs],
+    output=None,
+    scopes=["e2m","m2m","eemm","mmmm"],
+)
+FilterFlagLepChargeSum = Producer(
+    name="FilterFlagLepChargeSum",
+    call='basefunctions::FilterThreshold({df}, {input}, {flag_LeptonChargeSumVeto}, "==", "LeptonChargeSum")',
+    input=[q.Flag_LeptonChargeSumVeto],
+    output=None,
+    scopes=["e2m","m2m","eemm","mmmm"],
+)
+FilterFlagEleVeto = Producer(
+    name="FilterFlagEleVeto",
+    call='basefunctions::FilterThreshold({df}, {input}, {flag_Ele_Veto}, "==", "Electron Veto")',
+    input=[q.Flag_Ele_Veto],
+    output=None,
+    scopes=["m2m","mmmm"],
+)
+# check dphi
+mumuH_MHT_dphi = Producer(
+    name="mumuH_MHT_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.dimuon_p4_Higgs,
+      q.MHT_p4,
+    ],
+    output=[q.mumuH_MHT_dphi],
+    scopes=["e2m","m2m"],
+)
+mu1_MHT_dphi = Producer(
+    name="mu1_MHT_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.muon_leadingp4_H,
+      q.MHT_p4,
+    ],
+    output=[q.mu1_MHT_dphi],
+    scopes=["e2m","m2m"],
+)
+mu2_MHT_dphi = Producer(
+    name="mu2_MHT_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.muon_subleadingp4_H,
+      q.MHT_p4,
+    ],
+    output=[q.mu2_MHT_dphi],
+    scopes=["e2m","m2m"],
+)
+mu1_mu2_dphi = Producer(
+    name="mu1_mu2_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.muon_leadingp4_H,
+      q.muon_subleadingp4_H,
+    ],
+    output=[q.mu1_mu2_dphi],
+    scopes=["e2m","m2m"],
+)
+lep_mu1_dphi = Producer(
+    name="lep_mu1_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.muon_leadingp4_H,
+    ],
+    output=[q.lep_mu1_dphi],
+    scopes=["e2m","m2m"],
+)
+lep_mu2_dphi = Producer(
+    name="lep_mu2_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.muon_subleadingp4_H,
+    ],
+    output=[q.lep_mu2_dphi],
+    scopes=["e2m","m2m"],
+)
+lep_H_dphi = Producer(
+    name="lep_H_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.lep_H_dphi],
+    scopes=["e2m","m2m"],
+)
+lepW_MHTALL_dphi = Producer(
+    name="lepW_MHTALL_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.extra_lep_p4,
+      q.MHTALL_p4,
+    ],
+    output=[q.lep_MHTALL_dphi],
+    scopes=["e2m","m2m"],
+)

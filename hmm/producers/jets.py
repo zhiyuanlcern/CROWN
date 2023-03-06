@@ -157,7 +157,7 @@ NumberOfMediumB = Producer(
     output=[q.nbjets_medium],
     scopes=["global"],
 )
-# define MHT from good_jet_mask
+# define MHT from good_jet_collection
 Calc_MHT = Producer(
     name="Calc_MHT",
     call="physicsobject::MHT_Calculation({df}, {output}, {input})",
@@ -166,8 +166,106 @@ Calc_MHT = Producer(
         nanoAOD.Jet_eta,
         nanoAOD.Jet_phi,
         q.Jet_mass_corrected,
-        q.good_jets_mask,
+        q.good_jet_collection,
     ],
     output=[q.MHT_p4],
+    scopes=["global","e2m","m2m"],
+)
+# n jets ouput
+NumberOfGoodJets = Producer(
+    name="NumberOfGoodJets",
+    call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
+    input=[q.good_jets_mask],
+    output=[q.njets],
+    scopes=["global"],
+)
+# jet collection
+JetCollection = Producer(
+    name="JetCollection",
+    call="jet::OrderJetsByPt({df}, {output}, {input})",
+    input=[q.Jet_pt_corrected, q.good_jets_mask],
+    output=[q.good_jet_collection],
+    scopes=["global"],
+)
+LVJet1 = Producer(
+    name="LVJet1",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.good_jet_collection,
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+    ],
+    output=[q.jet_p4_1],
+    scopes=["global"],
+)
+LVJet2 = Producer(
+    name="LVJet2",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.good_jet_collection,
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+    ],
+    output=[q.jet_p4_2],
+    scopes=["global"],
+)
+LVJet3 = Producer(
+    name="LVJet3",
+    call="lorentzvectors::build({df}, {input_vec}, 2, {output})",
+    input=[
+        q.good_jet_collection,
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+    ],
+    output=[q.jet_p4_3],
+    scopes=["global"],
+)
+LVJet4 = Producer(
+    name="LVJet4",
+    call="lorentzvectors::build({df}, {input_vec}, 3, {output})",
+    input=[
+        q.good_jet_collection,
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+    ],
+    output=[q.jet_p4_4],
+    scopes=["global"],
+)
+FilterNJets = Producer(
+    name="FilterNJets",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_njets}, ">=", "Number of jets >= 3")',
+    input=[q.njets],
+    output=None,
+    scopes=["global"],
+)
+Calc_MHT_all = Producer(
+    name="Calc_MHT_all",
+    call="physicsobject::MHT_CalculationALL({df}, {output}, {input})",
+    input=[
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+        q.good_muon_collection,
+        nanoAOD.Electron_pt,
+        nanoAOD.Electron_eta,
+        nanoAOD.Electron_phi,
+        nanoAOD.Electron_mass,
+        q.base_electron_collection,
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_phi,
+        q.Jet_mass_corrected,
+        q.good_jet_collection,
+    ],
+    output=[q.MHTALL_p4],
     scopes=["global","e2m","m2m"],
 )

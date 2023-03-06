@@ -35,13 +35,14 @@ ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &p_1_p4, const std::string &p_2_p4) {
     auto calculate_deltaPhi = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
                                ROOT::Math::PtEtaPhiMVector &p_2_p4) {
-        if ( p_1_p4.phi() - p_2_p4.phi() > TMath::Pi() ) {
-            return (float)fabs(p_1_p4.phi() - p_2_p4.phi() - TMath::Pi());
-        } else if ( p_1_p4.phi() - p_2_p4.phi() < -TMath::Pi() ) {
-            return (float)fabs(p_1_p4.phi() - p_2_p4.phi() + TMath::Pi());
-        } else {
-            return (float)fabs(p_1_p4.phi() - p_2_p4.phi());
-        }
+        // if ( p_1_p4.phi() - p_2_p4.phi() > TMath::Pi() ) {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi() - TMath::Pi());
+        // } else if ( p_1_p4.phi() - p_2_p4.phi() < -TMath::Pi() ) {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi() + TMath::Pi());
+        // } else {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi());
+        // }
+        return fabs(ROOT::Math::VectorUtil::DeltaPhi(p_1_p4, p_2_p4));
     };
     return df.Define(outputname, calculate_deltaPhi, {p_1_p4, p_2_p4});
 }

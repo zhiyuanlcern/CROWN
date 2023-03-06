@@ -200,34 +200,34 @@ def build_config(
         {
             "muon_index_in_pair": 0,
             "second_muon_index_in_pair": 1,
-            "min_muon_pt": 23.0,
-            "max_muon_eta": 2.1,
-            "muon_iso_cut": 0.15,
+            "min_muon_pt": 20.0,
+            "max_muon_eta": 2.4,
+            "muon_iso_cut": 0.25,
         },
     )
     configuration.add_config_parameters(
         ["e2m"],
         {
             "TODO_GoodElectron?": 1,
-            "min_muon_pt": 23.0,
-            "max_muon_eta": 2.1,
-            "muon_iso_cut": 0.15,
+            "min_muon_pt": 20.0,
+            "max_muon_eta": 2.4,
+            "muon_iso_cut": 0.25,
         }
     )
     configuration.add_config_parameters(
         ["eemm"],
         {
-            "min_muon_pt": 23.0,
-            "max_muon_eta": 2.1,
-            "muon_iso_cut": 0.15,
+            "min_muon_pt": 20.0,
+            "max_muon_eta": 2.4,
+            "muon_iso_cut": 0.25,
         }
     )
     configuration.add_config_parameters(
         ["mmmm"],
         {
-            "min_muon_pt": 23.0,
-            "max_muon_eta": 2.1,
-            "muon_iso_cut": 0.15,
+            "min_muon_pt": 20.0,
+            "max_muon_eta": 2.4,
+            "muon_iso_cut": 0.25,
         }
     )
     # Muon scale factors configuration
@@ -340,6 +340,7 @@ def build_config(
         {
             "vetottH_max_nbjets_loose" : 1,
             "vetottH_max_nbjets_medium" : 0,
+            # "vh_njets" : 3,
         }
     )
 
@@ -349,6 +350,9 @@ def build_config(
         {
             "vh_m2m_nmuons" : 3,
             "min_dimuon_mass" : 12,
+            "flag_DiMuonFromHiggs" : 1,
+            "flag_Ele_Veto" : 1,
+            "flag_LeptonChargeSumVeto" : 1,
             # "dimuon_pair" : 1, # dimuon_pair in [110,150] >=1
         }
     )
@@ -359,6 +363,8 @@ def build_config(
             "vh_e2m_nmuons" : 2,
             "vh_e2m_nelectrons" : 1,
             "min_dimuon_mass" : 12,
+            "flag_DiMuonFromHiggs" : 1,
+            "flag_LeptonChargeSumVeto" : 1,
         }
     )
     configuration.add_config_parameters(
@@ -368,6 +374,8 @@ def build_config(
             "vh_2e2m_nelectrons" : 2,
             "min_dimuon_mass" : 12,
             "min_dielectron_mass" : 12,
+            "flag_DiMuonFromHiggs" : 1,
+            "flag_LeptonChargeSumVeto" : 2,
         }
     )
     configuration.add_config_parameters(
@@ -375,6 +383,9 @@ def build_config(
         {
             "vh_4m_nmuons" : 4,
             "min_dimuon_mass" : 12,
+            "flag_DiMuonFromHiggs" : 1,
+            "flag_Ele_Veto" : 1,
+            "flag_LeptonChargeSumVeto" : 2,
         }
     )
 
@@ -401,12 +412,20 @@ def build_config(
             jets.GoodJets, # vh overlap removal with ?base? muons done [need validation]
             jets.GoodBJetsLoose, # vh TODO update btag
             jets.GoodBJetsMedium, # vh TODO update btag
+            ###
+            jets.NumberOfGoodJets,
             jets.NumberOfLooseB, # vh count loose bjets for ttH veto
             jets.NumberOfMediumB, # vh count medium bjets for ttH veto
             event.VetottHLooseB, # vh veto ttH no more than 1 loose bjet
             event.VetottHMediumB, # vh veto ttH no more than 1 medium bjet
             met.MetBasics, # build met vector for calculation
+            jets.JetCollection,
             jets.Calc_MHT,
+            #jets.FilterNJets,
+            #jets.LVJet1,
+            #jets.LVJet2,
+            #jets.LVJet3,
+            #jets.LVJet4,
         ],
     )
     configuration.add_producers(
@@ -428,8 +447,13 @@ def build_config(
             lepton.LeptonChargeSumVeto,
             ###
             electrons.NumberOfBaseElectrons,
+            electrons.ElectronCollection,
             electrons.Ele_Veto,
-            # end
+            # flag cut
+            event.FilterFlagDiMuFromH,
+            event.FilterFlagLepChargeSum,
+            event.FilterFlagEleVeto,
+            ###
             muons.Mu1_H, # vh
             muons.Mu2_H, # vh
             ### extra muon in m2m
@@ -454,6 +478,16 @@ def build_config(
             event.Calc_MT_lepton_MHT,
             event.lepW_MHT_dphi,
             ###
+            event.mumuH_MHT_dphi,
+            event.mu1_MHT_dphi,
+            event.mu2_MHT_dphi,
+            event.mu1_mu2_dphi,
+            event.lep_mu1_dphi,
+            event.lep_mu2_dphi,
+            event.lep_H_dphi,
+            jets.Calc_MHT_all,
+            event.lepW_MHTALL_dphi,
+            #
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             muons.LVMu1,
@@ -483,6 +517,9 @@ def build_config(
             event.HiggsToDiMuonPair_p4, # select the first dimuon pairs in [110,150] that ordered by pt
             ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
+            # flag cut
+            event.FilterFlagDiMuFromH,
+            event.FilterFlagLepChargeSum,
             ###
             muons.Mu1_H,
             muons.Mu2_H,
@@ -505,6 +542,19 @@ def build_config(
             event.Calc_MT_lepton_MHT,
             event.lepW_MHT_dphi,
             #electrons.LVEle1,
+            event.mumuH_MHT_dphi,
+            event.mu1_MHT_dphi,
+            event.mu2_MHT_dphi,
+            event.mu1_mu2_dphi,
+            event.lep_mu1_dphi,
+            event.lep_mu2_dphi,
+            event.lep_H_dphi,
+            jets.Calc_MHT_all,
+            event.lepW_MHTALL_dphi,
+            #
+            muons.LVMu1,
+            muons.LVMu2,
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
         ],
     )
     configuration.add_producers(
@@ -533,6 +583,9 @@ def build_config(
             event.ZToDiElectronPair_p4,
             ###
             lepton.LeptonChargeSumVeto_elemu, # only in e2m and 2e2m channel
+            # flag cut
+            event.FilterFlagDiMuFromH,
+            event.FilterFlagLepChargeSum,
             ###
             muons.Mu1_H,
             muons.Mu2_H,
@@ -545,6 +598,10 @@ def build_config(
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
+            #
+            muons.LVMu1,
+            muons.LVMu2,
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
         ],
     )
     configuration.add_producers(
@@ -568,6 +625,11 @@ def build_config(
             ###
             lepton.LeptonChargeSumVeto,
             electrons.Ele_Veto,
+            # flag cut
+            # event.FilterFlagDiMuFromH,
+            event.FilterFlagLepChargeSum,
+            event.FilterFlagEleVeto,
+            ###
             muons.Mu1_H_4m,
             muons.Mu2_H_4m,
             event.mumuH_dR,
@@ -616,6 +678,10 @@ def build_config(
             #
             q.nmuons,
             q.nelectrons,
+            #
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
             ###
             q.met_p4,
             q.MHT_p4,
@@ -624,12 +690,27 @@ def build_config(
             q.mt_lepWAndMHT,
             q.lep_MHT_dphi,
             ###
+            q.mumuH_MHT_dphi,
+            q.mu1_MHT_dphi,
+            q.mu2_MHT_dphi,
+            q.mu1_mu2_dphi,
+            q.lep_mu1_dphi,
+            q.lep_mu2_dphi,
+            q.lep_H_dphi,
+            #q.jet_p4_1,
+            #q.jet_p4_2,
+            #q.jet_p4_3,
+            q.MHTALL_p4,
+            q.lep_MHTALL_dphi,
+            #q.jet_p4_4,
+            #
             q.smallest_dimuon_mass,
             q.dimuon_p4_Higgs,
             q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
+            triggers.GenerateSingleMuonTriggerFlags.output_group,
         ],
     )
     configuration.add_outputs(
@@ -647,6 +728,10 @@ def build_config(
             nanoAOD.event,
             q.puweight,
             q.nmuons,
+            #
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
             #q.muon_p4_1,
             #q.muon_p4_2,
             q.muon_leadingp4_H,
@@ -670,11 +755,26 @@ def build_config(
             q.mt_muOSAndMHT,
             q.mt_lepWAndMHT,
             q.lep_MHT_dphi,
+            q.lep_H_dphi,
+            #
+            q.mumuH_MHT_dphi,
+            q.mu1_MHT_dphi,
+            q.mu2_MHT_dphi,
+            q.mu1_mu2_dphi,
+            q.lep_mu1_dphi,
+            q.lep_mu2_dphi,
+            #q.jet_p4_1,
+            #q.jet_p4_2,
+            #q.jet_p4_3,
+            q.MHTALL_p4,
+            q.lep_MHTALL_dphi,
+            #q.jet_p4_4,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,
             q.dimuon_p4_Higgs,
             q.Flag_DiMuonFromHiggs,
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
         ],
     )
     configuration.add_outputs(
@@ -698,6 +798,10 @@ def build_config(
             #q.muon_p4_1,
             #q.muon_p4_2,
             q.nelectrons,
+            #
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
             ###
             #q.electron_p4_1,
             #q.electron_p4_2,
@@ -719,6 +823,7 @@ def build_config(
             q.dilepton_p4_Z,
             q.Flag_DiMuonFromHiggs,
             q.Flag_DiEleFromZ,
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
         ],
     )
     configuration.add_outputs(
@@ -736,6 +841,10 @@ def build_config(
             nanoAOD.event,
             q.puweight,
             q.nmuons,
+            #
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
             #q.muon_p4_1,
             #q.muon_p4_2,
             #q.nelectrons,

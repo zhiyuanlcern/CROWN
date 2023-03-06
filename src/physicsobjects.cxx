@@ -778,30 +778,99 @@ ROOT::RDF::RNode MHT_Calculation(ROOT::RDF::RNode df, const std::string &outputn
                                  const ROOT::RVec<float> &particle_masses,
                                  const ROOT::RVec<int> &goodjets_index) {
                                  ROOT::Math::PtEtaPhiMVector p4_MHT(0, 0, 0, 0);
-                                 std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                 ///std::vector<ROOT::Math::PtEtaPhiMVector> p4;
                                  ///
-                                 for (unsigned int i = 0; i < (int)goodjets_index.size(); ++i ) {
-                                    try {
-                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodjets_index[i]), 
-                                                                         particle_etas.at(goodjets_index[i]),
-                                                                         particle_phis.at(goodjets_index[i]),
-                                                                         particle_masses.at(goodjets_index[i])));
-                                    } catch (const std::out_of_range &e) {
-                                        p4.push_back(ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float));
-                                    }
-                                 }
-                                 for (unsigned int j = 0; j < p4.size(); ++j ) {
-                                    if ( p4[j].pt() > 30 && fabs( p4[j].eta() ) < 4.7 ) {
-                                        p4_MHT += p4[j];
+                                //  for (unsigned int i = 0; i < (int)goodjets_index.size(); ++i ) {
+                                //     try {
+                                //         p4.push_back(ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodjets_index[i]), 
+                                //                                          particle_etas.at(goodjets_index[i]),
+                                //                                          particle_phis.at(goodjets_index[i]),
+                                //                                          particle_masses.at(goodjets_index[i])));
+                                //     } catch (const std::out_of_range &e) {
+                                //         p4.push_back(ROOT::Math::PtEtaPhiMVector(0,0,0,0));
+                                //     }
+                                //  }
+                                 for (unsigned int j = 0; j < (int)goodjets_index.size(); ++j ) {
+                                    if ( particle_pts.at(goodjets_index[j]) > 30 && fabs( particle_etas.at(goodjets_index[j]) ) < 4.7 ) {
+                                        p4_MHT += ROOT::Math::PtEtaPhiMVector(particle_pts.at(goodjets_index[j]), 
+                                                                         particle_etas.at(goodjets_index[j]),
+                                                                         particle_phis.at(goodjets_index[j]),
+                                                                         particle_masses.at(goodjets_index[j]));
                                     }
                                  }
                                  ///
                                  p4_MHT = -p4_MHT;
-                                 ///p4_MHT = ROOT::Math::PtEtaPhiMVector(p4_MHT.pt(), p4_MHT.eta(), p4_MHT.phi(), p4_MHT.mass());
-                                 return p4_MHT;
+                                 ///p4_MHT = -ROOT::Math::PtEtaPhiEVector(p4_MHT.Pt(), 0, p4_MHT.Phi(), p4_MHT.Pt());
+                                 return (ROOT::Math::PtEtaPhiMVector)p4_MHT;
                              };
     auto df1 = 
         df.Define(outputname, MHT_calc_p4, {particle_pts, particle_etas, particle_phis, particle_masses, goodjets_index});
+    return df1;
+}
+/// UF calculation about MHT?
+ROOT::RDF::RNode MHT_CalculationALL(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &muon_pts,
+                                 const std::string &muon_etas,
+                                 const std::string &muon_phis,
+                                 const std::string &muon_masses,
+                                 const std::string &muon_index,
+                                 const std::string &ele_pts,
+                                 const std::string &ele_etas,
+                                 const std::string &ele_phis,
+                                 const std::string &ele_masses,
+                                 const std::string &ele_index,
+                                 const std::string &jet_pts,
+                                 const std::string &jet_etas,
+                                 const std::string &jet_phis,
+                                 const std::string &jet_masses,
+                                 const std::string &goodjets_index) {
+    auto MHT_calc_p4 = [](const ROOT::RVec<float> &muon_pts,
+                                 const ROOT::RVec<float> &muon_etas,
+                                 const ROOT::RVec<float> &muon_phis,
+                                 const ROOT::RVec<float> &muon_masses,
+                                 const ROOT::RVec<int> &muon_index,
+                                 const ROOT::RVec<float> &ele_pts,
+                                 const ROOT::RVec<float> &ele_etas,
+                                 const ROOT::RVec<float> &ele_phis,
+                                 const ROOT::RVec<float> &ele_masses,
+                                 const ROOT::RVec<int> &ele_index,
+                                 const ROOT::RVec<float> &jet_pts,
+                                 const ROOT::RVec<float> &jet_etas,
+                                 const ROOT::RVec<float> &jet_phis,
+                                 const ROOT::RVec<float> &jet_masses,
+                                 const ROOT::RVec<int> &goodjets_index) {
+                                ROOT::Math::PtEtaPhiMVector p4_MHTALL(0, 0, 0, 0);
+                                ///std::vector<ROOT::Math::PtEtaPhiMVector> p4;
+                                /// muon
+                                for (unsigned int j = 0; j < (int)muon_index.size(); ++j ) {
+                                        p4_MHTALL += ROOT::Math::PtEtaPhiMVector(muon_pts.at(muon_index[j]), 
+                                                                        muon_etas.at(muon_index[j]),
+                                                                        muon_phis.at(muon_index[j]),
+                                                                        muon_masses.at(muon_index[j]));
+                                }
+                                /// ele
+                                for (unsigned int j = 0; j < (int)ele_index.size(); ++j ) {
+                                        p4_MHTALL += ROOT::Math::PtEtaPhiMVector(ele_pts.at(ele_index[j]), 
+                                                                        ele_etas.at(ele_index[j]),
+                                                                        ele_phis.at(ele_index[j]),
+                                                                        ele_masses.at(ele_index[j]));
+                                }
+                                /// jet
+                                for (unsigned int j = 0; j < (int)goodjets_index.size(); ++j ) {
+                                    if ( jet_pts.at(goodjets_index[j]) > 30 && fabs( jet_etas.at(goodjets_index[j]) ) < 4.7 ) {
+                                        p4_MHTALL += ROOT::Math::PtEtaPhiMVector(jet_pts.at(goodjets_index[j]), 
+                                                                        jet_etas.at(goodjets_index[j]),
+                                                                        jet_phis.at(goodjets_index[j]),
+                                                                        jet_masses.at(goodjets_index[j]));
+                                    }
+                                }
+                                ///
+                                p4_MHTALL = -p4_MHTALL;
+                                ///p4_MHT = -ROOT::Math::PtEtaPhiEVector(p4_MHT.Pt(), 0, p4_MHT.Phi(), p4_MHT.Pt());
+                                return (ROOT::Math::PtEtaPhiMVector)p4_MHTALL;
+                             };
+    auto df1 = 
+        df.Define(outputname, MHT_calc_p4, {muon_pts, muon_etas, muon_phis, muon_masses, muon_index, ele_pts, ele_etas, ele_phis, ele_masses, ele_index, jet_pts, jet_etas, jet_phis, jet_masses, goodjets_index});
     return df1;
 }
 ///

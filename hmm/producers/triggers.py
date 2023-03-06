@@ -20,6 +20,22 @@ GenerateSingleMuonTriggerFlags = ExtendedVectorProducer(
         nanoAOD.TriggerObject_phi,
     ],
     output="flagname",
-    scope=["e2m","m2m", "eemm","mmmm"],
+    scope=["m2m"],
+    vec_config="singlemuon_trigger",
+)
+GenerateSingleMuonTriggerFlagsForDiMuChannel = ExtendedVectorProducer(
+    name="GenerateSingleMuonTriggerFlagsForDiMuChannel",
+    call='trigger::GenerateDoubleTriggerORFlag({df}, {output}, {input}, "{hlt_path}", {ptcut}, {ptcut}, {etacut}, {etacut}, {trigger_particle_id}, {trigger_particle_id}, {filterbit}, {filterbit}, {max_deltaR_triggermatch} )',
+    input=[
+        q.muon_p4_1,
+        q.muon_p4_2,
+        nanoAOD.TriggerObject_bit,
+        nanoAOD.TriggerObject_id,
+        nanoAOD.TriggerObject_pt,
+        nanoAOD.TriggerObject_eta,
+        nanoAOD.TriggerObject_phi,
+    ],
+    output="flagname",
+    scope=["e2m","eemm"],
     vec_config="singlemuon_trigger",
 )

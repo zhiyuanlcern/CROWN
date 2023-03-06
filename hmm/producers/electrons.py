@@ -107,7 +107,7 @@ ElectronCollection = Producer(
     call="jet::OrderJetsByPt({df}, {output}, {input})",
     input=[nanoAOD.Electron_pt, q.base_electrons_mask],
     output=[q.base_electron_collection],  # eles after ordered by pt
-    scopes=["e2m","eemm"],
+    scopes=["e2m","m2m","eemm"],
 )
 LVEle1 = Producer(
     name="LVEle1",
