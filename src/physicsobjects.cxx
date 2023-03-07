@@ -874,6 +874,16 @@ ROOT::RDF::RNode MHT_CalculationALL(ROOT::RDF::RNode df, const std::string &outp
     return df1;
 }
 ///
+/// function to make all pass flagZmassVeto in e2m that be the same as m2m
+ROOT::RDF::RNode PassFlag(ROOT::RDF::RNode df, const std::string &outputname) {
+    auto Pass_Flag = []() {
+                            return 1;
+                        };
+    auto df1 = 
+        df.Define(outputname, Pass_Flag, {});
+    return df1;
+}
+///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4) {

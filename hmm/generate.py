@@ -11,6 +11,8 @@ def run(args):
     available_samples = [
         "data",
         "vhmm", # vh
+        "zjjew",
+        "triboson",
         "embedding",
         "ttbar",
         "dyjets",

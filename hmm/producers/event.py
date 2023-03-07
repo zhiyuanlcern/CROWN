@@ -48,6 +48,20 @@ is_vhmm = Producer(
     output=[q.is_vhmm],
     scopes=["global"],
 )
+is_zjjew = Producer(
+    name="is_zjjew",
+    call="basefunctions::DefineQuantity({df}, {output}, {is_zjjew})",
+    input=[],
+    output=[q.is_zjjew],
+    scopes=["global"],
+)
+is_triboson = Producer(
+    name="is_triboson",
+    call="basefunctions::DefineQuantity({df}, {output}, {is_triboson})",
+    input=[],
+    output=[q.is_triboson],
+    scopes=["global"],
+)
 is_embedding = Producer(
     name="is_embedding",
     call="basefunctions::DefineQuantity({df}, {output}, {is_embedding})",
@@ -98,6 +112,8 @@ SampleFlags = ProducerGroup(
         is_wjets,
         is_diboson,
         is_vhmm,
+        is_zjjew,
+        is_triboson,
     ],
 )
 
@@ -272,7 +288,7 @@ DiMuonMassFromZVeto = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.Flag_dimuon_Zmass_veto], # 1 stands for noZmass, 0 stands for has dimuon from Zmass
-    scopes=["global","e2m","m2m","eemm","mmmm"],
+    scopes=["global","m2m","eemm","mmmm"],
 )
 Mask_DiMuonPair = Producer(
     name="Mask_DiMuonPair",
@@ -650,4 +666,18 @@ lepW_MHTALL_dphi = Producer(
     ],
     output=[q.lep_MHTALL_dphi],
     scopes=["e2m","m2m"],
+)
+PassFlagZmassVeto = Producer(
+    name="PassFlagZmassVeto",
+    call='physicsobject::PassFlag({df}, {output})',
+    input=[],
+    output=[q.Flag_dimuon_Zmass_veto], # e2m channel using this all pass flag
+    scopes=["e2m"],
+)
+PassFlagEleVeto = Producer(
+    name="PassFlagEleVeto",
+    call='physicsobject::PassFlag({df}, {output})',
+    input=[],
+    output=[q.Flag_Ele_Veto], # e2m channel using this all pass flag
+    scopes=["e2m"],
 )
