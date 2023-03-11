@@ -14,7 +14,7 @@ def run(args):
         "zjjew",
         "triboson",
         "embedding",
-        "ttbar",
+        "top",
         "dyjets",
         "wjets",
         "diboson",

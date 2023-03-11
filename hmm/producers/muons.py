@@ -247,6 +247,19 @@ LVMu3 = Producer(
     output=[q.muon_p4_3],
     scopes=["m2m", "mmmm"],
 )
+LVMu4 = Producer(
+    name="LVMu4",
+    call="lorentzvectors::build({df}, {input_vec}, 3, {output})",
+    input=[
+        q.good_muon_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_p4_4],
+    scopes=["mmmm"],
+)
 ##### 
 ##### The leading muon from Higgs
 Mu1_H = Producer(

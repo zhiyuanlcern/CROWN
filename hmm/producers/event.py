@@ -69,11 +69,11 @@ is_embedding = Producer(
     output=[q.is_embedding],
     scopes=["global"],
 )
-is_ttbar = Producer(
-    name="is_ttbar",
-    call="basefunctions::DefineQuantity({df}, {output}, {is_ttbar})",
+is_top = Producer(
+    name="is_top",
+    call="basefunctions::DefineQuantity({df}, {output}, {is_top})",
     input=[],
-    output=[q.is_ttbar],
+    output=[q.is_top],
     scopes=["global"],
 )
 is_dyjets = Producer(
@@ -107,7 +107,7 @@ SampleFlags = ProducerGroup(
     subproducers=[
         is_data,
         is_embedding,
-        is_ttbar,
+        is_top,
         is_dyjets,
         is_wjets,
         is_diboson,
@@ -586,6 +586,13 @@ FilterFlagEleVeto = Producer(
     output=None,
     scopes=["m2m","mmmm"],
 )
+FilterFlagDiEleZMassVeto = Producer(
+    name="FilterFlagDiEleZMassVeto",
+    call='basefunctions::FilterThreshold({df}, {input}, {flag_DiEleFromZ}, "==", "DiElectron ZMass Veto")',
+    input=[q.Flag_DiEleFromZ],
+    output=None,
+    scopes=["eemm"],
+)
 # check dphi
 mumuH_MHT_dphi = Producer(
     name="mumuH_MHT_dphi",
@@ -678,6 +685,34 @@ PassFlagEleVeto = Producer(
     name="PassFlagEleVeto",
     call='physicsobject::PassFlag({df}, {output})',
     input=[],
-    output=[q.Flag_Ele_Veto], # e2m channel using this all pass flag
-    scopes=["e2m"],
+    output=[q.Flag_Ele_Veto], # e2m, eemm channel using this all pass flag
+    scopes=["e2m","eemm"],
+)
+PassFlagZZVeto = Producer(
+    name="PassFlagZZVeto",
+    call='physicsobject::PassFlag({df}, {output})',
+    input=[],
+    output=[q.Flag_ZZVeto], # eemm channel using this all pass flag
+    scopes=["eemm"],
+)
+PassFlagDiEleFromZ = Producer(
+    name="PassFlagDiEleFromZ",
+    call='physicsobject::PassFlag({df}, {output})',
+    input=[],
+    output=[q.Flag_DiEleFromZ], # mmmm channel using this all pass flag
+    scopes=["mmmm"],
+)
+PassFlagDiMuonHiggs = Producer(
+    name="PassFlagDiMuonHiggs",
+    call='physicsobject::PassFlag({df}, {output})',
+    input=[],
+    output=[q.Flag_DiMuonFromHiggs], # mmmm channel using this all pass flag
+    scopes=["mmmm"], # already done in ZZ Veto (exist H and Z)
+)
+PassMinDiEleMass = Producer(
+    name="PassMinDiEleMass",
+    call='physicsobject::PassDiEleIn4m({df}, {output})',
+    input=[],
+    output=[q.smallest_dielectron_mass], # mmmm channel using this all pass flag
+    scopes=["mmmm"], # already done in ZZ Veto (exist H and Z)
 )

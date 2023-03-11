@@ -884,6 +884,15 @@ ROOT::RDF::RNode PassFlag(ROOT::RDF::RNode df, const std::string &outputname) {
     return df1;
 }
 ///
+ROOT::RDF::RNode PassDiEleIn4m(ROOT::RDF::RNode df, const std::string &outputname) {
+    auto Pass = []() {
+                            return 999.0;
+                        };
+    auto df1 = 
+        df.Define(outputname, Pass, {});
+    return df1;
+}
+///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4) {

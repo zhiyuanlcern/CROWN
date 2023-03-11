@@ -376,6 +376,7 @@ def build_config(
             "min_dielectron_mass" : 12,
             "flag_DiMuonFromHiggs" : 1,
             "flag_LeptonChargeSumVeto" : 2,
+            "flag_DiEleFromZ" : 1,
         }
     )
     configuration.add_config_parameters(
@@ -589,7 +590,11 @@ def build_config(
             # flag cut
             event.FilterFlagDiMuFromH,
             event.FilterFlagLepChargeSum,
-            ###
+            event.FilterFlagDiEleZMassVeto,
+            ### Pass same flag,
+            event.PassFlagEleVeto,
+            event.PassFlagZZVeto,
+            #
             muons.Mu1_H,
             muons.Mu2_H,
             event.mumuH_dR,
@@ -614,6 +619,8 @@ def build_config(
             muons.NumberOfGoodMuons,
             event.FilterNMuons_4m, # vh == 4 muons
             muons.MuonCollection,
+            #
+            electrons.NumberOfBaseElectrons,
             ###
             lepton.CalcSmallestDiMuonMass,
             event.DimuonMinMassCut,
@@ -644,6 +651,16 @@ def build_config(
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
+            # pass flag, be consistent with eemm
+            event.PassFlagDiEleFromZ,
+            event.PassFlagDiMuonHiggs,
+            event.PassMinDiEleMass,
+            # Muon collection for trigger
+            muons.LVMu1,
+            muons.LVMu2,
+            muons.LVMu3,
+            muons.LVMu4,
+            triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel,
         ],
     )
 
@@ -652,7 +669,7 @@ def build_config(
         [
             q.is_data,
             q.is_embedding,
-            q.is_ttbar,
+            q.is_top,
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
@@ -723,7 +740,7 @@ def build_config(
         [
             q.is_data,
             q.is_embedding,
-            q.is_ttbar,
+            q.is_top,
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
@@ -791,7 +808,7 @@ def build_config(
         [
             q.is_data,
             q.is_embedding,
-            q.is_ttbar,
+            q.is_top,
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
@@ -834,6 +851,8 @@ def build_config(
             q.dilepton_p4_Z,
             q.Flag_DiMuonFromHiggs,
             q.Flag_DiEleFromZ,
+            q.Flag_Ele_Veto, # all pass flag ele veto, all 1
+            q.Flag_ZZVeto, # all pass flag ZZ veto, all 1
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
         ],
     )
@@ -842,7 +861,7 @@ def build_config(
         [
             q.is_data,
             q.is_embedding,
-            q.is_ttbar,
+            q.is_top,
             q.is_dyjets,
             q.is_wjets,
             q.is_diboson,
@@ -860,7 +879,7 @@ def build_config(
             q.nbjets_medium,
             #q.muon_p4_1,
             #q.muon_p4_2,
-            #q.nelectrons,
+            q.nelectrons,
             #q.electron_p4_1,
             #q.electron_p4_2,
             q.met_p4,
@@ -878,13 +897,25 @@ def build_config(
             q.lepton_leadingp4_Z,
             q.lepton_subleadingp4_Z,
             ###
+            q.Flag_DiEleFromZ,
+            q.Flag_DiMuonFromHiggs,
+            q.smallest_dielectron_mass,
+            #
             q.llZ_dR,
             #q.lep_ID,
             q.Z_H_deta,
             q.Z_H_dphi,
             q.mumuH_dphi,
+            #
+            triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel.output_group,
         ],
     )
+    # add genWeight for everything but data
+    if sample != "data":
+        configuration.add_outputs(
+            scopes,
+            nanoAOD.genWeight,
+        )
 
     configuration.add_modification_rule(
         "global",
