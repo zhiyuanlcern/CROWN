@@ -886,7 +886,7 @@ ROOT::RDF::RNode PassFlag(ROOT::RDF::RNode df, const std::string &outputname) {
 ///
 ROOT::RDF::RNode PassDiEleIn4m(ROOT::RDF::RNode df, const std::string &outputname) {
     auto Pass = []() {
-                            return 999.0;
+                            return 999.0f;
                         };
     auto df1 = 
         df.Define(outputname, Pass, {});
