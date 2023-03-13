@@ -17,7 +17,7 @@ from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
 from code_generation.configuration import Configuration
 from code_generation.modifiers import EraModifier
-from code_generation.rules import RemoveProducer
+from code_generation.rules import RemoveProducer, AppendProducer
 from code_generation.systematics import SystematicShift
 
 
@@ -920,7 +920,7 @@ def build_config(
     configuration.add_modification_rule(
         "global",
         RemoveProducer(
-            producers=[event.PUweights],
+            producers=[event.PUweights, jets.JetEnergyCorrection,],
             samples=["data"],
         ),
     )
@@ -928,10 +928,20 @@ def build_config(
         "m2m",
         RemoveProducer(
             producers=[
-                genparticles.MMGenDiTauPairQuantities,
-                scalefactors.MuonIDIso_SF,
+                # genparticles.MMGenDiTauPairQuantities,
+                # scalefactors.MuonIDIso_SF,
             ],
             samples=["data"],
+        ),
+    )
+    # changes needed for data
+    # global scope
+    configuration.add_modification_rule(
+        "global",
+        AppendProducer(
+            producers=[jets.RenameJetsData, event.JSONFilter,],
+            samples=["data"],
+            update_output=False,
         ),
     )
 
