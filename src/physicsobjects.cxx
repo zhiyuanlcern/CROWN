@@ -923,6 +923,23 @@ ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outpu
     return df.Define(outputname, calculate_costhstar, {lepton_p4, muOS_p4});
 }
 ///
+//// met_p4 PtEtaPhiM
+//// met_p4 only Pt and Phi
+ROOT::RDF::RNode MetCut(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &met_p4, const float pt_threshold) {
+    auto cut_met = [pt_threshold](ROOT::Math::PtEtaPhiMVector &met) {
+                                if ((float)met.Pt() >= pt_threshold) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
+                            };
+    auto df1 = 
+        df.Define(outputname, cut_met, {met_p4});
+    return df1;
+}
+////
+///
 /// Make Higgs To MuMu Pair Return to a mask
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4) {

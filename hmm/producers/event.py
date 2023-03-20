@@ -525,7 +525,7 @@ mumuH_dphi = Producer(
       q.muon_subleadingp4_H,
     ],
     output=[q.mumuH_dphi],
-    scopes=["e2m","m2m","eemm","mmmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
 ### calc MT(muSS and MHT)
 Calc_MT_muSS_MHT = Producer(
@@ -609,7 +609,7 @@ mumuH_MHT_dphi = Producer(
       q.MHT_p4,
     ],
     output=[q.mumuH_MHT_dphi],
-    scopes=["e2m","m2m"],
+    scopes=["e2m","m2m","nnmm"],
 )
 mu1_MHT_dphi = Producer(
     name="mu1_MHT_dphi",
@@ -619,7 +619,7 @@ mu1_MHT_dphi = Producer(
       q.MHT_p4,
     ],
     output=[q.mu1_MHT_dphi],
-    scopes=["e2m","m2m"],
+    scopes=["e2m","m2m","nnmm"],
 )
 mu2_MHT_dphi = Producer(
     name="mu2_MHT_dphi",
@@ -629,7 +629,7 @@ mu2_MHT_dphi = Producer(
       q.MHT_p4,
     ],
     output=[q.mu2_MHT_dphi],
-    scopes=["e2m","m2m"],
+    scopes=["e2m","m2m","nnmm"],
 )
 mu1_mu2_dphi = Producer(
     name="mu1_mu2_dphi",
@@ -639,7 +639,7 @@ mu1_mu2_dphi = Producer(
       q.muon_subleadingp4_H,
     ],
     output=[q.mu1_mu2_dphi],
-    scopes=["e2m","m2m"],
+    scopes=["e2m","m2m","nnmm"],
 )
 lep_mu1_dphi = Producer(
     name="lep_mu1_dphi",
@@ -733,4 +733,21 @@ Calc_CosThStar_lep_muOS = Producer(
     ],
     output=[q.lep_muOS_cosThStar],
     scopes=["e2m","m2m"],
+)
+# Cut met pt, return a flag to do filter
+Flag_MetCut = Producer(
+    name="Flag_MetCut",
+    call="physicsobject::MetCut({df}, {output}, {input}, {min_met})",
+    input=[
+      q.met_p4,
+    ],
+    output=[q.Flag_MetCut],
+    scopes=["nnmm"],
+)
+FilterFlagMetCut = Producer(
+    name="FilterFlagMetCut",
+    call='basefunctions::FilterThreshold({df}, {input}, {flag_MetCut}, "==", "MET >= 50 GeV")',
+    input=[q.Flag_MetCut],
+    output=None,
+    scopes=["nnmm"],
 )

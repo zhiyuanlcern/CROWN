@@ -401,10 +401,12 @@ def build_config(
         "nnmm",
         {
             "vh_nnmm_nmuons" : 2,
+            "min_met" : 50.0,
             "min_dimuon_mass" : 12,
             "flag_DiMuonFromHiggs" : 1,
             "flag_Ele_Veto" : 1,
             "flag_LeptonChargeSumVeto" : 2,
+            "flag_MetCut" : 1,
         }
     )
 
@@ -686,6 +688,8 @@ def build_config(
     configuration.add_producers(
         "nnmm",
         [
+            event.Flag_MetCut,
+            event.FilterFlagMetCut, # MET >= 50
             muons.GoodMuons, # vh tighter selections on muons
             muons.NumberOfGoodMuons,
             event.FilterNMuons_nnmm, # vh nnmm ==2 muons
@@ -711,41 +715,19 @@ def build_config(
             ###
             muons.Mu1_H, # vh
             muons.Mu2_H, # vh
-            ### extra muon in m2m
-            # lepton.Mu1_W_m2m_index, # extra muon index
-            # lepton.Mu1_W_m2m, # extra muon p4 (From W)
             ###
-            # lepton.Calc_MT_W,
-            # event.lepton_H_dR,
             event.mumuH_dR,
             ###
-            # event.muSSwithMuonW_p4,
-            # event.muOSwithMuonW_p4,
-            # event.lepton_muSS_dR,
-            # event.lepton_muOS_dR,
-            ### 
-            # event.lepton_H_deta,
-            # event.lepton_muSS_deta,
-            # event.lepton_muOS_deta,
-            ###
-            # event.Calc_MT_muSS_MHT,
-            # event.Calc_MT_muOS_MHT,
-            # event.Calc_MT_lepton_MHT,
-            # event.lepW_MHT_dphi,
-            ###
-            # event.mumuH_MHT_dphi,
-            # event.mu1_MHT_dphi,
-            # event.mu2_MHT_dphi,
-            # event.mu1_mu2_dphi,
-            # event.lep_mu1_dphi,
-            # event.lep_mu2_dphi,
-            # event.lep_H_dphi,
+            event.mumuH_MHT_dphi,
+            event.mu1_MHT_dphi,
+            event.mu2_MHT_dphi,
+            event.mu1_mu2_dphi,
             #
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             muons.LVMu1,
             muons.LVMu2,
-            # triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
         ],
     )
@@ -1040,16 +1022,16 @@ def build_config(
             q.nbjets_medium,
             ###
             q.met_p4,
-            # q.MHT_p4,
+            q.MHT_p4,
             # q.mt_muSSAndMHT,
             # q.mt_muOSAndMHT,
             # q.mt_lepWAndMHT,
             # q.lep_MHT_dphi,
             ###
-            # q.mumuH_MHT_dphi,
-            # q.mu1_MHT_dphi,
-            # q.mu2_MHT_dphi,
-            # q.mu1_mu2_dphi,
+            q.mumuH_MHT_dphi,
+            q.mu1_MHT_dphi,
+            q.mu2_MHT_dphi,
+            q.mu1_mu2_dphi,
             # q.lep_mu1_dphi,
             # q.lep_mu2_dphi,
             # q.lep_H_dphi,
@@ -1063,6 +1045,7 @@ def build_config(
             #
             q.smallest_dimuon_mass,
             q.dimuon_p4_Higgs,
+            q.Flag_MetCut,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
