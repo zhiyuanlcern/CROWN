@@ -100,7 +100,7 @@ def build_config(
 
     # vh add triggers (copying htautau mtau TODO)
     configuration.add_config_parameters(
-        ["e2m","m2m","eemm","mmmm"],
+        ["e2m","m2m","eemm","mmmm","nnmm"],
         {
             "singlemuon_trigger": EraModifier(
                 {
@@ -224,6 +224,14 @@ def build_config(
     )
     configuration.add_config_parameters(
         ["mmmm"],
+        {
+            "min_muon_pt": 20.0,
+            "max_muon_eta": 2.4,
+            "muon_iso_cut": 0.25,
+        }
+    )
+    configuration.add_config_parameters(
+        ["nnmm"],
         {
             "min_muon_pt": 20.0,
             "max_muon_eta": 2.4,
@@ -389,6 +397,16 @@ def build_config(
             "flag_LeptonChargeSumVeto" : 2,
         }
     )
+    configuration.add_config_parameters(
+        "nnmm",
+        {
+            "vh_nnmm_nmuons" : 2,
+            "min_dimuon_mass" : 12,
+            "flag_DiMuonFromHiggs" : 1,
+            "flag_Ele_Veto" : 1,
+            "flag_LeptonChargeSumVeto" : 2,
+        }
+    )
 
     ## all scopes misc settings
     configuration.add_config_parameters(
@@ -488,6 +506,7 @@ def build_config(
             event.lep_H_dphi,
             jets.Calc_MHT_all,
             event.lepW_MHTALL_dphi,
+            event.Calc_CosThStar_lep_muOS,
             #
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
@@ -555,6 +574,7 @@ def build_config(
             event.lep_H_dphi,
             jets.Calc_MHT_all,
             event.lepW_MHTALL_dphi,
+            event.Calc_CosThStar_lep_muOS,
             #
             muons.LVMu1,
             muons.LVMu2,
@@ -663,6 +683,72 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel,
         ],
     )
+    configuration.add_producers(
+        "nnmm",
+        [
+            muons.GoodMuons, # vh tighter selections on muons
+            muons.NumberOfGoodMuons,
+            event.FilterNMuons_nnmm, # vh nnmm ==2 muons
+            muons.MuonCollection, # collect ordered by pt
+            # write by botao
+            lepton.CalcSmallestDiMuonMass,  # SFOS, m2m only has m
+            event.DimuonMinMassCut,
+            ###
+            event.Mask_DiMuonPair, # dimuonHiggs index
+            event.Flag_DiMuonFromHiggs,
+            event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [110,150] and order by pt
+            ###
+            # event.DiMuonMassFromZVeto,  # has dimuon from Z return mask equal to 0, otherwise return 1
+            lepton.LeptonChargeSumVeto,
+            ###
+            electrons.NumberOfBaseElectrons,
+            # electrons.ElectronCollection,
+            electrons.Ele_Veto,
+            # flag cut
+            event.FilterFlagDiMuFromH,
+            event.FilterFlagLepChargeSum,
+            event.FilterFlagEleVeto,
+            ###
+            muons.Mu1_H, # vh
+            muons.Mu2_H, # vh
+            ### extra muon in m2m
+            # lepton.Mu1_W_m2m_index, # extra muon index
+            # lepton.Mu1_W_m2m, # extra muon p4 (From W)
+            ###
+            # lepton.Calc_MT_W,
+            # event.lepton_H_dR,
+            event.mumuH_dR,
+            ###
+            # event.muSSwithMuonW_p4,
+            # event.muOSwithMuonW_p4,
+            # event.lepton_muSS_dR,
+            # event.lepton_muOS_dR,
+            ### 
+            # event.lepton_H_deta,
+            # event.lepton_muSS_deta,
+            # event.lepton_muOS_deta,
+            ###
+            # event.Calc_MT_muSS_MHT,
+            # event.Calc_MT_muOS_MHT,
+            # event.Calc_MT_lepton_MHT,
+            # event.lepW_MHT_dphi,
+            ###
+            # event.mumuH_MHT_dphi,
+            # event.mu1_MHT_dphi,
+            # event.mu2_MHT_dphi,
+            # event.mu1_mu2_dphi,
+            # event.lep_mu1_dphi,
+            # event.lep_mu2_dphi,
+            # event.lep_H_dphi,
+            #
+            #muons.LVMu3, # vh 
+            #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
+            muons.LVMu1,
+            muons.LVMu2,
+            # triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
+            # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
+        ],
+    )
 
     configuration.add_outputs(
         "m2m",
@@ -724,6 +810,7 @@ def build_config(
             #q.jet_p4_3,
             q.MHTALL_p4,
             q.lep_MHTALL_dphi,
+            q.lep_muOS_cosThStar,
             #q.jet_p4_4,
             #
             q.smallest_dimuon_mass,
@@ -792,6 +879,7 @@ def build_config(
             #q.jet_p4_3,
             q.MHTALL_p4,
             q.lep_MHTALL_dphi,
+            q.lep_muOS_cosThStar,
             #q.jet_p4_4,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
@@ -910,6 +998,77 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel.output_group,
         ],
     )
+    configuration.add_outputs(
+        "nnmm",
+        [
+            q.is_data,
+            q.is_embedding,
+            q.is_top,
+            q.is_dyjets,
+            q.is_wjets,
+            q.is_diboson,
+            q.is_vhmm,
+            q.is_zjjew,
+            q.is_triboson,
+            nanoAOD.run,
+            q.lumi,
+            nanoAOD.event,
+            q.puweight,
+            q.muon_leadingp4_H,
+            q.muon_subleadingp4_H,
+            #q.muon_p4_3,
+            # extra lepton p4
+            # q.extra_lep_p4,
+            # q.mt_W,
+            # q.lep_H_dR,
+            q.mumuH_dR,
+            #
+            # q.mu_p4_SSwithLep,
+            # q.mu_p4_OSwithLep,
+            # q.lep_muSS_dR,
+            # q.lep_muOS_dR,
+            #
+            # q.lep_H_deta,
+            # q.lep_muSS_deta,
+            # q.lep_muOS_deta,
+            #
+            q.nmuons,
+            q.nelectrons,
+            #
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
+            ###
+            q.met_p4,
+            # q.MHT_p4,
+            # q.mt_muSSAndMHT,
+            # q.mt_muOSAndMHT,
+            # q.mt_lepWAndMHT,
+            # q.lep_MHT_dphi,
+            ###
+            # q.mumuH_MHT_dphi,
+            # q.mu1_MHT_dphi,
+            # q.mu2_MHT_dphi,
+            # q.mu1_mu2_dphi,
+            # q.lep_mu1_dphi,
+            # q.lep_mu2_dphi,
+            # q.lep_H_dphi,
+            #q.jet_p4_1,
+            #q.jet_p4_2,
+            #q.jet_p4_3,
+            # q.MHTALL_p4,
+            # q.lep_MHTALL_dphi,
+            # q.lep_muOS_cosThStar,
+            #q.jet_p4_4,
+            #
+            q.smallest_dimuon_mass,
+            q.dimuon_p4_Higgs,
+            q.Flag_LeptonChargeSumVeto,
+            q.Flag_Ele_Veto,
+            q.Flag_DiMuonFromHiggs,
+        ],
+    )
+    
     # add genWeight for everything but data
     if sample != "data":
         configuration.add_outputs(

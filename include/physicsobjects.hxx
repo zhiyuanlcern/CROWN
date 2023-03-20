@@ -126,6 +126,8 @@ ROOT::RDF::RNode MHT_CalculationALL(ROOT::RDF::RNode df, const std::string &outp
                                  const std::string &goodjets_index);
 ROOT::RDF::RNode PassFlag(ROOT::RDF::RNode df, const std::string &outputname);
 ROOT::RDF::RNode PassDiEleIn4m(ROOT::RDF::RNode df, const std::string &outputname);
+ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &lepton_p4, const std::string &muOS_p4);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

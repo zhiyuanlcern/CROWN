@@ -203,12 +203,19 @@ FilterNMuons_4m = Producer(
     output=None,
     scopes=["mmmm"],
 )
+FilterNMuons_nnmm = Producer(
+    name="FilterNMuons",
+    call='basefunctions::FilterThreshold({df}, {input}, {vh_nnmm_nmuons}, "==", "Number of muons 2")',
+    input=[q.nmuons],
+    output=None,
+    scopes=["nnmm"],
+)
 DimuonMinMassCut = Producer(
     name="DimuonMinMassCut",
     call='basefunctions::FilterThreshold({df}, {input}, {min_dimuon_mass}, ">=", "No m(mm) < 12 GeV")',
     input=[q.smallest_dimuon_mass],
     output=None,
-    scopes=["global","m2m","e2m","eemm","mmmm"],
+    scopes=["global","m2m","e2m","eemm","mmmm","nnmm"],
 )
 DielectronMinMassCut = Producer(
     name="DielectronMinMassCut",
@@ -223,7 +230,7 @@ Flag_DiMuonFromHiggs = Producer(
     call='physicsobject::DiMuonFromHiggs({df}, {output}, {input})',
     input=[q.dimuon_HiggsCand_collection],
     output=[q.Flag_DiMuonFromHiggs],
-    scopes=["global","e2m","m2m","eemm","mmmm"],
+    scopes=["global","e2m","m2m","eemm","mmmm","nnmm"],
 )
 ### need a collection that di_ele after cut
 Flag_DiEleFromZ = Producer(
@@ -243,7 +250,7 @@ HiggsToDiMuonPair_p4 = Producer(
            nanoAOD.Muon_mass,
            q.dimuon_HiggsCand_collection],
     output=[q.dimuon_p4_Higgs],
-    scopes=["global","e2m","m2m","eemm"],
+    scopes=["global","e2m","m2m","eemm","nnmm"],
 )
 HiggsToDiMuonPair_p4_4m = Producer(
     name="HiggsToDiMuonPair_p4_4m",
@@ -300,7 +307,7 @@ Mask_DiMuonPair = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.dimuon_HiggsCand_collection], # index about the two selected muons may from Higgs
-    scopes=["global","e2m","m2m","eemm"],
+    scopes=["global","e2m","m2m","eemm","nnmm"],
 )
 Mask_DiElectronPair = Producer(
     name="Mask_DiElectronPair",
@@ -352,7 +359,7 @@ mumuH_dR = Producer(
       q.muon_subleadingp4_H,
     ],
     output=[q.mumuH_dR],
-    scopes=["e2m","m2m","eemm","mmmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
 ### e2m channel 
 muSSwithElectronW_p4 = Producer(
@@ -570,21 +577,21 @@ FilterFlagDiMuFromH = Producer(
     call='basefunctions::FilterThreshold({df}, {input}, {flag_DiMuonFromHiggs}, "==", "DiMuon From Higgs")',
     input=[q.Flag_DiMuonFromHiggs],
     output=None,
-    scopes=["e2m","m2m","eemm","mmmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
 FilterFlagLepChargeSum = Producer(
     name="FilterFlagLepChargeSum",
     call='basefunctions::FilterThreshold({df}, {input}, {flag_LeptonChargeSumVeto}, "==", "LeptonChargeSum")',
     input=[q.Flag_LeptonChargeSumVeto],
     output=None,
-    scopes=["e2m","m2m","eemm","mmmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
 FilterFlagEleVeto = Producer(
     name="FilterFlagEleVeto",
     call='basefunctions::FilterThreshold({df}, {input}, {flag_Ele_Veto}, "==", "Electron Veto")',
     input=[q.Flag_Ele_Veto],
     output=None,
-    scopes=["m2m","mmmm"],
+    scopes=["m2m","mmmm","nnmm"],
 )
 FilterFlagDiEleZMassVeto = Producer(
     name="FilterFlagDiEleZMassVeto",
@@ -715,4 +722,15 @@ PassMinDiEleMass = Producer(
     input=[],
     output=[q.smallest_dielectron_mass], # mmmm channel using this all pass flag
     scopes=["mmmm"], # already done in ZZ Veto (exist H and Z)
+)
+# Calculate the cosine helicity angle
+Calc_CosThStar_lep_muOS = Producer(
+    name="Calc_CosThStar_lep_muOS",
+    call="physicsobject::Calc_CosThetaStar({df}, {output}, {input})",
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_OSwithLep,
+    ],
+    output=[q.lep_muOS_cosThStar],
+    scopes=["e2m","m2m"],
 )

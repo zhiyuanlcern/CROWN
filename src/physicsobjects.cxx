@@ -17,6 +17,9 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include "TVector3.h"
+#include "TLorentzVector.h"
+#include <Math/Boost.h>
 /// Namespace containing function to apply cuts on physics objects. The
 /// cut results are typically stored within a mask, which is represented by
 /// an `ROOT::RVec<int>`.
@@ -891,6 +894,33 @@ ROOT::RDF::RNode PassDiEleIn4m(ROOT::RDF::RNode df, const std::string &outputnam
     auto df1 = 
         df.Define(outputname, Pass, {});
     return df1;
+}
+///
+ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &lepton_p4, const std::string &muOS_p4) {
+    auto calculate_costhstar = [](ROOT::Math::PtEtaPhiMVector &lep_p4,
+                           ROOT::Math::PtEtaPhiMVector &mu_p4) {
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> lepton_p4(lep_p4.Px(), lep_p4.Py(), lep_p4.Pz(), lep_p4.E());
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> muOS_p4(mu_p4.Px(), mu_p4.Py(), mu_p4.Pz(), mu_p4.E());
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> lepmu_p4 = lepton_p4 + muOS_p4;
+        // (ROOT::Math::PxPyPzEVector) lepton_p4;
+        // (ROOT::Math::PxPyPzEVector) muOS_p4;
+        // auto lepboost = lepmu_p4.BoostToCM();
+        // lepton_p4.boost(-lepboost);
+        // muOS_p4.boost(-lepboost);
+        float cosh_angle = 1.0f;
+        /// TODO TODO TODO
+
+        // Calculate the cosine helicity angle between the lepton and the muons in the rest frame of the leptonic W boson
+        // auto cosh_angle = lepton_p4.Vect().Unit().Dot(muOS_p4.Vect().Unit());   // / (lepton_p4.Vect().mag() * muOS_p4.Vect().mag());
+
+        if ( !std::isnan(cosh_angle) && !std::isinf(cosh_angle) ) {
+            return cosh_angle;
+        } else {
+            return -10.0f;
+        }
+    };
+    return df.Define(outputname, calculate_costhstar, {lepton_p4, muOS_p4});
 }
 ///
 /// Make Higgs To MuMu Pair Return to a mask

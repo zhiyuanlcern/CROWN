@@ -94,28 +94,28 @@ GoodMuonPtCut = Producer(
     call="physicsobject::CutPt({df}, {input}, {output}, {min_muon_pt})",
     input=[nanoAOD.Muon_pt],
     output=[],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 GoodMuonEtaCut = Producer(
     name="GoodMuonEtaCut",
     call="physicsobject::CutEta({df}, {input}, {output}, {max_muon_eta})",
     input=[nanoAOD.Muon_eta],
     output=[],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 GoodMuonIsoCut = Producer(
     name="GoodMuonIsoCut",
     call="physicsobject::electron::CutIsolation({df}, {output}, {input}, {muon_iso_cut})",
     input=[nanoAOD.Muon_pfRelIso04_all],
     output=[],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 GoodMuons = ProducerGroup(
     name="GoodMuons",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
     input=[q.base_muons_mask],
     output=[q.good_muons_mask], # vh these are the final selection muons' mask
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
     subproducers=[
         GoodMuonPtCut,
         GoodMuonEtaCut,
@@ -128,7 +128,7 @@ NumberOfGoodMuons = Producer(
     call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
     input=[q.good_muons_mask],
     output=[q.nmuons],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 VetoMuons = Producer(
     name="VetoMuons",
@@ -206,7 +206,7 @@ MuonCollection = Producer(
     call="jet::OrderJetsByPt({df}, {output}, {input})",
     input=[nanoAOD.Muon_pt, q.good_muons_mask],
     output=[q.good_muon_collection],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 LVMu1 = Producer(
     name="LVMu1",
@@ -219,7 +219,7 @@ LVMu1 = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_p4_1],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 LVMu2 = Producer(
     name="LVMu2",
@@ -232,7 +232,7 @@ LVMu2 = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_p4_2],
-    scopes=["e2m","m2m", "eemm","mmmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 LVMu3 = Producer(
     name="LVMu3",
@@ -273,7 +273,7 @@ Mu1_H = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_leadingp4_H],
-    scopes=["e2m","m2m", "eemm"],
+    scopes=["e2m","m2m", "eemm","nnmm"],
 )
 ##### The sub leading muon form Higgs
 Mu2_H = Producer(
@@ -287,7 +287,7 @@ Mu2_H = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_subleadingp4_H],
-    scopes=["e2m","m2m", "eemm"],
+    scopes=["e2m","m2m", "eemm","nnmm"],
 )
 ##### The leading muon from Higgs in 4m channel
 Mu1_H_4m = Producer(
