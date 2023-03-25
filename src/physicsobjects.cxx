@@ -19,6 +19,7 @@
 #include <vector>
 #include "TVector3.h"
 #include "TLorentzVector.h"
+#include "TLorentzRotation.h"
 #include <Math/Boost.h>
 /// Namespace containing function to apply cuts on physics objects. The
 /// cut results are typically stored within a mask, which is represented by
@@ -897,22 +898,26 @@ ROOT::RDF::RNode PassDiEleIn4m(ROOT::RDF::RNode df, const std::string &outputnam
 }
 ///
 ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outputname,
-                    const std::string &lepton_p4, const std::string &muOS_p4) {
+                    const std::string &lepton_p4, const std::string &mu_p4) {
     auto calculate_costhstar = [](ROOT::Math::PtEtaPhiMVector &lep_p4,
                            ROOT::Math::PtEtaPhiMVector &mu_p4) {
-        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> lepton_p4(lep_p4.Px(), lep_p4.Py(), lep_p4.Pz(), lep_p4.E());
-        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> muOS_p4(mu_p4.Px(), mu_p4.Py(), mu_p4.Pz(), mu_p4.E());
-        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> lepmu_p4 = lepton_p4 + muOS_p4;
-        // (ROOT::Math::PxPyPzEVector) lepton_p4;
-        // (ROOT::Math::PxPyPzEVector) muOS_p4;
-        // auto lepboost = lepmu_p4.BoostToCM();
-        // lepton_p4.boost(-lepboost);
-        // muOS_p4.boost(-lepboost);
-        float cosh_angle = 1.0f;
-        /// TODO TODO TODO
+        TLorentzVector lepton_p4_TL;
+        TLorentzVector mu_p4_TL;
 
-        // Calculate the cosine helicity angle between the lepton and the muons in the rest frame of the leptonic W boson
-        // auto cosh_angle = lepton_p4.Vect().Unit().Dot(muOS_p4.Vect().Unit());   // / (lepton_p4.Vect().mag() * muOS_p4.Vect().mag());
+        lepton_p4_TL.SetPtEtaPhiM(lep_p4.Pt(), lep_p4.Eta(), lep_p4.Phi(), lep_p4.M());
+        mu_p4_TL.SetPtEtaPhiM(mu_p4.Pt(), mu_p4.Eta(), mu_p4.Phi(), mu_p4.M());
+
+        TLorentzVector lepmu = lepton_p4_TL + mu_p4_TL;
+
+
+        TVector3 lepmu_v = lepmu.Vect();
+        TVector3 WHboost = -(lepmu.BoostVector());
+        lepton_p4_TL.Boost(WHboost);
+        mu_p4_TL.Boost(WHboost);
+        TVector3 lep_v = lepton_p4_TL.Vect();
+        TVector3 muos_v = mu_p4_TL.Vect();
+
+        float cosh_angle = cos(lep_v.Angle(lepmu_v));
 
         if ( !std::isnan(cosh_angle) && !std::isinf(cosh_angle) ) {
             return cosh_angle;
@@ -920,7 +925,37 @@ ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outpu
             return -10.0f;
         }
     };
-    return df.Define(outputname, calculate_costhstar, {lepton_p4, muOS_p4});
+    return df.Define(outputname, calculate_costhstar, {lepton_p4, mu_p4});
+}
+///
+///
+ROOT::RDF::RNode Calc_CosThetaStar_ZH(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &Z_p4, const std::string &H_p4) {
+    auto calculate_costhstar = [](ROOT::Math::PtEtaPhiMVector &Z_p4,
+                           ROOT::Math::PtEtaPhiMVector &H_p4) {
+        TLorentzVector Z_p4_TL;
+        TLorentzVector H_p4_TL;
+
+        Z_p4_TL.SetPtEtaPhiM(Z_p4.Pt(), Z_p4.Eta(), Z_p4.Phi(), Z_p4.M());
+        H_p4_TL.SetPtEtaPhiM(H_p4.Pt(), H_p4.Eta(), H_p4.Phi(), H_p4.M());
+        TLorentzVector TL = Z_p4_TL +H_p4_TL;
+
+        TVector3 ZH_v = TL.Vect();
+        TVector3 ZHboost = -(TL.BoostVector());
+        Z_p4_TL.Boost(ZHboost);
+        H_p4_TL.Boost(ZHboost);
+        TVector3 Z_v = Z_p4_TL.Vect();
+        TVector3 H_v = H_p4_TL.Vect();
+
+        float cosh_angle = cos(Z_v.Angle(ZH_v));
+
+        if ( !std::isnan(cosh_angle) && !std::isinf(cosh_angle) ) {
+            return cosh_angle;
+        } else {
+            return -10.0f;
+        }
+    };
+    return df.Define(outputname, calculate_costhstar, {Z_p4, H_p4});
 }
 ///
 //// met_p4 PtEtaPhiM

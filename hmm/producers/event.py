@@ -734,6 +734,26 @@ Calc_CosThStar_lep_muOS = Producer(
     output=[q.lep_muOS_cosThStar],
     scopes=["e2m","m2m"],
 )
+Calc_CosThStar_lep_muSS = Producer(
+    name="Calc_CosThStar_lep_muSS",
+    call="physicsobject::Calc_CosThetaStar({df}, {output}, {input})",
+    input=[
+      q.extra_lep_p4,
+      q.mu_p4_SSwithLep,
+    ],
+    output=[q.lep_muSS_cosThStar],
+    scopes=["e2m","m2m"],
+)
+Calc_CosThStar_Z_H = Producer(
+    name="Calc_CosThStar_Z_H",
+    call="physicsobject::Calc_CosThetaStar_ZH({df}, {output}, {input})",
+    input=[
+      q.dilepton_p4_Z,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.Z_H_cosThStar],
+    scopes=["eemm","mmmm"],
+)
 # Cut met pt, return a flag to do filter
 Flag_MetCut = Producer(
     name="Flag_MetCut",

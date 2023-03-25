@@ -509,6 +509,7 @@ def build_config(
             jets.Calc_MHT_all,
             event.lepW_MHTALL_dphi,
             event.Calc_CosThStar_lep_muOS,
+            event.Calc_CosThStar_lep_muSS,
             #
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
@@ -577,6 +578,7 @@ def build_config(
             jets.Calc_MHT_all,
             event.lepW_MHTALL_dphi,
             event.Calc_CosThStar_lep_muOS,
+            event.Calc_CosThStar_lep_muSS,
             #
             muons.LVMu1,
             muons.LVMu2,
@@ -628,6 +630,7 @@ def build_config(
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
+            event.Calc_CosThStar_Z_H,
             #
             muons.LVMu1,
             muons.LVMu2,
@@ -673,6 +676,7 @@ def build_config(
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
+            event.Calc_CosThStar_Z_H,
             # pass flag, be consistent with eemm
             event.PassFlagDiEleFromZ,
             event.PassFlagDiMuonHiggs,
@@ -688,11 +692,11 @@ def build_config(
     configuration.add_producers(
         "nnmm",
         [
-            event.Flag_MetCut,
-            event.FilterFlagMetCut, # MET >= 50
             muons.GoodMuons, # vh tighter selections on muons
             muons.NumberOfGoodMuons,
             event.FilterNMuons_nnmm, # vh nnmm ==2 muons
+            event.Flag_MetCut,
+            event.FilterFlagMetCut, # MET >= 50
             muons.MuonCollection, # collect ordered by pt
             # write by botao
             lepton.CalcSmallestDiMuonMass,  # SFOS, m2m only has m
@@ -793,6 +797,7 @@ def build_config(
             q.MHTALL_p4,
             q.lep_MHTALL_dphi,
             q.lep_muOS_cosThStar,
+            q.lep_muSS_cosThStar,
             #q.jet_p4_4,
             #
             q.smallest_dimuon_mass,
@@ -862,6 +867,7 @@ def build_config(
             q.MHTALL_p4,
             q.lep_MHTALL_dphi,
             q.lep_muOS_cosThStar,
+            q.lep_muSS_cosThStar,
             #q.jet_p4_4,
             #q.electron_p4_1,
             q.smallest_dimuon_mass,
@@ -923,6 +929,7 @@ def build_config(
             q.Flag_DiEleFromZ,
             q.Flag_Ele_Veto, # all pass flag ele veto, all 1
             q.Flag_ZZVeto, # all pass flag ZZ veto, all 1
+            q.Z_H_cosThStar,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
         ],
     )
@@ -976,6 +983,7 @@ def build_config(
             q.Z_H_deta,
             q.Z_H_dphi,
             q.mumuH_dphi,
+            q.Z_H_cosThStar,
             #
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel.output_group,
         ],
@@ -1049,6 +1057,7 @@ def build_config(
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
+            triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
         ],
     )
     

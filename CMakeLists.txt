@@ -90,7 +90,7 @@ message(STATUS "Creating Project")
 project(CROWN CXX)
 message(STATUS "Finding Packages")
 # Find ROOT and print details
-find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RooFit)
+find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RIO RooFit Physics)
 # add OpenMP and MPI
 find_package(OpenMP)
 find_package(MPI)
@@ -294,7 +294,7 @@ file(GLOB SOURCES_2
 set(SOURCES ${SOURCES_1} ${SOURCES_2})
 add_library(CROWNLIB SHARED ${SOURCES})
 target_include_directories(CROWNLIB PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
-target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit logging correctionlib nlohmann_json::nlohmann_json)
+target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json)
 
 # Iterate over files from output filelist and add build and install targets
 FILE(READ ${GENERATE_CPP_OUTPUT_FILELIST} FILELIST)
@@ -327,7 +327,7 @@ foreach(FILENAME ${FILELIST})
     add_executable(${TARGET_NAME} ${FULL_PATH} ${GENERATED_CXX_FILES})
     # Adds a pre-build event to the Target copying the correctionlib.so file into the /lib folder in the install directory
     target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} $ORIGIN/lib/ lib/)
-    target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
+    target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CORRECTION_LIB_PATH}"
