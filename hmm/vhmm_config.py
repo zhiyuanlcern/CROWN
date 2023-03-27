@@ -626,7 +626,7 @@ def build_config(
             electrons.LVEle2,  # subleading lep from Z
             ###
             event.leplepZ_dR,
-            #lepton.PlusLepID, # using pdgId to lep_ID
+            lepton.RenameZlepID_eemm, # using pdgId to lep_ID
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
@@ -672,7 +672,7 @@ def build_config(
             muons.Mu2_Z_4m, # subleading lep from Z
             ###
             event.leplepZ_dR,
-            #lepton.PlusLepID, # using pdgId to lep_ID
+            lepton.RenameZlepID_mmmm, # using pdgId to lep_ID
             event.llZ_mmH_deta,
             event.llZ_mmH_dphi,
             event.mumuH_dphi,
@@ -913,7 +913,7 @@ def build_config(
             q.lepton_subleadingp4_Z,
             ###
             q.llZ_dR,
-            #q.lep_ID,
+            q.Zlep_ID,
             q.Z_H_deta,
             q.Z_H_dphi,
             q.mumuH_dphi,
@@ -979,7 +979,7 @@ def build_config(
             q.smallest_dielectron_mass,
             #
             q.llZ_dR,
-            #q.lep_ID,
+            q.Zlep_ID,
             q.Z_H_deta,
             q.Z_H_dphi,
             q.mumuH_dphi,

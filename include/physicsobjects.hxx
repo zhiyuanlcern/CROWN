@@ -130,6 +130,7 @@ ROOT::RDF::RNode Calc_CosThetaStar(ROOT::RDF::RNode df, const std::string &outpu
                     const std::string &lepton_p4, const std::string &mu_p4);
 ROOT::RDF::RNode Calc_CosThetaStar_ZH(ROOT::RDF::RNode df, const std::string &outputname,
                     const std::string &Z_p4, const std::string &H_p4);
+ROOT::RDF::RNode RedirectZlepID(ROOT::RDF::RNode df, const int ifMu, const std::string &outputname);
 ROOT::RDF::RNode MetCut(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &met_p4, const float pt_threshold);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,

@@ -103,3 +103,18 @@ Calc_MT_W = Producer(
     output=[q.mt_W],
     scopes=["e2m","m2m"],
 )
+### Z lep ID
+RenameZlepID_eemm = Producer(
+    name="RenameZlepID_eemm",
+    call="physicsobject::RedirectZlepID({df}, 0, {output})", # ifMu == 0, return 11
+    input=[],
+    output=[q.Zlep_ID],
+    scopes=["eemm"],
+)
+RenameZlepID_mmmm = Producer(
+    name="RenameZlepID_mmmm",
+    call="physicsobject::RedirectZlepID({df}, 1, {output})", # ifMu == 1, return 13
+    input=[],
+    output=[q.Zlep_ID],
+    scopes=["mmmm"],
+)

@@ -958,6 +958,21 @@ ROOT::RDF::RNode Calc_CosThetaStar_ZH(ROOT::RDF::RNode df, const std::string &ou
     return df.Define(outputname, calculate_costhstar, {Z_p4, H_p4});
 }
 ///
+ROOT::RDF::RNode RedirectZlepID(ROOT::RDF::RNode df, const int ifMu, const std::string &outputname) {
+    auto LepID = [ifMu]() {
+        if (ifMu == 1) {
+            return 13;
+        } else if (ifMu == 0) {
+            return 11;
+        } else {
+            return 0; 
+        }
+    };
+    auto df1 = 
+        df.Define(outputname, LepID, {});
+    return df1;
+}
+///
 //// met_p4 PtEtaPhiM
 //// met_p4 only Pt and Phi
 ROOT::RDF::RNode MetCut(ROOT::RDF::RNode df, const std::string &outputname,
