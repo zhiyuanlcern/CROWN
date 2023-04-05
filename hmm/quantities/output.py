@@ -220,8 +220,12 @@ id_wgt_ele_wp80nonIso_2 = Quantity("id_wgt_ele_wp80nonIso_2")
 # Muon weights
 id_wgt_mu_1 = Quantity("id_wgt_mu_1")
 id_wgt_mu_2 = Quantity("id_wgt_mu_2")
+id_wgt_mu_3 = Quantity("id_wgt_mu_3")
+id_wgt_mu_4 = Quantity("id_wgt_mu_4")
 iso_wgt_mu_1 = Quantity("iso_wgt_mu_1")
 iso_wgt_mu_2 = Quantity("iso_wgt_mu_2")
+iso_wgt_mu_3 = Quantity("iso_wgt_mu_3")
+iso_wgt_mu_4 = Quantity("iso_wgt_mu_4")
 
 # write by botao
 smallest_dimuon_mass = Quantity("smallest_dimuon_mass")

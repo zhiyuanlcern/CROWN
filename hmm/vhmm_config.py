@@ -240,7 +240,7 @@ def build_config(
     )
     # Muon scale factors configuration
     configuration.add_config_parameters(
-        ["e2m","m2m","eemm","mmmm"],
+        ["e2m","m2m","eemm","mmmm","nnmm"],
         {
             "muon_sf_file": EraModifier(
                 {
@@ -741,6 +741,7 @@ def build_config(
             muons.LVMu2,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
+            scalefactors.MuonIDIso_SF,
         ],
     )
 
@@ -821,6 +822,8 @@ def build_config(
             q.iso_wgt_mu_1,
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
+            q.id_wgt_mu_3,
+            q.iso_wgt_mu_3,
         ],
     )
     configuration.add_outputs(
@@ -1018,6 +1021,10 @@ def build_config(
             q.iso_wgt_mu_1,
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
+            q.id_wgt_mu_3,
+            q.iso_wgt_mu_3,
+            q.id_wgt_mu_4,
+            q.iso_wgt_mu_4,
         ],
     )
     configuration.add_outputs(
@@ -1090,6 +1097,11 @@ def build_config(
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
+            
+            q.id_wgt_mu_1,
+            q.iso_wgt_mu_1,
+            q.id_wgt_mu_2,
+            q.iso_wgt_mu_2,
         ],
     )
     
@@ -1108,11 +1120,11 @@ def build_config(
         ),
     )
     configuration.add_modification_rule(
-        "m2m",
+        scopes,
         RemoveProducer(
             producers=[
                 # genparticles.MMGenDiTauPairQuantities,
-                # scalefactors.MuonIDIso_SF,
+                scalefactors.MuonIDIso_SF,
             ],
             samples=["data"],
         ),
