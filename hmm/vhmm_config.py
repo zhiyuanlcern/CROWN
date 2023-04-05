@@ -240,7 +240,7 @@ def build_config(
     )
     # Muon scale factors configuration
     configuration.add_config_parameters(
-        ["m2m"],
+        ["e2m","m2m","eemm","mmmm"],
         {
             "muon_sf_file": EraModifier(
                 {
@@ -512,12 +512,14 @@ def build_config(
             event.Calc_CosThStar_lep_muSS,
             #
             #muons.LVMu3, # vh 
-            #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             muons.LVMu1,
             muons.LVMu2,
             muons.LVMu3,
             triggers.GenerateSingleMuonTriggerFlags, # vh check trigger matching TODO
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
+            
+            #
+            scalefactors.MuonIDIso_SF, # TODO 3 muon SF
         ],
     )
     configuration.add_producers(
@@ -583,6 +585,8 @@ def build_config(
             muons.LVMu1,
             muons.LVMu2,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
+            
+            scalefactors.MuonIDIso_SF, # TODO 3 muon SF
         ],
     )
     configuration.add_producers(
@@ -635,6 +639,8 @@ def build_config(
             muons.LVMu1,
             muons.LVMu2,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
+            
+            scalefactors.MuonIDIso_SF,
         ],
     )
     configuration.add_producers(
@@ -687,6 +693,8 @@ def build_config(
             muons.LVMu3,
             muons.LVMu4,
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel,
+            
+            scalefactors.MuonIDIso_SF,
         ],
     )
     configuration.add_producers(
@@ -807,6 +815,12 @@ def build_config(
             q.Flag_Ele_Veto,
             q.Flag_DiMuonFromHiggs,
             triggers.GenerateSingleMuonTriggerFlags.output_group,
+            
+            #
+            q.id_wgt_mu_1,
+            q.iso_wgt_mu_1,
+            q.id_wgt_mu_2,
+            q.iso_wgt_mu_2,
         ],
     )
     configuration.add_outputs(
@@ -877,6 +891,12 @@ def build_config(
             q.Flag_dimuon_Zmass_veto,
             q.Flag_Ele_Veto,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
+
+            #
+            q.id_wgt_mu_1,
+            q.iso_wgt_mu_1,
+            q.id_wgt_mu_2,
+            q.iso_wgt_mu_2,
         ],
     )
     configuration.add_outputs(
@@ -931,6 +951,12 @@ def build_config(
             q.Flag_ZZVeto, # all pass flag ZZ veto, all 1
             q.Z_H_cosThStar,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
+
+            #
+            q.id_wgt_mu_1,
+            q.iso_wgt_mu_1,
+            q.id_wgt_mu_2,
+            q.iso_wgt_mu_2,
         ],
     )
     configuration.add_outputs(
@@ -986,6 +1012,12 @@ def build_config(
             q.Z_H_cosThStar,
             #
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel.output_group,
+
+            #
+            q.id_wgt_mu_1,
+            q.iso_wgt_mu_1,
+            q.id_wgt_mu_2,
+            q.iso_wgt_mu_2,
         ],
     )
     configuration.add_outputs(

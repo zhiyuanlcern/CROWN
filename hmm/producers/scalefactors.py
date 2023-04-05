@@ -64,6 +64,35 @@ Muon_2_Iso_SF = Producer(
     output=[q.iso_wgt_mu_2],
     scopes=["e2m","m2m", "eemm","mmmm"],
 )
+
+Muon_1_ID_SF_vhmm = Producer(
+    name="Muon_1_ID_SF_vhmm",
+    call='scalefactor::muon::id_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
+    input=[q.muon_leadingp4_H],
+    output=[q.id_wgt_mu_1],
+    scopes=["e2m","m2m", "eemm","mmmm"],
+)
+Muon_2_ID_SF_vhmm = Producer(
+    name="Muon_2_ID_SF_vhmm",
+    call='scalefactor::muon::id_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
+    input=[q.muon_subleadingp4_H],
+    output=[q.id_wgt_mu_2],
+    scopes=["e2m","m2m", "eemm","mmmm"],
+)
+Muon_1_Iso_SF_vhmm = Producer(
+    name="Muon_1_Iso_SF_vhmm",
+    call='scalefactor::muon::iso_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
+    input=[q.muon_leadingp4_H],
+    output=[q.iso_wgt_mu_1],
+    scopes=["e2m","m2m", "eemm","mmmm"],
+)
+Muon_2_Iso_SF_vhmm = Producer(
+    name="Muon_2_Iso_SF_vhmm",
+    call='scalefactor::muon::iso_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
+    input=[q.muon_subleadingp4_H],
+    output=[q.iso_wgt_mu_2],
+    scopes=["e2m","m2m", "eemm","mmmm"],
+)
 MuonIDIso_SF = ProducerGroup(
     name="MuonIDIso_SF",
     call=None,
@@ -72,29 +101,29 @@ MuonIDIso_SF = ProducerGroup(
     scopes=["e2m","m2m", "eemm","mmmm"],
     subproducers={
         "e2m": [
-            Muon_1_ID_SF,
-            Muon_1_Iso_SF,
-            Muon_2_ID_SF,
-            Muon_2_Iso_SF,
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
+            Muon_2_ID_SF_vhmm,
+            Muon_2_Iso_SF_vhmm,
         ],
         "m2m": [
-            Muon_1_ID_SF,
-            Muon_1_Iso_SF,
-            Muon_2_ID_SF,
-            Muon_2_Iso_SF,
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
+            Muon_2_ID_SF_vhmm,
+            Muon_2_Iso_SF_vhmm,
         ],
         "eemm": [
-            Muon_1_ID_SF,
-            Muon_1_Iso_SF,
-            Muon_2_ID_SF,
-            Muon_2_Iso_SF,
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
+            Muon_2_ID_SF_vhmm,
+            Muon_2_Iso_SF_vhmm,
         ],
         # 4m TODO
         "mmmm": [
-            Muon_1_ID_SF,
-            Muon_1_Iso_SF,
-            Muon_2_ID_SF,
-            Muon_2_Iso_SF,
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
+            Muon_2_ID_SF_vhmm,
+            Muon_2_Iso_SF_vhmm,
         ],
     },
 )
