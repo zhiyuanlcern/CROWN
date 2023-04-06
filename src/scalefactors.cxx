@@ -848,6 +848,36 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
         {pt, eta});
     return df1;
 }
+///
+ROOT::RDF::RNode id_e_vhmm(ROOT::RDF::RNode df,
+                    const std::string &p4, const std::string &year_id,
+                    const std::string &wp, const std::string &variation,
+                    const std::string &id_output, const std::string &sf_file,
+                    const std::string &idAlgorithm) {
+
+    Logger::get("electronIDSF")
+        ->debug("Setting up functions for electron id sf with correctionlib");
+    Logger::get("electronIDSF")->debug("ID - Name {}", idAlgorithm);
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    auto df1 = df.Define(
+        id_output,
+        [evaluator, year_id, idAlgorithm, wp, variation](ROOT::Math::PtEtaPhiMVector &p4) {
+            const float &pt = p4.Pt();
+            const float &eta = p4.Eta();
+            Logger::get("electronIDSF")
+                ->debug("Year {}, Name {}, WP {}", year_id, idAlgorithm, wp);
+            Logger::get("electronIDSF")->debug("ID - pt {}, eta {}", pt, eta);
+            double sf = 1.;
+            if (pt >= 0.0) {
+                sf = evaluator->evaluate({year_id, variation, wp, eta, pt});
+            }
+            Logger::get("electronIDSF")->debug("Scale Factor {}", sf);
+            return sf;
+        },
+        {p4});
+    return df1;
+}
 
 } // namespace electron
 namespace jet {

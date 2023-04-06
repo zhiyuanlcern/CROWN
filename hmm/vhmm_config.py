@@ -261,6 +261,30 @@ def build_config(
             "muon_sf_varation": "sf",  # "sf" is nominal, "systup"/"systdown" are up/down variations
         },
     )
+    # electron scale factors configuration
+    configuration.add_config_parameters(
+        ["e2m","eemm"],
+        {
+            "ele_sf_file": EraModifier(
+                {
+                    "2016preVFP": "data/jsonpog-integration/POG/EGM/2016preVFP_UL/electron.json.gz",
+                    "2016postVFP": "data/jsonpog-integration/POG/EGM/2016postVFP_UL/electron.json.gz",
+                    "2017": "data/jsonpog-integration/POG/EGM/2017_UL/electron.json.gz",
+                    "2018": "data/jsonpog-integration/POG/EGM/2018_UL/electron.json.gz",
+                }
+            ),
+            "ele_id_sf_name": "UL-Electron-ID-SF",
+            "ele_sf_year_id": EraModifier(
+                {
+                    "2016preVFP": "2016preVFP",
+                    "2016postVFP": "2016postVFP",
+                    "2017": "2017",
+                    "2018": "2018",
+                }
+            ),
+            "ele_sf_varation": "sf",  # "sf" is nominal, "sfup"/"sfdown" are up/down variations
+        },
+    )
 
     # jet base selection:
     configuration.add_config_parameters(
@@ -587,6 +611,7 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
             
             scalefactors.MuonIDIso_SF, # TODO 3 muon SF
+            scalefactors.EleID_SF,
         ],
     )
     configuration.add_producers(
@@ -641,6 +666,7 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
             
             scalefactors.MuonIDIso_SF,
+            scalefactors.EleID_SF,
         ],
     )
     configuration.add_producers(
@@ -900,6 +926,9 @@ def build_config(
             q.iso_wgt_mu_1,
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
+            #
+            q.id_wgt_ele_wp90nonIso_1,
+            q.id_wgt_ele_wp80nonIso_1,
         ],
     )
     configuration.add_outputs(
@@ -960,6 +989,11 @@ def build_config(
             q.iso_wgt_mu_1,
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
+            #
+            q.id_wgt_ele_wp90nonIso_1,
+            q.id_wgt_ele_wp80nonIso_1,
+            q.id_wgt_ele_wp90nonIso_2,
+            q.id_wgt_ele_wp80nonIso_2,
         ],
     )
     configuration.add_outputs(
@@ -1125,6 +1159,15 @@ def build_config(
             producers=[
                 # genparticles.MMGenDiTauPairQuantities,
                 scalefactors.MuonIDIso_SF,
+            ],
+            samples=["data"],
+        ),
+    )
+    configuration.add_modification_rule(
+        ["e2m","eemm"],
+        RemoveProducer(
+            producers=[
+                scalefactors.EleID_SF,
             ],
             samples=["data"],
         ),

@@ -215,3 +215,65 @@ MuonIDIso_SF_RooWorkspace = ProducerGroup(
         ],
     },
 )
+
+#########################
+# Electron ID/ISO SF
+#########################
+Ele_1_IDWP90_SF_e2m = Producer(
+    name="Ele_1_IDWP90_SF_e2m",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp90noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.extra_lep_p4],
+    output=[q.id_wgt_ele_wp90nonIso_1],
+    scopes=["e2m"],
+)
+Ele_1_IDWP90_SF_eemm = Producer(
+    name="Ele_1_IDWP90_SF_eemm",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp90noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.lepton_leadingp4_Z],
+    output=[q.id_wgt_ele_wp90nonIso_1],
+    scopes=["eemm"],
+)
+Ele_2_IDWP90_SF = Producer(
+    name="Ele_2_IDWP90_SF",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp90noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.lepton_subleadingp4_Z],
+    output=[q.id_wgt_ele_wp90nonIso_2],
+    scopes=["eemm"],
+)
+Ele_1_IDWP80_SF_e2m = Producer(
+    name="Ele_1_IDWP80_SF_e2m",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp80noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.extra_lep_p4],
+    output=[q.id_wgt_ele_wp80nonIso_1],
+    scopes=["e2m"],
+)
+Ele_1_IDWP80_SF_eemm = Producer(
+    name="Ele_1_IDWP80_SF_eemm",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp80noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.lepton_leadingp4_Z],
+    output=[q.id_wgt_ele_wp80nonIso_1],
+    scopes=["eemm"],
+)
+Ele_2_IDWP80_SF = Producer(
+    name="Ele_2_IDWP80_SF",
+    call='scalefactor::electron::id_e_vhmm({df}, {input}, "{ele_sf_year_id}", "wp80noiso", "{ele_sf_varation}", {output}, "{ele_sf_file}", "{ele_id_sf_name}")',
+    input=[q.lepton_subleadingp4_Z],
+    output=[q.id_wgt_ele_wp80nonIso_2],
+    scopes=["eemm"],
+)
+EleID_SF = ProducerGroup(
+    name="EleID_SF",
+    call=None,
+    input=None,
+    output=None,
+    scopes=["e2m", "eemm"],
+    subproducers={
+        "e2m": [Ele_1_IDWP90_SF_e2m, Ele_1_IDWP80_SF_e2m],
+        "eemm": [
+            Ele_1_IDWP90_SF_eemm,
+            Ele_1_IDWP80_SF_eemm,
+            Ele_2_IDWP90_SF,
+            Ele_2_IDWP80_SF,
+        ],
+    },
+)
