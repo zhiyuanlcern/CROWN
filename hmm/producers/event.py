@@ -516,6 +516,17 @@ llZ_mmH_dphi = Producer(
     output=[q.Z_H_dphi],
     scopes=["eemm","mmmm"],
 )
+### dphi met and H
+met_mmH_dphi = Producer(
+    name="met_mmH_dphi",
+    call='quantities::deltaPhi({df}, {output}, {input})',
+    input=[
+      q.met_p4,
+      q.dimuon_p4_Higgs,
+    ],
+    output=[q.met_H_dphi],
+    scopes=["nnmm"],
+)
 ### dphi mu1H and mu2H
 mumuH_dphi = Producer(
     name="mumuH_dphi",

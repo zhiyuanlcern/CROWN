@@ -812,6 +812,7 @@ def build_config(
             event.mu1_MHT_dphi,
             event.mu2_MHT_dphi,
             event.mu1_mu2_dphi,
+            event.met_mmH_dphi,
             #
             #muons.LVMu3, # vh 
             #scalefactors.MuonIDIso_SF, # TODO 3 muon SF
@@ -1106,6 +1107,7 @@ def build_config(
             q.mu1_MHT_dphi,
             q.mu2_MHT_dphi,
             q.mu1_mu2_dphi,
+            q.met_H_dphi,
             # q.MHTALL_p4,
             #
             q.smallest_dimuon_mass,
