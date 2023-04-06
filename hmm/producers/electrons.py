@@ -120,7 +120,7 @@ LVEle1 = Producer(
         nanoAOD.Electron_mass,
     ],
     output=[q.lepton_leadingp4_Z],
-    scopes=["e2m","eemm"],
+    scopes=["eemm"],
 )
 LVEle2 = Producer(
     name="LVEle2",

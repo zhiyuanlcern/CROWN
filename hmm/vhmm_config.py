@@ -12,6 +12,7 @@ from .producers import scalefactors as scalefactors
 from .producers import lepton as lepton
 from .producers import electrons as electrons
 from .producers import met as met
+from .producers import p4 as p4
 # end 
 from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
@@ -196,42 +197,7 @@ def build_config(
     )
     # MM scope Muon selection
     configuration.add_config_parameters(
-        ["m2m"],
-        {
-            "muon_index_in_pair": 0,
-            "second_muon_index_in_pair": 1,
-            "min_muon_pt": 20.0,
-            "max_muon_eta": 2.4,
-            "muon_iso_cut": 0.25,
-        },
-    )
-    configuration.add_config_parameters(
-        ["e2m"],
-        {
-            "TODO_GoodElectron?": 1,
-            "min_muon_pt": 20.0,
-            "max_muon_eta": 2.4,
-            "muon_iso_cut": 0.25,
-        }
-    )
-    configuration.add_config_parameters(
-        ["eemm"],
-        {
-            "min_muon_pt": 20.0,
-            "max_muon_eta": 2.4,
-            "muon_iso_cut": 0.25,
-        }
-    )
-    configuration.add_config_parameters(
-        ["mmmm"],
-        {
-            "min_muon_pt": 20.0,
-            "max_muon_eta": 2.4,
-            "muon_iso_cut": 0.25,
-        }
-    )
-    configuration.add_config_parameters(
-        ["nnmm"],
+        scopes,
         {
             "min_muon_pt": 20.0,
             "max_muon_eta": 2.4,
@@ -530,8 +496,8 @@ def build_config(
             event.lep_mu1_dphi,
             event.lep_mu2_dphi,
             event.lep_H_dphi,
-            jets.Calc_MHT_all,
-            event.lepW_MHTALL_dphi,
+            # jets.Calc_MHT_all,
+            # event.lepW_MHTALL_dphi,
             event.Calc_CosThStar_lep_muOS,
             event.Calc_CosThStar_lep_muSS,
             #
@@ -544,6 +510,27 @@ def build_config(
             
             #
             scalefactors.MuonIDIso_SF, # TODO 3 muon SF
+            p4.mu1_fromH_pt,
+            p4.mu1_fromH_eta,
+            p4.mu1_fromH_phi,
+            p4.mu2_fromH_pt,
+            p4.mu2_fromH_eta,
+            p4.mu2_fromH_phi,
+            p4.met_pt,
+            p4.met_phi,
+            p4.H_pt,
+            p4.H_eta,
+            p4.H_phi,
+            p4.H_mass,
+            p4.extra_lep_pt,
+            p4.extra_lep_eta,
+            p4.extra_lep_phi,
+            p4.muOS_pt,
+            p4.muOS_eta,
+            p4.muOS_phi,
+            p4.muSS_pt,
+            p4.muSS_eta,
+            p4.muSS_phi,
         ],
     )
     configuration.add_producers(
@@ -601,8 +588,8 @@ def build_config(
             event.lep_mu1_dphi,
             event.lep_mu2_dphi,
             event.lep_H_dphi,
-            jets.Calc_MHT_all,
-            event.lepW_MHTALL_dphi,
+            # jets.Calc_MHT_all,
+            # event.lepW_MHTALL_dphi,
             event.Calc_CosThStar_lep_muOS,
             event.Calc_CosThStar_lep_muSS,
             #
@@ -612,6 +599,27 @@ def build_config(
             
             scalefactors.MuonIDIso_SF, # TODO 3 muon SF
             scalefactors.EleID_SF,
+            p4.mu1_fromH_pt,
+            p4.mu1_fromH_eta,
+            p4.mu1_fromH_phi,
+            p4.mu2_fromH_pt,
+            p4.mu2_fromH_eta,
+            p4.mu2_fromH_phi,
+            p4.met_pt,
+            p4.met_phi,
+            p4.H_pt,
+            p4.H_eta,
+            p4.H_phi,
+            p4.H_mass,
+            p4.extra_lep_pt,
+            p4.extra_lep_eta,
+            p4.extra_lep_phi,
+            p4.muOS_pt,
+            p4.muOS_eta,
+            p4.muOS_phi,
+            p4.muSS_pt,
+            p4.muSS_eta,
+            p4.muSS_phi,
         ],
     )
     configuration.add_producers(
@@ -667,6 +675,28 @@ def build_config(
             
             scalefactors.MuonIDIso_SF,
             scalefactors.EleID_SF,
+            p4.mu1_fromH_pt,
+            p4.mu1_fromH_eta,
+            p4.mu1_fromH_phi,
+            p4.mu2_fromH_pt,
+            p4.mu2_fromH_eta,
+            p4.mu2_fromH_phi,
+            p4.met_pt,
+            p4.met_phi,
+            p4.H_pt,
+            p4.H_eta,
+            p4.H_phi,
+            p4.H_mass,
+            p4.lep1_fromZ_pt,
+            p4.lep1_fromZ_eta,
+            p4.lep1_fromZ_phi,
+            p4.lep2_fromZ_pt,
+            p4.lep2_fromZ_eta,
+            p4.lep2_fromZ_phi,
+            p4.Z_pt,
+            p4.Z_eta,
+            p4.Z_phi,
+            p4.Z_mass,
         ],
     )
     configuration.add_producers(
@@ -721,6 +751,28 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel,
             
             scalefactors.MuonIDIso_SF,
+            p4.mu1_fromH_pt,
+            p4.mu1_fromH_eta,
+            p4.mu1_fromH_phi,
+            p4.mu2_fromH_pt,
+            p4.mu2_fromH_eta,
+            p4.mu2_fromH_phi,
+            p4.met_pt,
+            p4.met_phi,
+            p4.H_pt,
+            p4.H_eta,
+            p4.H_phi,
+            p4.H_mass,
+            p4.lep1_fromZ_pt,
+            p4.lep1_fromZ_eta,
+            p4.lep1_fromZ_phi,
+            p4.lep2_fromZ_pt,
+            p4.lep2_fromZ_eta,
+            p4.lep2_fromZ_phi,
+            p4.Z_pt,
+            p4.Z_eta,
+            p4.Z_phi,
+            p4.Z_mass,
         ],
     )
     configuration.add_producers(
@@ -768,11 +820,23 @@ def build_config(
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel,
             # vh the trigger-matched muon should have pT > 29 (26) for 2017 (2016,18)
             scalefactors.MuonIDIso_SF,
+            p4.mu1_fromH_pt,
+            p4.mu1_fromH_eta,
+            p4.mu1_fromH_phi,
+            p4.mu2_fromH_pt,
+            p4.mu2_fromH_eta,
+            p4.mu2_fromH_phi,
+            p4.met_pt,
+            p4.met_phi,
+            p4.H_pt,
+            p4.H_eta,
+            p4.H_phi,
+            p4.H_mass,
         ],
     )
 
     configuration.add_outputs(
-        "m2m",
+        scopes,
         [
             q.is_data,
             q.is_embedding,
@@ -787,17 +851,47 @@ def build_config(
             q.lumi,
             nanoAOD.event,
             q.puweight,
-            q.muon_leadingp4_H,
-            q.muon_subleadingp4_H,
-            #q.muon_p4_3,
-            # extra lepton p4
-            q.extra_lep_p4,
+            
+            q.nmuons,
+            q.njets,
+            q.nbjets_loose,
+            q.nbjets_medium,
+
+            q.mu1_fromH_pt,
+            q.mu1_fromH_eta,
+            q.mu1_fromH_phi,
+
+            q.mu2_fromH_pt,
+            q.mu2_fromH_eta,
+            q.mu2_fromH_phi,
+
+            q.met_pt,
+            q.met_phi,
+
+            q.H_pt,
+            q.H_eta,
+            q.H_phi,
+            q.H_mass,
+        ],
+    )
+    configuration.add_outputs(
+        "m2m",
+        [
+            q.extra_lep_pt,
+            q.extra_lep_eta,
+            q.extra_lep_phi,
+            
             q.mt_W,
             q.lep_H_dR,
             q.mumuH_dR,
-            #
-            q.mu_p4_SSwithLep,
-            q.mu_p4_OSwithLep,
+
+            q.muOS_pt,
+            q.muOS_eta,
+            q.muOS_phi,
+            q.muSS_pt,
+            q.muSS_eta,
+            q.muSS_phi,
+            
             q.lep_muSS_dR,
             q.lep_muOS_dR,
             #
@@ -805,15 +899,8 @@ def build_config(
             q.lep_muSS_deta,
             q.lep_muOS_deta,
             #
-            q.nmuons,
             q.nelectrons,
             #
-            q.njets,
-            q.nbjets_loose,
-            q.nbjets_medium,
-            ###
-            q.met_p4,
-            q.MHT_p4,
             q.mt_muSSAndMHT,
             q.mt_muOSAndMHT,
             q.mt_lepWAndMHT,
@@ -826,17 +913,13 @@ def build_config(
             q.lep_mu1_dphi,
             q.lep_mu2_dphi,
             q.lep_H_dphi,
-            #q.jet_p4_1,
-            #q.jet_p4_2,
-            #q.jet_p4_3,
-            q.MHTALL_p4,
-            q.lep_MHTALL_dphi,
+            # q.MHTALL_p4,
+            # q.lep_MHTALL_dphi,
             q.lep_muOS_cosThStar,
             q.lep_muSS_cosThStar,
-            #q.jet_p4_4,
             #
             q.smallest_dimuon_mass,
-            q.dimuon_p4_Higgs,
+            
             q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,
@@ -855,43 +938,31 @@ def build_config(
     configuration.add_outputs(
         "e2m",
         [
-            q.is_data,
-            q.is_embedding,
-            q.is_top,
-            q.is_dyjets,
-            q.is_wjets,
-            q.is_diboson,
-            q.is_vhmm,
-            q.is_zjjew,
-            q.is_triboson,
-            nanoAOD.run,
-            q.lumi,
-            nanoAOD.event,
-            q.puweight,
-            q.nmuons,
-            #
-            q.njets,
-            q.nbjets_loose,
-            q.nbjets_medium,
-            #q.muon_p4_1,
-            #q.muon_p4_2,
-            q.muon_leadingp4_H,
-            q.muon_subleadingp4_H,
             q.nelectrons,
-            q.extra_lep_p4,
+
+            q.extra_lep_pt,
+            q.extra_lep_eta,
+            q.extra_lep_phi,
+            
             q.mt_W,
             q.lep_H_dR,
             q.mumuH_dR,
-            q.met_p4,
-            q.mu_p4_SSwithLep,
-            q.mu_p4_OSwithLep,
+            
+            q.muOS_pt,
+            q.muOS_eta,
+            q.muOS_phi,
+            q.muSS_pt,
+            q.muSS_eta,
+            q.muSS_phi,
+
+            
             q.lep_muSS_dR,
             q.lep_muOS_dR,
             #
             q.lep_H_deta,
             q.lep_muSS_deta,
             q.lep_muOS_deta,
-            q.MHT_p4,
+            # q.MHT_p4,
             q.mt_muSSAndMHT,
             q.mt_muOSAndMHT,
             q.mt_lepWAndMHT,
@@ -904,18 +975,12 @@ def build_config(
             q.mu1_mu2_dphi,
             q.lep_mu1_dphi,
             q.lep_mu2_dphi,
-            #q.jet_p4_1,
-            #q.jet_p4_2,
-            #q.jet_p4_3,
-            q.MHTALL_p4,
-            q.lep_MHTALL_dphi,
+            # q.MHTALL_p4,
+            # q.lep_MHTALL_dphi,
             q.lep_muOS_cosThStar,
             q.lep_muSS_cosThStar,
-            #q.jet_p4_4,
-            #q.electron_p4_1,
             q.smallest_dimuon_mass,
             q.Flag_LeptonChargeSumVeto,
-            q.dimuon_p4_Higgs,
             q.Flag_DiMuonFromHiggs,
             q.Flag_dimuon_Zmass_veto,
             q.Flag_Ele_Veto,
@@ -934,35 +999,16 @@ def build_config(
     configuration.add_outputs(
         "eemm",
         [
-            q.is_data,
-            q.is_embedding,
-            q.is_top,
-            q.is_dyjets,
-            q.is_wjets,
-            q.is_diboson,
-            q.is_vhmm,
-            q.is_zjjew,
-            q.is_triboson,
-            nanoAOD.run,
-            q.lumi,
-            nanoAOD.event,
-            q.puweight,
-            q.nmuons,
-            q.muon_leadingp4_H,
-            q.muon_subleadingp4_H,
             q.mumuH_dR,
-            #q.muon_p4_1,
-            #q.muon_p4_2,
             q.nelectrons,
             #
-            q.njets,
-            q.nbjets_loose,
-            q.nbjets_medium,
-            ###
-            #q.electron_p4_1,
-            #q.electron_p4_2,
-            q.lepton_leadingp4_Z,
-            q.lepton_subleadingp4_Z,
+            q.lep1_fromZ_pt,
+            q.lep1_fromZ_eta,
+            q.lep1_fromZ_phi,
+
+            q.lep2_fromZ_pt,
+            q.lep2_fromZ_eta,
+            q.lep2_fromZ_phi,
             ###
             q.llZ_dR,
             q.Zlep_ID,
@@ -970,20 +1016,21 @@ def build_config(
             q.Z_H_dphi,
             q.mumuH_dphi,
             ###
-            q.met_p4,
-            q.MHT_p4,
             q.smallest_dimuon_mass,
             q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
-            q.dimuon_p4_Higgs,
-            q.dilepton_p4_Z,
+
+            q.Z_pt,
+            q.Z_eta,
+            q.Z_phi,
+            q.Z_mass,
+            
             q.Flag_DiMuonFromHiggs,
             q.Flag_DiEleFromZ,
             q.Flag_Ele_Veto, # all pass flag ele veto, all 1
             q.Flag_ZZVeto, # all pass flag ZZ veto, all 1
             q.Z_H_cosThStar,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel.output_group,
-
             #
             q.id_wgt_mu_1,
             q.iso_wgt_mu_1,
@@ -999,43 +1046,28 @@ def build_config(
     configuration.add_outputs(
         "mmmm",
         [
-            q.is_data,
-            q.is_embedding,
-            q.is_top,
-            q.is_dyjets,
-            q.is_wjets,
-            q.is_diboson,
-            q.is_vhmm,
-            q.is_zjjew,
-            q.is_triboson,
-            nanoAOD.run,
-            q.lumi,
-            nanoAOD.event,
-            q.puweight,
-            q.nmuons,
-            #
-            q.njets,
-            q.nbjets_loose,
-            q.nbjets_medium,
-            #q.muon_p4_1,
-            #q.muon_p4_2,
             q.nelectrons,
-            #q.electron_p4_1,
-            #q.electron_p4_2,
-            q.met_p4,
-            q.MHT_p4,
+            # q.met_p4,
+            # q.MHT_p4,
             q.smallest_dimuon_mass,
-            #q.smallest_dielectron_mass,
             q.Flag_LeptonChargeSumVeto,
-            q.dimuon_p4_Higgs,
-            q.dilepton_p4_Z,
+
+            q.Z_pt,
+            q.Z_eta,
+            q.Z_phi,
+            q.Z_mass,
+            
             q.Flag_ZZVeto,
             q.Flag_Ele_Veto,
-            q.muon_leadingp4_H,
-            q.muon_subleadingp4_H,
             q.mumuH_dR,
-            q.lepton_leadingp4_Z,
-            q.lepton_subleadingp4_Z,
+
+            q.lep1_fromZ_pt,
+            q.lep1_fromZ_eta,
+            q.lep1_fromZ_phi,
+
+            q.lep2_fromZ_pt,
+            q.lep2_fromZ_eta,
+            q.lep2_fromZ_phi,
             ###
             q.Flag_DiEleFromZ,
             q.Flag_DiMuonFromHiggs,
@@ -1049,7 +1081,6 @@ def build_config(
             q.Z_H_cosThStar,
             #
             triggers.GenerateSingleMuonTriggerFlagsForQuadMuChannel.output_group,
-
             #
             q.id_wgt_mu_1,
             q.iso_wgt_mu_1,
@@ -1064,68 +1095,20 @@ def build_config(
     configuration.add_outputs(
         "nnmm",
         [
-            q.is_data,
-            q.is_embedding,
-            q.is_top,
-            q.is_dyjets,
-            q.is_wjets,
-            q.is_diboson,
-            q.is_vhmm,
-            q.is_zjjew,
-            q.is_triboson,
-            nanoAOD.run,
-            q.lumi,
-            nanoAOD.event,
-            q.puweight,
-            q.muon_leadingp4_H,
-            q.muon_subleadingp4_H,
-            #q.muon_p4_3,
-            # extra lepton p4
-            # q.extra_lep_p4,
-            # q.mt_W,
-            # q.lep_H_dR,
             q.mumuH_dR,
             #
-            # q.mu_p4_SSwithLep,
-            # q.mu_p4_OSwithLep,
-            # q.lep_muSS_dR,
-            # q.lep_muOS_dR,
-            #
-            # q.lep_H_deta,
-            # q.lep_muSS_deta,
-            # q.lep_muOS_deta,
-            #
-            q.nmuons,
             q.nelectrons,
             #
-            q.njets,
-            q.nbjets_loose,
-            q.nbjets_medium,
-            ###
-            q.met_p4,
-            q.MHT_p4,
-            # q.mt_muSSAndMHT,
-            # q.mt_muOSAndMHT,
-            # q.mt_lepWAndMHT,
-            # q.lep_MHT_dphi,
+            # q.met_p4,
+            # q.MHT_p4,
             ###
             q.mumuH_MHT_dphi,
             q.mu1_MHT_dphi,
             q.mu2_MHT_dphi,
             q.mu1_mu2_dphi,
-            # q.lep_mu1_dphi,
-            # q.lep_mu2_dphi,
-            # q.lep_H_dphi,
-            #q.jet_p4_1,
-            #q.jet_p4_2,
-            #q.jet_p4_3,
             # q.MHTALL_p4,
-            # q.lep_MHTALL_dphi,
-            # q.lep_muOS_cosThStar,
-            #q.jet_p4_4,
             #
             q.smallest_dimuon_mass,
-            q.dimuon_p4_Higgs,
             q.Flag_MetCut,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_Ele_Veto,

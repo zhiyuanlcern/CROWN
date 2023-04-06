@@ -302,3 +302,51 @@ lep_muOS_cosThStar = Quantity("lep_muOS_cosThStar")
 lep_muSS_cosThStar = Quantity("lep_muSS_cosThStar")
 Z_H_cosThStar = Quantity("Z_H_cosThStar")
 Flag_MetCut = Quantity("Flag_MetCut")
+
+mu1_fromH_pt = Quantity("mu1_fromH_pt")
+mu1_fromH_eta = Quantity("mu1_fromH_eta")
+mu1_fromH_phi = Quantity("mu1_fromH_phi")
+mu1_fromH_mass = Quantity("mu1_fromH_mass")
+
+mu2_fromH_pt = Quantity("mu2_fromH_pt")
+mu2_fromH_eta = Quantity("mu2_fromH_eta")
+mu2_fromH_phi = Quantity("mu2_fromH_phi")
+mu2_fromH_mass = Quantity("mu2_fromH_mass")
+
+H_pt = Quantity("H_pt")
+H_eta = Quantity("H_eta")
+H_phi = Quantity("H_phi")
+H_mass = Quantity("H_mass")
+
+met_pt = Quantity("met_pt")
+met_phi = Quantity("met_phi")
+
+extra_lep_pt = Quantity("extra_lep_pt")
+extra_lep_eta = Quantity("extra_lep_eta")
+extra_lep_phi = Quantity("extra_lep_phi")
+extra_lep_mass = Quantity("extra_lep_mass")
+
+muOS_pt = Quantity("muOS_pt")
+muOS_eta = Quantity("muOS_eta")
+muOS_phi = Quantity("muOS_phi")
+muOS_mass = Quantity("muOS_mass")
+
+muSS_pt = Quantity("muSS_pt")
+muSS_eta = Quantity("muSS_eta")
+muSS_phi = Quantity("muSS_phi")
+muSS_mass = Quantity("muSS_mass")
+
+lep1_fromZ_pt = Quantity("lep1_fromZ_pt")
+lep1_fromZ_eta = Quantity("lep1_fromZ_eta")
+lep1_fromZ_phi = Quantity("lep1_fromZ_phi")
+lep1_fromZ_mass = Quantity("lep1_fromZ_mass")
+
+lep2_fromZ_pt = Quantity("lep2_fromZ_pt")
+lep2_fromZ_eta = Quantity("lep2_fromZ_eta")
+lep2_fromZ_phi = Quantity("lep2_fromZ_phi")
+lep2_fromZ_mass = Quantity("lep2_fromZ_mass")
+
+Z_pt = Quantity("Z_pt")
+Z_eta = Quantity("Z_eta")
+Z_phi = Quantity("Z_phi")
+Z_mass = Quantity("Z_mass")
