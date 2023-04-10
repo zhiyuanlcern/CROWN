@@ -15,6 +15,7 @@
 #include "include/scalefactors.hxx"
 #include "include/topreco.hxx"
 #include "include/triggers.hxx"
+#include "include/fakefactors.hxx"
 #include "include/utility/Logger.hxx"
 #include <ROOT/RLogger.hxx>
 #include <TFile.h>
@@ -52,6 +53,7 @@ int main(int argc, char *argv[]) {
     int nevents = 0;
     Double_t sumofweight = 0;
     Logger::get("main")->info("Checking input files");
+    std::string basetree = "Events";
     for (int i = 2; i < argc; i++) {
         input_files.push_back(std::string(argv[i]));
         // Check if the input file exists and is readable, also get the number
@@ -63,6 +65,7 @@ int main(int argc, char *argv[]) {
                                           argv[i]);
             return 1;
         }
+
         TTree *t1 = (TTree *)f1->Get("Events");
         nevents += t1->GetEntries();
         TTree *t2 = (TTree *)f1->Get("Runs");
@@ -75,6 +78,7 @@ int main(int argc, char *argv[]) {
                                   argv[i], t1->GetEntries());
         Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
                                   argv[i], variable);  
+
     }
     const auto output_path = argv[1];
     Logger::get("main")->info("Output directory: {}", output_path);
@@ -88,7 +92,7 @@ int main(int argc, char *argv[]) {
     // {MULTITHREADING}
 
     // initialize df
-    ROOT::RDataFrame df0("Events", input_files);
+    ROOT::RDataFrame df0(basetree, input_files);
     Logger::get("main")->info("Starting Setup of Dataframe with {} events",
                               nevents);
 
