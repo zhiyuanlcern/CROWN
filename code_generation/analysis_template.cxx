@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
+    int sumw_num = 0;
     Double_t sumofgenweight = 0;
     Logger::get("main")->info("Checking input files");
     for (int i = 2; i < argc; i++) {
@@ -65,12 +66,15 @@ int main(int argc, char *argv[]) {
         TTree *t2 = (TTree *)f1->Get("Runs");
         Double_t variable;
         t2->SetBranchAddress("genEventSumw", &variable);
-        t2->GetEntry(0);
-        sumofgenweight += variable;
+        sumw_num = t2->GetEntries();
+        for (int i = 0; i < sumw_num; i++) {
+            t2->GetEntry(i);
+            sumofgenweight += variable;
+        }
         Logger::get("main")->info("input_file {}: {} - {} Events", i - 1,
                                   argv[i], t1->GetEntries());
         Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
-                                  argv[i], variable);
+                                  argv[i], sumofgenweight);
     }
     const auto output_path = argv[1];
     Logger::get("main")->info("Output directory: {}", output_path);

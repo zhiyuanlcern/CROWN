@@ -133,6 +133,13 @@ ROOT::RDF::RNode Calc_CosThetaStar_ZH(ROOT::RDF::RNode df, const std::string &ou
 ROOT::RDF::RNode RedirectZlepID(ROOT::RDF::RNode df, const int ifMu, const std::string &outputname);
 ROOT::RDF::RNode MetCut(ROOT::RDF::RNode df, const std::string &outputname,
                                  const std::string &met_p4, const float pt_threshold);
+ROOT::RDF::RNode HiggsCandDiMuonGenPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &Muon_indexToGen,
+                                 const std::string &dimuon_index);
+ROOT::RDF::RNode BosonDecayMode(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &GenPart_pdgId,
+                                 const std::string &GenPart_motherid,
+                                 const std::string &GenPart_statusFlags);
 // ROOT::RDF::RNode HiggsToMuMu_Cand(ROOT::RDF::RNode df, const std::string &maskname,
 //                         const std::string &dimuon_p4);
 // ROOT::RDF::RNode GetFirstElement(ROOT::RDF::RNode df,

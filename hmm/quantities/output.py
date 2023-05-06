@@ -321,6 +321,8 @@ H_mass = Quantity("H_mass")
 
 met_pt = Quantity("met_pt")
 met_phi = Quantity("met_phi")
+genmet_pt = Quantity("genmet_pt")
+genmet_phi = Quantity("genmet_phi")
 
 extra_lep_pt = Quantity("extra_lep_pt")
 extra_lep_eta = Quantity("extra_lep_eta")
@@ -351,3 +353,20 @@ Z_pt = Quantity("Z_pt")
 Z_eta = Quantity("Z_eta")
 Z_phi = Quantity("Z_phi")
 Z_mass = Quantity("Z_mass")
+
+genmet_p4 = Quantity("genmet_p4")
+dimuon_gen_collection = Quantity("dimuon_gen_collection")
+genmuon_leadingp4_H = Quantity("genmuon_leadingp4_H")
+genmuon_subleadingp4_H = Quantity("genmuon_subleadingp4_H")
+
+genmu1_fromH_pt = Quantity("genmu1_fromH_pt")
+genmu1_fromH_eta = Quantity("genmu1_fromH_eta")
+genmu1_fromH_phi = Quantity("genmu1_fromH_phi")
+genmu1_fromH_mass = Quantity("genmu1_fromH_mass")
+
+genmu2_fromH_pt = Quantity("genmu2_fromH_pt")
+genmu2_fromH_eta = Quantity("genmu2_fromH_eta")
+genmu2_fromH_phi = Quantity("genmu2_fromH_phi")
+genmu2_fromH_mass = Quantity("genmu2_fromH_mass")
+
+BosonDecayMode = Quantity("BosonDecayMode")

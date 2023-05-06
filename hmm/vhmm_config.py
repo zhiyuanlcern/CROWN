@@ -833,6 +833,21 @@ def build_config(
             p4.H_eta,
             p4.H_phi,
             p4.H_mass,
+            
+            p4.genmet_pt,
+            p4.genmet_phi,
+            genparticles.dimuon_gen_collection,
+            genparticles.genMu1_H,
+            genparticles.genMu2_H,
+            p4.genmu1_fromH_pt,
+            p4.genmu1_fromH_eta,
+            p4.genmu1_fromH_phi,
+            p4.genmu1_fromH_mass,
+            p4.genmu2_fromH_pt,
+            p4.genmu2_fromH_eta,
+            p4.genmu2_fromH_phi,
+            p4.genmu2_fromH_mass,
+            genparticles.BosonDecayMode,
         ],
     )
 
@@ -868,6 +883,8 @@ def build_config(
 
             q.met_pt,
             q.met_phi,
+            q.genmet_pt,
+            q.genmet_phi,
 
             q.H_pt,
             q.H_eta,
@@ -1121,6 +1138,18 @@ def build_config(
             q.iso_wgt_mu_1,
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
+            
+            q.genmet_pt,
+            q.genmet_phi,
+            q.genmu1_fromH_pt,
+            q.genmu1_fromH_eta,
+            q.genmu1_fromH_phi,
+            q.genmu1_fromH_mass,
+            q.genmu2_fromH_pt,
+            q.genmu2_fromH_eta,
+            q.genmu2_fromH_phi,
+            q.genmu2_fromH_mass,
+            q.BosonDecayMode,
         ],
     )
     

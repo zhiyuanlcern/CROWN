@@ -5,6 +5,57 @@ from code_generation.producer import Producer, ProducerGroup
 ####################
 # Set of producers to get the genParticles from the ditaupair
 ####################
+
+# check gen level muon and info
+dimuon_gen_collection = Producer(
+    name="dimuon_gen_collection",
+    call="physicsobject::HiggsCandDiMuonGenPairCollection({df}, {output}, {input})",
+    input=[
+        nanoAOD.Muon_indexToGen,
+        q.dimuon_HiggsCand_collection,
+    ],
+    output=[q.dimuon_gen_collection],
+    scopes=["nnmm"],
+)
+genMu1_H = Producer(
+    name="genMu1_H",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.dimuon_gen_collection,
+        nanoAOD.GenParticle_pt,
+        nanoAOD.GenParticle_eta,
+        nanoAOD.GenParticle_phi,
+        nanoAOD.GenParticle_mass,
+    ],
+    output=[q.genmuon_leadingp4_H],
+    scopes=["e2m","m2m", "eemm","nnmm"],
+)
+genMu2_H = Producer(
+    name="genMu2_H",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.dimuon_gen_collection,
+        nanoAOD.GenParticle_pt,
+        nanoAOD.GenParticle_eta,
+        nanoAOD.GenParticle_phi,
+        nanoAOD.GenParticle_mass,
+    ],
+    output=[q.genmuon_subleadingp4_H],
+    scopes=["e2m","m2m", "eemm","nnmm"],
+)
+# check W or Z boson Truth decay mode in nnmm
+BosonDecayMode = Producer(
+    name="BosonDecayMode",
+    call="physicsobject::BosonDecayMode({df}, {output}, {input})",
+    input=[
+        nanoAOD.GenParticle_pdgId,
+        nanoAOD.GenParticle_motherid,
+        nanoAOD.GenParticle_statusFlags,
+    ],
+    output=[q.BosonDecayMode],
+    scopes=["nnmm"],
+)
+
 MMGenPair = Producer(
     name="MMGenPair",
     call="ditau_pairselection::buildgenpair({df}, {input}, {output})",

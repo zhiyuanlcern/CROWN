@@ -115,6 +115,9 @@ PFMET_phi = NanoAODQuantity("MET_phi")
 PFMET_pt = NanoAODQuantity("MET_pt")
 PFMET_sumEt = NanoAODQuantity("MET_sumEt")
 
+GenMET_pt = NanoAODQuantity("GenMET_pt")
+GenMET_phi = NanoAODQuantity("GenMET_phi")
+
 ## Embedding Quantities
 genWeight = NanoAODQuantity("genWeight")
 TauEmbedding_initialMETEt = NanoAODQuantity("TauEmbedding_initialMETEt")

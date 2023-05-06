@@ -144,6 +144,27 @@ met_phi = Producer(
     scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
 
+##### for gen met pt and phi
+#####
+genmet_pt = Producer(
+    name="genmet_pt",
+    call='quantities::pt({df}, {output}, {input})',
+    input=[
+      q.genmet_p4,
+    ],
+    output=[q.genmet_pt],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmet_phi = Producer(
+    name="genmet_phi",
+    call='quantities::phi({df}, {output}, {input})',
+    input=[
+      q.genmet_p4,
+    ],
+    output=[q.genmet_phi],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+
 ##### for extra lepton
 #####
 extra_lep_pt = Producer(
@@ -376,4 +397,78 @@ Z_mass = Producer(
     ],
     output=[q.Z_mass],
     scopes=["eemm","mmmm"],
+)
+
+genmu1_fromH_pt = Producer(
+    name="genmu1_fromH_pt",
+    call='quantities::pt({df}, {output}, {input})',
+    input=[
+      q.genmuon_leadingp4_H,
+    ],
+    output=[q.genmu1_fromH_pt],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu1_fromH_eta = Producer(
+    name="genmu1_fromH_eta",
+    call='quantities::eta({df}, {output}, {input})',
+    input=[
+      q.genmuon_leadingp4_H,
+    ],
+    output=[q.genmu1_fromH_eta],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu1_fromH_phi = Producer(
+    name="genmu1_fromH_phi",
+    call='quantities::phi({df}, {output}, {input})',
+    input=[
+      q.genmuon_leadingp4_H,
+    ],
+    output=[q.genmu1_fromH_phi],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu1_fromH_mass = Producer(
+    name="genmu1_fromH_mass",
+    call='quantities::mass({df}, {output}, {input})',
+    input=[
+      q.genmuon_leadingp4_H,
+    ],
+    output=[q.genmu1_fromH_mass],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+
+genmu2_fromH_pt = Producer(
+    name="genmu2_fromH_pt",
+    call='quantities::pt({df}, {output}, {input})',
+    input=[
+      q.genmuon_subleadingp4_H,
+    ],
+    output=[q.genmu2_fromH_pt],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu2_fromH_eta = Producer(
+    name="genmu2_fromH_eta",
+    call='quantities::eta({df}, {output}, {input})',
+    input=[
+      q.genmuon_subleadingp4_H,
+    ],
+    output=[q.genmu2_fromH_eta],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu2_fromH_phi = Producer(
+    name="genmu2_fromH_phi",
+    call='quantities::phi({df}, {output}, {input})',
+    input=[
+      q.genmuon_subleadingp4_H,
+    ],
+    output=[q.genmu2_fromH_phi],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+)
+genmu2_fromH_mass = Producer(
+    name="genmu2_fromH_mass",
+    call='quantities::mass({df}, {output}, {input})',
+    input=[
+      q.genmuon_subleadingp4_H,
+    ],
+    output=[q.genmu2_fromH_mass],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
 )
