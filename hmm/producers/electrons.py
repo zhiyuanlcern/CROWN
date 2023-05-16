@@ -92,14 +92,14 @@ NumberOfBaseElectrons = Producer(
     call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
     input=[q.base_electrons_mask],
     output=[q.nelectrons],
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 Ele_Veto = Producer(
     name="Ele_Veto",
     call="physicsobject::Ele_Veto({df}, {output}, {input})",
     input=[q.base_electrons_mask],
     output=[q.Flag_Ele_Veto],
-    scopes=["global","m2m","mmmm","nnmm"],
+    scopes=["global","m2m","mmmm","nnmm","nnmm_dycontrol"],
 )
 ### Electron collection and their properties
 ElectronCollection = Producer(
@@ -107,7 +107,7 @@ ElectronCollection = Producer(
     call="jet::OrderJetsByPt({df}, {output}, {input})",
     input=[nanoAOD.Electron_pt, q.base_electrons_mask],
     output=[q.base_electron_collection],  # eles after ordered by pt
-    scopes=["e2m","m2m","eemm"],
+    scopes=["e2m","m2m","eemm","nnmm_topcontrol"],
 )
 LVEle1 = Producer(
     name="LVEle1",

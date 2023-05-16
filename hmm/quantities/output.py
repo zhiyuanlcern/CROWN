@@ -370,3 +370,20 @@ genmu2_fromH_phi = Quantity("genmu2_fromH_phi")
 genmu2_fromH_mass = Quantity("genmu2_fromH_mass")
 
 BosonDecayMode = Quantity("BosonDecayMode")
+
+# nnmm control region
+dimuon_ZControl_collection = Quantity("dimuon_ZControl_collection")
+Flag_DiMuonFromCR = Quantity("Flag_DiMuonFromCR")
+dimuon_p4_CR = Quantity("dimuon_p4_CR")
+dimuonCR_pt = Quantity("dimuonCR_pt")
+dimuonCR_eta = Quantity("dimuonCR_eta")
+dimuonCR_phi = Quantity("dimuonCR_phi")
+dimuonCR_mass = Quantity("dimuonCR_mass")
+
+elemu_TopControl_collection = Quantity("elemu_TopControl_collection")
+Flag_EleMuFromCR = Quantity("Flag_EleMuFromCR")
+elemu_p4_CR = Quantity("elemu_p4_CR")
+elemuCR_pt = Quantity("elemuCR_pt")
+elemuCR_eta = Quantity("elemuCR_eta")
+elemuCR_phi = Quantity("elemuCR_phi")
+elemuCR_mass = Quantity("elemuCR_mass")

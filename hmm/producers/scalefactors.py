@@ -70,14 +70,14 @@ Muon_1_ID_SF_vhmm = Producer(
     call='scalefactor::muon::id_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
     input=[q.muon_leadingp4_H],
     output=[q.id_wgt_mu_1],
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 Muon_2_ID_SF_vhmm = Producer(
     name="Muon_2_ID_SF_vhmm",
     call='scalefactor::muon::id_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
     input=[q.muon_subleadingp4_H],
     output=[q.id_wgt_mu_2],
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol"],
 )
 Muon_3_ID_SF_vhmm_m2m = Producer(
     name="Muon_3_ID_SF_vhmm_m2m",
@@ -105,14 +105,14 @@ Muon_1_Iso_SF_vhmm = Producer(
     call='scalefactor::muon::iso_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
     input=[q.muon_leadingp4_H],
     output=[q.iso_wgt_mu_1],
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 Muon_2_Iso_SF_vhmm = Producer(
     name="Muon_2_Iso_SF_vhmm",
     call='scalefactor::muon::iso_vhmm({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
     input=[q.muon_subleadingp4_H],
     output=[q.iso_wgt_mu_2],
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol"],
 )
 Muon_3_Iso_SF_vhmm_m2m = Producer(
     name="Muon_3_Iso_SF_vhmm_m2m",
@@ -140,7 +140,7 @@ MuonIDIso_SF = ProducerGroup(
     call=None,
     input=None,
     output=None,
-    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
     subproducers={
         "e2m": [
             Muon_1_ID_SF_vhmm,
@@ -178,6 +178,16 @@ MuonIDIso_SF = ProducerGroup(
             Muon_1_Iso_SF_vhmm,
             Muon_2_ID_SF_vhmm,
             Muon_2_Iso_SF_vhmm,
+        ],
+        "nnmm_dycontrol": [
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
+            Muon_2_ID_SF_vhmm,
+            Muon_2_Iso_SF_vhmm,
+        ],
+        "nnmm_topcontrol": [
+            Muon_1_ID_SF_vhmm,
+            Muon_1_Iso_SF_vhmm,
         ],
     },
 )

@@ -13,6 +13,7 @@ from .producers import lepton as lepton
 from .producers import electrons as electrons
 from .producers import met as met
 from .producers import p4 as p4
+from .producers import cr as cr
 # end 
 from .quantities import nanoAOD as nanoAOD
 from .quantities import output as q
@@ -101,7 +102,7 @@ def build_config(
 
     # vh add triggers (copying htautau mtau TODO)
     configuration.add_config_parameters(
-        ["e2m","m2m","eemm","mmmm","nnmm"],
+        ["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
         {
             "singlemuon_trigger": EraModifier(
                 {
@@ -206,7 +207,7 @@ def build_config(
     )
     # Muon scale factors configuration
     configuration.add_config_parameters(
-        ["e2m","m2m","eemm","mmmm","nnmm"],
+        ["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
         {
             "muon_sf_file": EraModifier(
                 {
@@ -399,6 +400,29 @@ def build_config(
             "flag_MetCut" : 1,
         }
     )
+    configuration.add_config_parameters(
+        "nnmm_dycontrol", # DY control region m(mumu) from 70 to 110
+        {
+            "vh_nnmm_nmuons" : 2,
+            "min_met" : 50.0,
+            "min_dimuon_mass" : 12,
+            "flag_DiMuonFromCR" : 1,
+            "flag_Ele_Veto" : 1,
+            "flag_LeptonChargeSumVeto" : 2,
+            "flag_MetCut" : 1,
+        }
+    )
+    configuration.add_config_parameters(
+        "nnmm_topcontrol", # Top control reigon e mu final state
+        {
+            "vh_nnmm_topcontrol_nmuons" : 1,
+            "vh_nnmm_topcontrol_neles" : 1,
+            "min_met" : 50.0,
+            "flag_EleMuFromTopCR" : 1,
+            "flag_LeptonChargeSumVeto" : 2,
+            "flag_MetCut" : 1,
+        }
+    )
 
     ## all scopes misc settings
     configuration.add_config_parameters(
@@ -430,6 +454,7 @@ def build_config(
             event.VetottHLooseB, # vh veto ttH no more than 1 loose bjet
             event.VetottHMediumB, # vh veto ttH no more than 1 medium bjet
             met.MetBasics, # build met vector for calculation
+            met.BuildGenMetVector,
             jets.JetCollection,
             jets.Calc_MHT,
             #jets.FilterNJets,
@@ -531,6 +556,10 @@ def build_config(
             p4.muSS_pt,
             p4.muSS_eta,
             p4.muSS_phi,
+            
+            p4.genmet_pt,
+            p4.genmet_phi,
+            genparticles.BosonDecayMode,
         ],
     )
     configuration.add_producers(
@@ -620,6 +649,10 @@ def build_config(
             p4.muSS_pt,
             p4.muSS_eta,
             p4.muSS_phi,
+            
+            p4.genmet_pt,
+            p4.genmet_phi,            
+            genparticles.BosonDecayMode,
         ],
     )
     configuration.add_producers(
@@ -697,6 +730,10 @@ def build_config(
             p4.Z_eta,
             p4.Z_phi,
             p4.Z_mass,
+
+            p4.genmet_pt,
+            p4.genmet_phi,
+            genparticles.BosonDecayMode,
         ],
     )
     configuration.add_producers(
@@ -773,6 +810,10 @@ def build_config(
             p4.Z_eta,
             p4.Z_phi,
             p4.Z_mass,
+
+            p4.genmet_pt,
+            p4.genmet_phi,            
+            genparticles.BosonDecayMode,
         ],
     )
     configuration.add_producers(
@@ -850,6 +891,72 @@ def build_config(
             genparticles.BosonDecayMode,
         ],
     )
+    configuration.add_producers(
+        "nnmm_dycontrol",
+        [
+            muons.GoodMuons, # vh tighter selections on muons
+            muons.NumberOfGoodMuons,
+            event.FilterNMuons_nnmm, # vh nnmm ==2 muons
+            event.Flag_MetCut,
+            event.FilterFlagMetCut, # MET >= 50
+            muons.MuonCollection, # collect ordered by pt
+            # write by botao
+            lepton.CalcSmallestDiMuonMass,  # SFOS, m2m only has m
+            event.DimuonMinMassCut,
+            lepton.LeptonChargeSumVeto,
+            ###
+            electrons.NumberOfBaseElectrons,
+            electrons.Ele_Veto,
+            # flag cut
+            event.FilterFlagLepChargeSum,
+            event.FilterFlagEleVeto,
+
+            # scalefactors.MuonIDIso_SF,
+            p4.met_pt,
+            p4.met_phi,
+            p4.genmet_pt,
+            p4.genmet_phi,
+            
+            cr.DY_DiMuonPair_CR,
+            cr.Flag_DiMuonFromCR,
+            cr.FilterFlag_DiMuonFromCR,
+            cr.DiMuonPairCR_p4,
+            cr.dimuonCR_pt,
+            cr.dimuonCR_eta,
+            cr.dimuonCR_phi,
+            cr.dimuonCR_mass,
+        ],
+    )
+    configuration.add_producers(
+        "nnmm_topcontrol",
+        [
+            muons.GoodMuons, # vh tighter selections on muons
+            muons.NumberOfGoodMuons,
+            electrons.NumberOfBaseElectrons,
+            event.Flag_MetCut,
+            event.FilterFlagMetCut, # MET >= 50
+            cr.FilterNMuons_nnmm_topcontrol,
+            cr.FilterNElectrons_nnmm_topcontrol,
+            muons.MuonCollection, # collect ordered by pt
+            electrons.ElectronCollection,
+            lepton.LeptonChargeSumVeto_elemu,
+            event.FilterFlagLepChargeSum,
+            
+            p4.met_pt,
+            p4.met_phi,
+            p4.genmet_pt,
+            p4.genmet_phi,
+            
+            cr.TOP_EleMuPair_CR,
+            cr.Flag_EleMuFromCR,
+            cr.FilterFlag_EleMuFromCR,
+            cr.EleMuPairCR_p4,
+            cr.elemuCR_pt,
+            cr.elemuCR_eta,
+            cr.elemuCR_phi,
+            cr.elemuCR_mass,
+        ],
+    )
 
     configuration.add_outputs(
         scopes,
@@ -873,6 +980,15 @@ def build_config(
             q.nbjets_loose,
             q.nbjets_medium,
 
+            q.met_pt,
+            q.met_phi,
+            q.genmet_pt,
+            q.genmet_phi,
+        ],
+    )
+    configuration.add_outputs(
+        ["e2m","m2m","eemm","mmmm","nnmm"],
+        [
             q.mu1_fromH_pt,
             q.mu1_fromH_eta,
             q.mu1_fromH_phi,
@@ -880,16 +996,12 @@ def build_config(
             q.mu2_fromH_pt,
             q.mu2_fromH_eta,
             q.mu2_fromH_phi,
-
-            q.met_pt,
-            q.met_phi,
-            q.genmet_pt,
-            q.genmet_phi,
-
+            
             q.H_pt,
             q.H_eta,
             q.H_phi,
             q.H_mass,
+            q.BosonDecayMode,
         ],
     )
     configuration.add_outputs(
@@ -1139,8 +1251,6 @@ def build_config(
             q.id_wgt_mu_2,
             q.iso_wgt_mu_2,
             
-            q.genmet_pt,
-            q.genmet_phi,
             q.genmu1_fromH_pt,
             q.genmu1_fromH_eta,
             q.genmu1_fromH_phi,
@@ -1149,7 +1259,35 @@ def build_config(
             q.genmu2_fromH_eta,
             q.genmu2_fromH_phi,
             q.genmu2_fromH_mass,
-            q.BosonDecayMode,
+        ],
+    )
+    configuration.add_outputs(
+        "nnmm_dycontrol",
+        [
+            q.smallest_dimuon_mass,
+            q.Flag_MetCut,
+            q.Flag_LeptonChargeSumVeto,
+            q.Flag_Ele_Veto,
+            q.Flag_DiMuonFromCR,
+            # q.dimuon_p4_CR,
+            q.dimuonCR_pt,
+            q.dimuonCR_eta,
+            q.dimuonCR_phi,
+            q.dimuonCR_mass,
+        ],
+    )
+    configuration.add_outputs(
+        "nnmm_topcontrol",
+        [
+            q.nelectrons,
+            q.Flag_MetCut,
+            q.Flag_LeptonChargeSumVeto,
+            q.Flag_EleMuFromCR,
+            # q.elemu_p4_CR,
+            q.elemuCR_pt,
+            q.elemuCR_eta,
+            q.elemuCR_phi,
+            q.elemuCR_mass,
         ],
     )
     
@@ -1163,7 +1301,19 @@ def build_config(
     configuration.add_modification_rule(
         "global",
         RemoveProducer(
-            producers=[event.PUweights, jets.JetEnergyCorrection,],
+            producers=[event.PUweights, jets.JetEnergyCorrection,met.BuildGenMetVector,],
+            samples=["data"],
+        ),
+    )
+    configuration.add_modification_rule(
+        # scopes,
+        ["e2m","m2m","eemm","mmmm","nnmm"],
+        RemoveProducer(
+            producers=[
+                # genparticles.MMGenDiTauPairQuantities,
+                scalefactors.MuonIDIso_SF,
+                genparticles.BosonDecayMode,
+            ],
             samples=["data"],
         ),
     )
@@ -1171,8 +1321,27 @@ def build_config(
         scopes,
         RemoveProducer(
             producers=[
-                # genparticles.MMGenDiTauPairQuantities,
-                scalefactors.MuonIDIso_SF,
+                p4.genmet_pt,
+                p4.genmet_phi,
+            ],
+            samples=["data"],
+        ),
+    )
+    configuration.add_modification_rule(
+        ["nnmm"],
+        RemoveProducer(
+            producers=[
+                genparticles.dimuon_gen_collection,
+                genparticles.genMu1_H,
+                genparticles.genMu2_H,
+                p4.genmu1_fromH_pt,
+                p4.genmu1_fromH_eta,
+                p4.genmu1_fromH_phi,
+                p4.genmu1_fromH_mass,
+                p4.genmu2_fromH_pt,
+                p4.genmu2_fromH_eta,
+                p4.genmu2_fromH_phi,
+                p4.genmu2_fromH_mass,
             ],
             samples=["data"],
         ),

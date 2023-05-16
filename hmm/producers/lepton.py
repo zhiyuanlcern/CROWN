@@ -18,7 +18,7 @@ CalcSmallestDiMuonMass = Producer(
            nanoAOD.Muon_charge,
            q.good_muon_collection],
     output=[q.smallest_dimuon_mass],
-    scopes=["global","m2m","e2m","eemm","mmmm","nnmm"],
+    scopes=["global","m2m","e2m","eemm","mmmm","nnmm","nnmm_dycontrol"],
 )
 CalcSmallestDiElectronMass = Producer(
     name="CalcSmallestDiElectronMass",
@@ -38,7 +38,7 @@ LeptonChargeSumVeto = Producer(
     input=[nanoAOD.Muon_charge,  # only in m2m and 4m can input only muon charge
            q.good_muon_collection],
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands pm1, 2 stands 0, 0 stands others
-    scopes=["global","m2m","mmmm","nnmm"],
+    scopes=["global","m2m","mmmm","nnmm","nnmm_dycontrol"],
 )
 LeptonChargeSumVeto_elemu = Producer(
     name="LeptonChargeSumVeto_elemu",
@@ -48,7 +48,7 @@ LeptonChargeSumVeto_elemu = Producer(
            q.good_muon_collection,
            q.base_electron_collection],
     output=[q.Flag_LeptonChargeSumVeto],   # 1 stands pm1, 2 stands 0, 0 stands others
-    scopes=["global","e2m","eemm"],
+    scopes=["global","e2m","eemm","nnmm_topcontrol"],
 )
 ### extra lepton (muon) in m2m channel
 Mu1_W_m2m_index = Producer(

@@ -208,14 +208,14 @@ FilterNMuons_nnmm = Producer(
     call='basefunctions::FilterThreshold({df}, {input}, {vh_nnmm_nmuons}, "==", "Number of muons 2")',
     input=[q.nmuons],
     output=None,
-    scopes=["nnmm"],
+    scopes=["nnmm","nnmm_dycontrol"],
 )
 DimuonMinMassCut = Producer(
     name="DimuonMinMassCut",
     call='basefunctions::FilterThreshold({df}, {input}, {min_dimuon_mass}, ">=", "No m(mm) < 12 GeV")',
     input=[q.smallest_dimuon_mass],
     output=None,
-    scopes=["global","m2m","e2m","eemm","mmmm","nnmm"],
+    scopes=["global","m2m","e2m","eemm","mmmm","nnmm","nnmm_dycontrol"],
 )
 DielectronMinMassCut = Producer(
     name="DielectronMinMassCut",
@@ -595,14 +595,14 @@ FilterFlagLepChargeSum = Producer(
     call='basefunctions::FilterThreshold({df}, {input}, {flag_LeptonChargeSumVeto}, "==", "LeptonChargeSum")',
     input=[q.Flag_LeptonChargeSumVeto],
     output=None,
-    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 FilterFlagEleVeto = Producer(
     name="FilterFlagEleVeto",
     call='basefunctions::FilterThreshold({df}, {input}, {flag_Ele_Veto}, "==", "Electron Veto")',
     input=[q.Flag_Ele_Veto],
     output=None,
-    scopes=["m2m","mmmm","nnmm"],
+    scopes=["m2m","mmmm","nnmm","nnmm_dycontrol"],
 )
 FilterFlagDiEleZMassVeto = Producer(
     name="FilterFlagDiEleZMassVeto",
@@ -773,12 +773,12 @@ Flag_MetCut = Producer(
       q.met_p4,
     ],
     output=[q.Flag_MetCut],
-    scopes=["nnmm"],
+    scopes=["nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 FilterFlagMetCut = Producer(
     name="FilterFlagMetCut",
     call='basefunctions::FilterThreshold({df}, {input}, {flag_MetCut}, "==", "MET >= 50 GeV")',
     input=[q.Flag_MetCut],
     output=None,
-    scopes=["nnmm"],
+    scopes=["nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )

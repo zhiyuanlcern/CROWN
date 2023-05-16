@@ -42,6 +42,6 @@ MetBasics = ProducerGroup(
     subproducers=[
         BuildPFMetVector,
         BuildMetVector,
-        BuildGenMetVector,
+        # BuildGenMetVector,
     ],
 )

@@ -132,7 +132,7 @@ met_pt = Producer(
       q.met_p4,
     ],
     output=[q.met_pt],
-    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 met_phi = Producer(
     name="met_phi",
@@ -141,7 +141,7 @@ met_phi = Producer(
       q.met_p4,
     ],
     output=[q.met_phi],
-    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 
 ##### for gen met pt and phi
@@ -153,7 +153,7 @@ genmet_pt = Producer(
       q.genmet_p4,
     ],
     output=[q.genmet_pt],
-    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 genmet_phi = Producer(
     name="genmet_phi",
@@ -162,7 +162,7 @@ genmet_phi = Producer(
       q.genmet_p4,
     ],
     output=[q.genmet_phi],
-    scopes=["e2m","m2m","eemm","mmmm","nnmm"],
+    scopes=["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 
 ##### for extra lepton
