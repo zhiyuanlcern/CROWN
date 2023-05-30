@@ -147,6 +147,15 @@ GoodJets = ProducerGroup(
     scopes=["global"],
     subproducers=[JetPtCut, JetEtaCut, JetIDCut, JetPUIDCut, VetoOverlappingJetsWithMuons],
 )
+### As now 2022 data has no Jet_puID, so no possible to do JetPUIDCut
+GoodJets_2022 = ProducerGroup(
+    name="GoodJets_2022",
+    call="physicsobject::CombineMasks({df}, {output}, {input})",
+    input=[],
+    output=[q.good_jets_mask],
+    scopes=["global"],
+    subproducers=[JetPtCut, JetEtaCut, JetIDCut, VetoOverlappingJetsWithMuons],
+)
 
 GoodBJetsLoose = ProducerGroup(
     name="GoodBJetsLoose",

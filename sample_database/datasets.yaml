@@ -358,3 +358,85 @@ DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAO
   nick: DYJetsToLL_M-100to200_TuneCP5_13TeV-amcatnloFXFX-pythia8_RunIISummer20UL18NanoAODv9-106X
   sample_type: dyjets
   xsec: 247.8
+MuonEG_Run2018A-UL2018:
+  dbs: /MuonEG/Run2018A-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD
+  era: 2018
+  generator_weight: 1.0
+  nevents: 32958503
+  nfiles: 33
+  nick: MuonEG_Run2018A-UL2018
+  sample_type: data
+  xsec: 1.0
+MuonEG_Run2018B-UL2018:
+  dbs: /MuonEG/Run2018B-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD
+  era: 2018
+  generator_weight: 1.0
+  nevents: 16211567
+  nfiles: 20
+  nick: MuonEG_Run2018B-UL2018
+  sample_type: data
+  xsec: 1.0
+MuonEG_Run2018C-UL2018:
+  dbs: /MuonEG/Run2018C-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD
+  era: 2018
+  generator_weight: 1.0
+  nevents: 15652198
+  nfiles: 22
+  nick: MuonEG_Run2018C-UL2018
+  sample_type: data
+  xsec: 1.0
+MuonEG_Run2018D-UL2018:
+  dbs: /MuonEG/Run2018D-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD
+  era: 2018
+  generator_weight: 1.0
+  nevents: 71952025
+  nfiles: 63
+  nick: MuonEG_Run2018D-UL2018
+  sample_type: data
+  xsec: 1.0
+
+Muon_Run2022C:
+  dbs: /Muon/Run2022C-PromptNanoAODv10_v1-v1/NANOAOD
+  era: 2022
+  generator_weight: 1.0
+  nevents: 138667372
+  nfiles: 80
+  nick: Muon_Run2022C
+  sample_type: data
+  xsec: 1.0
+Muon_Run2022D:
+  dbs: /Muon/Run2022D-PromptNanoAODv10_v2-v1/NANOAOD
+  era: 2022
+  generator_weight: 1.0
+  nevents: 48921997
+  nfiles: 33
+  nick: Muon_Run2022D
+  sample_type: data
+  xsec: 1.0
+Muon_Run2022E:
+  dbs: /Muon/Run2022E-PromptNanoAODv10_v1-v3/NANOAOD
+  era: 2022
+  generator_weight: 1.0
+  nevents: 167073531
+  nfiles: 128
+  nick: Muon_Run2022E
+  sample_type: data
+  xsec: 1.0
+Muon_Run2022F:
+  dbs: /Muon/Run2022F-PromptNanoAODv10_v1-v2/NANOAOD
+  era: 2022
+  generator_weight: 1.0
+  nevents: 346049097
+  nfiles: 256
+  nick: Muon_Run2022F
+  sample_type: data
+  xsec: 1.0
+Muon_Run2022G:
+  dbs: /Muon/Run2022G-PromptNanoAODv10_v1-v1/NANOAOD
+  era: 2022
+  generator_weight: 1.0
+  nevents: 76647892
+  nfiles: 56
+  nick: Muon_Run2022G
+  sample_type: data
+  xsec: 1.0

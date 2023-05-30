@@ -51,6 +51,8 @@ def build_config(
                     "2016": "data/pileup/Data_Pileup_2016_271036-284044_13TeVMoriond17_23Sep2016ReReco_69p2mbMinBiasXS.root",
                     "2017": "data/pileup/Data_Pileup_2017_294927-306462_13TeVSummer17_PromptReco_69p2mbMinBiasXS.root",
                     "2018": "data/pileup/Data_Pileup_2018_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18.root",
+                    # "2022": "not/available/yet",
+                    "2022": "data/pileup/Data_Pileup_2018_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18.root",
                 }
             ),
             "golden_json_file": EraModifier(
@@ -58,6 +60,7 @@ def build_config(
                     "2016": "data/golden_json/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt",
                     "2017": "data/golden_json/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt",
                     "2018": "data/golden_json/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt",
+                    "2022": "data/golden_json/Cert_Collisions2022_355100_362760_GoldenJSON.txt",
                 }
             ),
             "PU_reweighting_hist": "pileup",
@@ -95,6 +98,17 @@ def build_config(
                         "Flag_eeBadScFilter",
                         "Flag_ecalBadCalibFilter",
                     ],
+                    "2022": [
+                        "Flag_goodVertices",
+                        "Flag_globalSuperTightHalo2016Filter",
+                        "Flag_HBHENoiseFilter",
+                        "Flag_HBHENoiseIsoFilter",
+                        "Flag_EcalDeadCellTriggerPrimitiveFilter",
+                        "Flag_BadPFMuonFilter",
+                        # "Flag_BadPFMuonDzFilter", # only since nanoAODv9 available
+                        "Flag_eeBadScFilter",
+                        "Flag_ecalBadCalibFilter",
+                    ],
                 }
             ),
         },
@@ -107,6 +121,26 @@ def build_config(
             "singlemuon_trigger": EraModifier(
                 {
                 # vh TODO update pT threshold in trigger matching
+                    "2022": [
+                        {
+                            "flagname": "trg_single_mu24",
+                            "hlt_path": "HLT_IsoMu24",
+                            "ptcut": 25,
+                            "etacut": 2.5,
+                            "filterbit": 3,
+                            "trigger_particle_id": 13,
+                            "max_deltaR_triggermatch": 0.4,
+                        },
+                        {
+                            "flagname": "trg_single_mu27",
+                            "hlt_path": "HLT_IsoMu27",
+                            "ptcut": 28,
+                            "etacut": 2.5,
+                            "filterbit": 3,
+                            "trigger_particle_id": 13,
+                            "max_deltaR_triggermatch": 0.4,
+                        },
+                    ],
                     "2018": [
                         {
                             "flagname": "trg_single_mu24",
@@ -182,13 +216,26 @@ def build_config(
     configuration.add_config_parameters(
         "global",
         {
+            "ele_id": EraModifier(
+                {
+                    "2016": "Electron_mvaFall17V2noIso_WP90",
+                    "2017": "Electron_mvaFall17V2noIso_WP90",
+                    "2018": "Electron_mvaFall17V2noIso_WP90",
+                    "2022": "Electron_mvaNoIso_WP90",
+                }
+            ),
+        }
+    )
+    configuration.add_config_parameters(
+        "global",
+        {
             "min_ele_pt": 20.0,
             "max_ele_eta": 2.5,
             "upper_threshold_barrel": 1.444,
             "lower_threshold_endcap": 1.566,
             "max_ele_dxy": 0.05,
             "max_ele_dz": 0.10,
-            "ele_id": "Electron_mvaFall17V2noIso_WP90", 
+            # "ele_id": "Electron_mvaFall17V2noIso_WP90", # 2022, Electron_mvaNoIso_WP90
             "ele_conv_veto": "Electron_convVeto",
             "ele_missing_hits": 2,
             # also need max_sip3d
@@ -214,6 +261,7 @@ def build_config(
                     "2016": "data/jsonpog-integration/POG/MUO/2016postVFP_UL/muon_Z.json.gz",
                     "2017": "data/jsonpog-integration/POG/MUO/2017_UL/muon_Z.json.gz",
                     "2018": "data/jsonpog-integration/POG/MUO/2018_UL/muon_Z.json.gz",
+                    "2022": "data/jsonpog-integration/POG/MUO/2018_UL/muon_Z.json.gz",
                 }
             ),
             "muon_id_sf_name": "NUM_MediumID_DEN_TrackerMuons",
@@ -223,6 +271,7 @@ def build_config(
                     "2016": "2016postVFP_UL",
                     "2017": "2017_UL",
                     "2018": "2018_UL",
+                    "2022": "2018_UL",
                 }
             ),
             "muon_sf_varation": "sf",  # "sf" is nominal, "systup"/"systdown" are up/down variations
@@ -238,6 +287,7 @@ def build_config(
                     "2016postVFP": "data/jsonpog-integration/POG/EGM/2016postVFP_UL/electron.json.gz",
                     "2017": "data/jsonpog-integration/POG/EGM/2017_UL/electron.json.gz",
                     "2018": "data/jsonpog-integration/POG/EGM/2018_UL/electron.json.gz",
+                    "2022": "data/jsonpog-integration/POG/EGM/2018_UL/electron.json.gz",
                 }
             ),
             "ele_id_sf_name": "UL-Electron-ID-SF",
@@ -247,6 +297,7 @@ def build_config(
                     "2016postVFP": "2016postVFP",
                     "2017": "2017",
                     "2018": "2018",
+                    "2022": "2018",
                 }
             ),
             "ele_sf_varation": "sf",  # "sf" is nominal, "sfup"/"sfdown" are up/down variations
@@ -268,6 +319,7 @@ def build_config(
                     "2016postVFP": 1,  # 0==fail, 1==pass(loose), 3==pass(loose,medium), 7==pass(loose,medium,tight)
                     "2017": 4,  # 0==fail, 4==pass(loose), 6==pass(loose,medium), 7==pass(loose,medium,tight)
                     "2018": 4,  # 0==fail, 4==pass(loose), 6==pass(loose,medium), 7==pass(loose,medium,tight)
+                    "2022": 4,  # 0==fail, 4==pass(loose), 6==pass(loose,medium), 7==pass(loose,medium,tight)
                 }
             ),
             "jet_puid_max_pt": 50,  # recommended to apply puID only for jets below 50 GeV
@@ -282,6 +334,7 @@ def build_config(
                     "2016postVFP": '"data/jsonpog-integration/POG/JME/2016postVFP_UL/jet_jerc.json.gz"',
                     "2017": '"data/jsonpog-integration/POG/JME/2017_UL/jet_jerc.json.gz"',
                     "2018": '"data/jsonpog-integration/POG/JME/2018_UL/jet_jerc.json.gz"',
+                    "2022": '"data/jsonpog-integration/POG/JME/2018_UL/jet_jerc.json.gz"',
                 }
             ),
             "jet_jer_tag": EraModifier(
@@ -290,6 +343,7 @@ def build_config(
                     "2016postVFP": '"Summer20UL16_JRV3_MC"',
                     "2017": '"Summer19UL17_JRV2_MC"',
                     "2018": '"Summer19UL18_JRV2_MC"',
+                    "2022": '"Summer19UL18_JRV2_MC"',
                 }
             ),
             "jet_jes_tag_data": '""',
@@ -299,6 +353,7 @@ def build_config(
                     "2016postVFP": '"Summer19UL16_V7_MC"',
                     "2017": '"Summer19UL17_V5_MC"',
                     "2018": '"Summer19UL18_V5_MC"',
+                    "2022": '"Summer19UL18_V5_MC"',
                 }
             ),
             "jet_jec_algo": '"AK4PFchs"',
@@ -314,6 +369,7 @@ def build_config(
                     "2016": 2.4,
                     "2017": 2.5,
                     "2018": 2.5,
+                    "2022": 2.5,
                 }
             ),
             "btag_cut_loose": EraModifier(  # loose # vh TODO update this for DeepCSV
@@ -321,6 +377,7 @@ def build_config(
                     "2016": 0.3093,
                     "2017": 0.3040,
                     "2018": 0.2783,
+                    "2022": 0.2783,
                 }
             ),
             "btag_cut_medium": EraModifier(  # medium # vh TODO verify this for DeepCSV
@@ -328,6 +385,7 @@ def build_config(
                     "2016": 0.3093,
                     "2017": 0.3040,
                     "2018": 0.2783,
+                    "2022": 0.2783,
                 }
             ),
         },
@@ -1296,6 +1354,23 @@ def build_config(
         configuration.add_outputs(
             scopes,
             nanoAOD.genWeight,
+        )
+    # As now 2022 data has no Jet_puID, so no possible to do JetPUIDCut
+    if era == "2022":
+        configuration.add_modification_rule(
+            "global",
+            RemoveProducer(
+                producers=[jets.GoodJets,],
+                samples=["data"],
+            ),
+        )
+        configuration.add_modification_rule(
+            "global",
+            AppendProducer(
+                producers=[jets.GoodJets_2022,],
+                samples=["data"],
+                update_output=False,
+            ),
         )
 
     configuration.add_modification_rule(
