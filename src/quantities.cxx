@@ -13,8 +13,50 @@
 /// The namespace that is used to hold the functions for basic quantities that
 /// are needed for every event
 namespace quantities {
+///
+/// funciton to calc mT contains MHT
+ROOT::RDF::RNode mT_MHT(ROOT::RDF::RNode df, const std::string &outputname,
+                    const std::string &particle_p4, const std::string &met) {
+    auto calculate_mt = [](ROOT::Math::PtEtaPhiMVector &particle_p4,
+                           ROOT::Math::PtEtaPhiMVector &met) {
+        float mt = (float)sqrt(2 * fabs(particle_p4.Pt()) * fabs(met.Pt()) *
+                       (1. - cos(particle_p4.Phi() - met.Phi())));
+        if ( !std::isnan(mt) && !std::isinf(mt) ) {
+            return mt;
+        } else {
+            return default_float;
+        }
+    };
+    return df.Define(outputname, calculate_mt, {particle_p4, met});
+}
 
-
+/// function to calc the delta phi
+ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_deltaPhi = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                               ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        // if ( p_1_p4.phi() - p_2_p4.phi() > TMath::Pi() ) {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi() - TMath::Pi());
+        // } else if ( p_1_p4.phi() - p_2_p4.phi() < -TMath::Pi() ) {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi() + TMath::Pi());
+        // } else {
+        //     return (float)fabs(p_1_p4.phi() - p_2_p4.phi());
+        // }
+        return fabs(ROOT::Math::VectorUtil::DeltaPhi(p_1_p4, p_2_p4));
+    };
+    return df.Define(outputname, calculate_deltaPhi, {p_1_p4, p_2_p4});
+}
+///
+//// function to calc the delta Eta
+ROOT::RDF::RNode deltaEta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_deltaEta = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                               ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        return (float)fabs(p_1_p4.eta() - p_2_p4.eta());
+    };
+    return df.Define(outputname, calculate_deltaEta, {p_1_p4, p_2_p4});
+}
+///
 /// Function to calculate the pt from a given lorentz vector and add it to the
 /// dataframe
 ///

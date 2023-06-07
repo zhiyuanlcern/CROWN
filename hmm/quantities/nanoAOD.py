@@ -33,6 +33,7 @@ Muon_genMatch = NanoAODQuantity("Muon_genPartFlav")
 Muon_indexToGen = NanoAODQuantity("Muon_genPartIdx")
 Muon_sip3d = NanoAODQuantity("Muon_sip3d") # vh
 Muon_pfRelIso04_all = NanoAODQuantity("Muon_pfRelIso04_all") # vh
+Muon_mvaTTH = NanoAODQuantity("Muon_mvaTTH")
 
 Electron_pt = NanoAODQuantity("Electron_pt")
 Electron_eta = NanoAODQuantity("Electron_eta")
@@ -43,6 +44,15 @@ Electron_mass = NanoAODQuantity("Electron_mass")
 Electron_iso = NanoAODQuantity("Electron_pfRelIso03_all")
 Electron_charge = NanoAODQuantity("Electron_charge")
 Electron_indexToGen = NanoAODQuantity("Electron_genPartIdx")
+# write by botao
+Electron_sip3d = NanoAODQuantity("Electron_sip3d")
+Electron_mvaFall17V2noIso_WP90 = NanoAODQuantity("Electron_mvaFall17V2noIso_WP90")
+Electron_convVeto = NanoAODQuantity("Electron_convVeto")
+Electron_lostHits = NanoAODQuantity("Electron_lostHits")
+Electron_mvaTTH = NanoAODQuantity("Electron_mvaTTH")
+Electron_pdgId = NanoAODQuantity("Electron_pdgId")
+Muon_pdgId = NanoAODQuantity("Muon_pdgId")
+# end write
 
 GenJet_pt = NanoAODQuantity("GenJet_pt")
 GenJet_eta = NanoAODQuantity("GenJet_eta")
@@ -104,6 +114,9 @@ MET_sumEt = NanoAODQuantity("PuppiMET_sumEt")
 PFMET_phi = NanoAODQuantity("MET_phi")
 PFMET_pt = NanoAODQuantity("MET_pt")
 PFMET_sumEt = NanoAODQuantity("MET_sumEt")
+
+GenMET_pt = NanoAODQuantity("GenMET_pt")
+GenMET_phi = NanoAODQuantity("GenMET_phi")
 
 ## Embedding Quantities
 genWeight = NanoAODQuantity("genWeight")

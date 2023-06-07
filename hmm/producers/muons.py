@@ -42,6 +42,13 @@ MuonSIP3DCut = Producer(
     scopes=["global"],
 )
 # TODO vh LepMVA
+Muon_mvaTTH_Cut = Producer(
+    name="Muon_mvaTTH_Cut",
+    call="physicsobject::CutVarMin({df}, {input}, {output}, {min_muon_mvaTTH})",
+    input=[nanoAOD.Muon_mvaTTH],
+    output=[],
+    scopes=["global"],
+)
 MuonIDCut = Producer(
     name="MuonIDCut",
     call='physicsobject::muon::CutID({df}, {output}, "{muon_id}")',
@@ -69,6 +76,7 @@ BaseMuons = ProducerGroup(
         MuonDzCut,
         MuonSIP3DCut,
         # TODO vh add LepMVA
+        Muon_mvaTTH_Cut,
         MuonIDCut,
         MuonIsoCut,
     ],
@@ -86,28 +94,28 @@ GoodMuonPtCut = Producer(
     call="physicsobject::CutPt({df}, {input}, {output}, {min_muon_pt})",
     input=[nanoAOD.Muon_pt],
     output=[],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 GoodMuonEtaCut = Producer(
     name="GoodMuonEtaCut",
     call="physicsobject::CutEta({df}, {input}, {output}, {max_muon_eta})",
     input=[nanoAOD.Muon_eta],
     output=[],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 GoodMuonIsoCut = Producer(
     name="GoodMuonIsoCut",
     call="physicsobject::electron::CutIsolation({df}, {output}, {input}, {muon_iso_cut})",
     input=[nanoAOD.Muon_pfRelIso04_all],
     output=[],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 GoodMuons = ProducerGroup(
     name="GoodMuons",
     call="physicsobject::CombineMasks({df}, {output}, {input})",
     input=[q.base_muons_mask],
     output=[q.good_muons_mask], # vh these are the final selection muons' mask
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
     subproducers=[
         GoodMuonPtCut,
         GoodMuonEtaCut,
@@ -120,7 +128,7 @@ NumberOfGoodMuons = Producer(
     call="quantities::NumberOfGoodObjects({df}, {output}, {input})",
     input=[q.good_muons_mask],
     output=[q.nmuons],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 VetoMuons = Producer(
     name="VetoMuons",
@@ -198,7 +206,7 @@ MuonCollection = Producer(
     call="jet::OrderJetsByPt({df}, {output}, {input})",
     input=[nanoAOD.Muon_pt, q.good_muons_mask],
     output=[q.good_muon_collection],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"],
 )
 LVMu1 = Producer(
     name="LVMu1",
@@ -211,7 +219,7 @@ LVMu1 = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_p4_1],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 LVMu2 = Producer(
     name="LVMu2",
@@ -224,7 +232,7 @@ LVMu2 = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_p4_2],
-    scopes=["e2m","m2m", "2e2m","4m"],
+    scopes=["e2m","m2m", "eemm","mmmm","nnmm"],
 )
 LVMu3 = Producer(
     name="LVMu3",
@@ -237,6 +245,102 @@ LVMu3 = Producer(
         nanoAOD.Muon_mass,
     ],
     output=[q.muon_p4_3],
-    scopes=["m2m", "4m"],
+    scopes=["m2m", "mmmm"],
 )
-
+LVMu4 = Producer(
+    name="LVMu4",
+    call="lorentzvectors::build({df}, {input_vec}, 3, {output})",
+    input=[
+        q.good_muon_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_p4_4],
+    scopes=["mmmm"],
+)
+##### 
+##### The leading muon from Higgs
+Mu1_H = Producer(
+    name="Mu1_H",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.dimuon_HiggsCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_leadingp4_H],
+    scopes=["e2m","m2m", "eemm","nnmm"],
+)
+##### The sub leading muon form Higgs
+Mu2_H = Producer(
+    name="Mu2_H",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.dimuon_HiggsCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_subleadingp4_H],
+    scopes=["e2m","m2m", "eemm","nnmm"],
+)
+##### The leading muon from Higgs in 4m channel
+Mu1_H_4m = Producer(
+    name="Mu1_H_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 0, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_leadingp4_H],
+    scopes=["mmmm"],
+)
+##### The sub leading muon from Higgs in 4m channel
+Mu2_H_4m = Producer(
+    name="Mu2_H_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 1, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.muon_subleadingp4_H],
+    scopes=["mmmm"],
+)
+##### The leading muon from Z Cand in 4m channel
+Mu1_Z_4m = Producer(
+    name="Mu1_Z_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 2, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.lepton_leadingp4_Z],
+    scopes=["mmmm"],
+)
+Mu2_Z_4m = Producer(
+    name="Mu2_Z_4m",
+    call="lorentzvectors::build({df}, {input_vec}, 3, {output})",
+    input=[
+        q.quadmuon_HiggsZCand_collection,
+        nanoAOD.Muon_pt,
+        nanoAOD.Muon_eta,
+        nanoAOD.Muon_phi,
+        nanoAOD.Muon_mass,
+    ],
+    output=[q.lepton_subleadingp4_Z],
+    scopes=["mmmm"],
+)

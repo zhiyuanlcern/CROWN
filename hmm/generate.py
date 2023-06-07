@@ -11,14 +11,16 @@ def run(args):
     available_samples = [
         "data",
         "vhmm", # vh
+        "zjjew",
+        "triboson",
         "embedding",
-        "ttbar",
+        "top",
         "dyjets",
         "wjets",
         "diboson",
     ]
     available_eras = ["2016","2017","2018","2022"]
-    available_scopes = ["e2m","m2m", "2e2m","4m"]
+    available_scopes = ["e2m","m2m","eemm","mmmm","nnmm","nnmm_dycontrol","nnmm_topcontrol"]
 
     ## setup variables
     shifts = set([shift.lower() for shift in args.shifts])
