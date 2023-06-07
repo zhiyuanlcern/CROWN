@@ -2,6 +2,7 @@
 *test*/
 build*/
 build/
+build*/
 log/
 logs/
 # ignore all analysis in the config folder apart from the unittest and the template

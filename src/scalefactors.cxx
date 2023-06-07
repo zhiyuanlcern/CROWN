@@ -429,7 +429,7 @@ ROOT::RDF::RNode id_vsJet_lt_embedding(
 channel with the correctionlib for tauembedded samples
 
  * @param df The input dataframe
- * @param decayMode decay mode of the tau
+ * @param decaymode decay mode of the tau
  * @param wp working point of the ID cut
  * @param sf_vsjet_tauDM0 id for the variation of the scale factor "sf" for
 nominal
@@ -1155,7 +1155,7 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                         pt, eta, correctiontype, extrapolation_factor);
             double sf = 1.;
             sf = extrapolation_factor *
-                 evaluator->evaluate({pt, std::abs(eta), correctiontype});
+                 evaluator->evaluate({pt, eta, correctiontype});
             Logger::get("EmbeddingElectronSF")->debug("sf {}", sf);
             return sf;
         },
