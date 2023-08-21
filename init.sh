@@ -39,8 +39,10 @@ elif [[ "$distro" == "Ubuntu" ]]; then
         return 0
     fi
 else
-    echo "You are not running on CentOS or Ubuntu, exiting..."
-    return 0
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh
+    
+    echo "You are not running on CentOS or Ubuntu, treating as cent 7"
+    # return 0
 fi
 # add ~/.local/bin to path if it is not already there
 pathadd "${HOME}/.local/bin/"
