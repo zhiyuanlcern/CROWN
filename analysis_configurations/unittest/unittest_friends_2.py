@@ -4,7 +4,6 @@ from typing import List, Union
 import os
 from .producers import muon_sf_friends as muon_sf_friends
 from .producers import pairquantities as pairquantities
-from .producers import scalefactors as scalefactors
 from .quantities import output as q
 
 # from code_generation.configuration import Cnofiguration
@@ -23,13 +22,19 @@ def build_config(
     available_sample_types: List[str],
     available_eras: List[str],
     available_scopes: List[str],
-    quantities_map: Union[str, None] = None,
+    quantities_map: Union[List[str], None] = None,
 ):
+    quantities_map = [
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "dyjets_shift_quantities_map.json",
+        ),
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "dyjets_friend_shift_quantities_map.json",
+        ),
+    ]
     # for the test, we provide a quantities map
-    quantities_map = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "dyjets_shift_quantities_map.json",
-    )
     configuration = FriendTreeConfiguration(
         era,
         sample,
@@ -41,28 +46,22 @@ def build_config(
         quantities_map,
     )
 
-    configuration.add_config_parameters(
-        ["mt", "mm"],
-        {
-            "muon_sf_file": "data/embedding/muon_2018UL.json.gz",
-            "muon_id_sf": "ID_pt_eta_bins",
-            "muon_iso_sf": "Iso_pt_eta_bins",
-        },
-    )
-
     configuration.add_producers(
-        ["mt", "mm"],
+        ["mt", "et", "tt", "em"],
         [
-            muon_sf_friends.MuonIDSF_friends_1,
-            muon_sf_friends.MuonIsoSF_friends_1,
+            pairquantities.FastMTTQuantities,
+            muon_sf_friends.Rename_IDSF,
         ],
     )
 
     configuration.add_outputs(
-        ["mt", "mm"],
+        ["mt", "et", "tt", "em"],
         [
-            q.id_wgt_mu_friend_1,
-            q.iso_wgt_mu_friend_1,
+            q.m_fastmtt,
+            q.pt_fastmtt,
+            q.eta_fastmtt,
+            q.phi_fastmtt,
+            q.id_wgt_mu_friend_1_renamed,
         ],
     )
 
