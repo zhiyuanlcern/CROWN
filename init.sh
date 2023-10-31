@@ -40,8 +40,10 @@ elif [[ "$distro" == "Ubuntu" ]]; then
         return 0
     fi
 else
-    echo "You are not running on CentOS or Ubuntu, exiting..."
-    return 0
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh
+    
+    echo "You are not running on CentOS or Ubuntu, treating as cent 7"
+    # return 0
 fi
 # add ~/.local/bin to path if it is not already there
 pathadd "${HOME}/.local/bin/"
@@ -58,7 +60,9 @@ if [ -z "$1" ]; then
 else
     if [[ "$1" == "tau" && ! -d "${SCRIPT_DIR}/analysis_configurations/tau" ]]; then
         echo "Cloning analysis tau into ${SCRIPT_DIR}/analysis_configurations/tau"
-        git clone git@github.com:KIT-CMS/TauAnalysis-CROWN.git "${SCRIPT_DIR}/analysis_configurations/tau"
+
+        git clone git@github.com:zhiyuanlcern/TauAnalysis-CROWN.git ${SCRIPT_DIR}/analysis_configurations/tau
+
     elif [[ "$1" == "earlyrun3" && ! -d "${SCRIPT_DIR}/analysis_configurations/earlyrun3" ]]; then
         echo "Cloning analysis earlyrun3 into ${SCRIPT_DIR}/analysis_configurations/earlyrun3"
         git clone https://github.com/khaosmos93/CROWN-config-earlyRun3.git "${SCRIPT_DIR}/analysis_configurations/earlyrun3"
