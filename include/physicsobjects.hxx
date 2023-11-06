@@ -113,8 +113,10 @@ namespace tau {
 ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
                                const std::string &tau_dms,
                                const std::vector<int> &SelectedDecayModes);
+ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
+                         const std::string &nameID, const int &IDvalue) ;
 ROOT::RDF::RNode CutTauID(ROOT::RDF::RNode df, const std::string &maskname,
-                          const std::string &nameID, const int &idxID);
+                          const std::string &nameID, const int &IDvalue);
 ROOT::RDF::RNode
 PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                      const std::string &pt, const std::string &eta,

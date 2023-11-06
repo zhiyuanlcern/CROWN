@@ -216,8 +216,11 @@ namespace jet {
 ///
 /// \return a dataframe containing the new mask
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
-                       const std::string &nameID, const int &idxID) {
+                       const std::string &nameID, const int &idxID) { 
+                    //    const std::string &nameID, const UChar_t &idxID) {
     auto df1 = df.Define(maskname, basefunctions::FilterJetID(idxID), {nameID});
+    // auto df1 = df.Define(maskname, basefunctions::FilterJetID_UChar_t(idxID), {nameID});
+    
     return df1;
 }
 /// Function to cut jets based on the jet pileup ID
