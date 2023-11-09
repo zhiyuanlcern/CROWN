@@ -654,7 +654,7 @@ ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
 ///
 /// \return a dataframe containing the new mask
 ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
-                         const std::string &nameID, const int &idxID) {
+                         const std::string &nameID, const UChar_t &idxID) {
                         //  const std::string &nameID, const UChar_t &IDvalue) {
     auto df1 =
         df.Define(maskname, basefunctions::FilterMinUChar_t(idxID), {nameID});

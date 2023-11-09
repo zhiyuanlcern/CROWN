@@ -40,7 +40,7 @@ elif [[ "$distro" == "Ubuntu" ]]; then
         return 0
     fi
 else
-    source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt/setup.sh
     
     echo "You are not running on CentOS or Ubuntu, treating as cent 7"
     # return 0

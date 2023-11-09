@@ -845,7 +845,7 @@ ROOT::RDF::RNode matching_genjet_pt(
 
 ROOT::RDF::RNode TauIDFlag(ROOT::RDF::RNode df, const std::string &outputname,
                            const int &position, const std::string &pairname,
-                           const std::string &nameID, const int &idxID) {
+                           const std::string &nameID, const UChar_t &idxID) {
     return df.Define(
         outputname,
         [position, idxID](const ROOT::RVec<int> &pair,
@@ -858,7 +858,7 @@ ROOT::RDF::RNode TauIDFlag(ROOT::RDF::RNode df, const std::string &outputname,
                     position, pair, idxID, ID, int(ID >= idxID));
             if (ID != default_int)
                 // return std::min(1, int(ID & 1 << (idxID - 1)));
-                return int(ID >= idxID);
+                return int(ID >= idxID); // in Nano V11 the working points are no long saved as bit
             else
                 return int(ID);
         },

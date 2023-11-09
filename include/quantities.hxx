@@ -107,7 +107,7 @@ ROOT::RDF::RNode matching_genjet_pt(
     const std::string &genjet_index, const std::string &genjetpt_column);
 ROOT::RDF::RNode TauIDFlag(ROOT::RDF::RNode df, const std::string &outputname,
                            const int &position, const std::string &pairname,
-                           const std::string &nameID, const int &idxID);
+                           const std::string &nameID, const UChar_t &idxID);
 } // end namespace tau
 namespace muon {
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,

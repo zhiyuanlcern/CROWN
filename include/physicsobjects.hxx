@@ -114,7 +114,7 @@ ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
                                const std::string &tau_dms,
                                const std::vector<int> &SelectedDecayModes);
 ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
-                         const std::string &nameID, const int &IDvalue) ;
+                         const std::string &nameID, const UChar_t &IDvalue) ;
 ROOT::RDF::RNode CutTauID(ROOT::RDF::RNode df, const std::string &maskname,
                           const std::string &nameID, const int &IDvalue);
 ROOT::RDF::RNode
