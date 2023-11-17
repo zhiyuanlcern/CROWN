@@ -1,5 +1,8 @@
 #include "ROOT/RDFHelpers.hxx"
 #include "ROOT/RDataFrame.hxx"
+#include "include/testmodel.hxx"
+#include "TMVA/SOFIEHelpers.hxx"
+using namespace TMVA::Experimental;
 #include "RooTrace.h"
 #include "TStopwatch.h"
 #include "include/genparticles.hxx"

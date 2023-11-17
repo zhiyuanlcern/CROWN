@@ -1,7 +1,15 @@
 #ifndef GUARD_QUANTITIES_H
 #define GUARD_QUANTITIES_H
 
+#include "ROOT/RDFHelpers.hxx"
 #include "../include/SVFit/FastMTT.hxx"
+#include "../include/testmodel.hxx"
+#include "../include/model_mt.hxx"
+#include "../include/model_et.hxx"
+#include "../include/model_tt.hxx"
+#include "../include/model_em.hxx"
+#include "TMVA/SOFIEHelpers.hxx"
+using namespace TMVA::Experimental;
 #include "../include/SVFit/MeasuredTauLepton.hxx"
 #include "../include/basefunctions.hxx"
 #include "../include/defaults.hxx"
@@ -444,7 +452,8 @@ ROOT::RDF::RNode pzetamissvis(ROOT::RDF::RNode df,
         auto dileptonsystem = p_1_p4.Vect() + p_2_p4.Vect();
         dileptonsystem.SetZ(0);
         auto pzetaVis = dileptonsystem.Dot(zeta);
-        return met_3dvec.Dot(zeta) - (alpha * pzetaVis);
+        auto pzetamissvis = met_3dvec.Dot(zeta) - (alpha * pzetaVis);
+        return (float)pzetamissvis;
     };
     return df.Define(outputname, calculate_pzetamissvis, {p_1_p4, p_2_p4, met});
 }
@@ -654,6 +663,118 @@ ROOT::RDF::RNode mt_tot(ROOT::RDF::RNode df, const std::string &outputname,
     };
     return df.Define(outputname, calculate_mt_tot, {p_1_p4, p_2_p4, met});
 }
+
+ROOT::RDF::RNode index_tmp(ROOT::RDF::RNode df, const std::string &njets,
+                     const std::string &outputname) {
+    return df.Define(outputname, []() {return uint(0);}) ;
+}
+
+ROOT::RDF::RNode njets_float(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &njets_column) {
+    // build visible pt from the two particles
+    return df.Define(outputname, [](const int njets) {return float(njets);},
+        {njets_column});
+}
+ROOT::RDF::RNode pnn_score(ROOT::RDF::RNode df, const std::string &outputname, const std::string &index_tmp,
+            const std::string &mt_tot,const std::string &pt_vis,const std::string &m_vis,const std::string &phi_1,
+            const std::string &phi_2,const std::string &eta_1,const std::string &eta_2,const std::string &met,
+            const std::string &pt_1,const std::string &pt_2,const std::string &pt_tt,const std::string &mt_1,
+            const std::string &mt_2,const std::string &deltaR_ditaupair,const std::string &metSumEt,
+            const std::string &njets,const std::string &pzetamissvis,const std::string &dxy_1,
+            const std::string &metphi,const std::string &mTdileptonMET,const std::string &mass_name, const int &mass ) {
+        // if (finalstate == "mt") {
+            Logger::get("pnn_score")
+                ->debug(
+                    "PNN score before defining df1 columnnames ");
+            auto df1 = df.Define(mass_name, [mass]() { return float(mass /1600); }) ;
+            
+           
+           
+           
+           
+           
+           
+    //         // Read the JSON file
+    //         std::ifstream ifs("data/mt_scaling.json");
+    //         nlohmann::json json_data;
+    //         ifs >> json_data;
+
+    //         // Extract the center and scale values
+    //         std::map<std::string, std::pair<float, float>> scale_map;
+    //         std::vector<std::string> input_vars = json_data["input_vars"];
+    //         std::vector<float> centers = json_data["center"];
+    //         std::vector<float> scales = json_data["scale"];
+    //         for (size_t i = 0; i < input_vars.size(); ++i) {
+    //         scale_map[input_vars[i]] = std::make_pair(centers[i], scales[i]);
+    //          }
+
+    //         // Define the scaled variables in the DataFrame
+    //         auto df_scaled = df;
+    //         for (const auto &var : input_vars) {
+    //             df_scaled = df_scaled.Define("scaled_" + var, [scale_map, var](float value) {
+    //                 auto scale_info = scale_map[var];
+    //                 return (value - scale_info.first) / scale_info.second;
+    //             }, {var});
+    //         }
+
+    // // ... use df_scaled instead of df for further processing ...
+
+    // return df_scaled; // or however you process it further        
+                    
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            Logger::get("pnn_score")
+                ->debug(
+                    "PNN score after defining df1 columnnames ");        
+            auto df2 = df1.Define(outputname, SofieFunctor<21, TMVA_SOFIE_testmodel::Session>(int(1)),
+                    {index_tmp,mt_tot,pt_vis,m_vis,phi_1,phi_2,eta_1,eta_2,met,pt_1,pt_2,pt_tt,mt_1,mt_2,deltaR_ditaupair,metSumEt,njets,pzetamissvis,dxy_1,metphi,mTdileptonMET,mass_name});
+            Logger::get("pnn_score")
+                ->debug(
+                    "PNN score after defining score ");
+            return df2;
+    }
+
+
+
+
+     // }
+        // else if (finalstate == "et") {
+        //           auto df1=df.Define("mass", []() { return float(0.21052631578947367); })
+        //             .Define("njets_float", "float(njets)");
+        //         return df1.DefineSlot(outputname, SofieFunctor<21, TMVA_SOFIE_testmodel::Session>(1),
+        //             {mt_tot,pt_vis,m_vis,phi_1,phi_2,eta_1,eta_2,met,pt_1,pt_2,pt_tt,mt_1,mt_2,
+        //                 deltaR_ditaupair,metSumEt,"njets_float",pzetamissvis,dxy_1,metphi,mTdileptonMET,mass});
+        //             } 
+        // else if (finalstate == "tt") {
+        //      auto df1=df.Define("mass", []() { return float(0.21052631578947367); })
+        //             .Define("njets_float", "float(njets)");
+        //         return df1.DefineSlot(outputname, SofieFunctor<21, TMVA_SOFIE_testmodel::Session>(1),
+        //             {mt_tot,pt_vis,m_vis,phi_1,phi_2,eta_1,eta_2,met,pt_1,pt_2,pt_tt,mt_1,mt_2,
+        //                 deltaR_ditaupair,metSumEt,"njets_float",pzetamissvis,dxy_1,metphi,mTdileptonMET,mass});
+        //             } 
+        // else if (finalstate == "em") {
+        //    auto df1=df.Define("mass", []() { return float(0.21052631578947367); })
+        //             .Define("njets_float", "float(njets)");
+        //         return df1.DefineSlot(outputname, SofieFunctor<21, TMVA_SOFIE_testmodel::Session>(1),
+        //             {mt_tot,pt_vis,m_vis,phi_1,phi_2,eta_1,eta_2,met,pt_1,pt_2,pt_tt,mt_1,mt_2,
+        //                 deltaR_ditaupair,metSumEt,"njets_float",pzetamissvis,dxy_1,metphi,mTdileptonMET,mass});
+        //     } 
+        // else {      Logger::get("pnn_score")->error(
+        //             "Final state {} not supported by FastMTT", finalstate);
+        //             auto df1=df.Define("mass", []() { return float(0.21052631578947367); })
+        //             .Define("njets_float", "float(njets)");
+        //         return df1.DefineSlot(outputname, SofieFunctor<21, TMVA_SOFIE_testmodel::Session>(1),
+        //             {mt_tot,pt_vis,m_vis,phi_1,phi_2,eta_1,eta_2,met,pt_1,pt_2,pt_tt,mt_1,mt_2,
+        //                 deltaR_ditaupair,metSumEt,"njets_float",pzetamissvis,dxy_1,metphi,mTdileptonMET,mass});
+        //             }
 
 /// Function to writeout the isolation of a particle. The particle is
 /// identified via the index stored in the pair vector
