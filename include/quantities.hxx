@@ -1,11 +1,7 @@
 #ifndef GUARD_QUANTITIES_H
 #define GUARD_QUANTITIES_H
 
-#include "testmodel.hxx"
-#include "model_mt.hxx"
-#include "model_et.hxx"
-#include "model_tt.hxx"
-#include "model_em.hxx"
+
 #include "basefunctions.hxx"
 #include "defaults.hxx"
 #include "utility/Logger.hxx"
@@ -52,17 +48,23 @@ p4_fastmtt(ROOT::RDF::RNode df, const std::string &outputname,
            const std::string &met_cov_yy, const std::string &decay_mode_1,
            const std::string &decay_mode_2, const std::string &finalstate);
 
-ROOT::RDF::RNode pnn_score(ROOT::RDF::RNode df, const std::string &outputname, const std::string &index_tmp,
-           const std::string &mt_tot,const std::string &pt_vis,const std::string &m_vis,const std::string &phi_1,
-  const std::string &phi_2,const std::string &eta_1,const std::string &eta_2,const std::string &met,
-  const std::string &pt_1,const std::string &pt_2,const std::string &pt_tt,const std::string &mt_1,const std::string &mt_2,
-            const std::string &deltaR_ditaupair,const std::string &metSumEt,const std::string &njets,
+ROOT::RDF::RNode pnn_score(ROOT::RDF::RNode df, const std::string &outputname, const std::string &index_tmp, 
+            const std::string &event,
+            const std::string &mt_tot,const std::string &pt_vis, const std::string &m_vis, 
+            const std::string &phi_1,const std::string &phi_2,const std::string &eta_1,
+            const std::string &eta_2,const std::string &met,const std::string &pt_1,
+            const std::string &pt_2,const std::string &pt_tt,const std::string &mt_1,
+            const std::string &mt_2,const std::string &deta_12,const std::string &dphi_12,
+            const std::string &deltaR_ditaupair,const std::string &metSumEt,const std::string &njets_float,
             const std::string &pzetamissvis,const std::string &dxy_1,const std::string &metphi,
-            const std::string &mTdileptonMET,const std::string &mass_name, const int &mass ) ;
-
+            const std::string &mTdileptonMET,const std::string &m_fastmtt,const std::string &pt_fastmtt,
+            const std::string &eta_fastmtt,
+            const std::string &mass_name, const int &mass );
+ROOT::RDF::RNode deta_12(ROOT::RDF::RNode df, const std::string &outputname,const std::string &eta_1, const std::string &eta_2);
+ROOT::RDF::RNode dphi_12(ROOT::RDF::RNode df, const std::string &outputname,const std::string &phi_1, const std::string &phi_2);
 ROOT::RDF::RNode index_tmp(ROOT::RDF::RNode df, const std::string &njets,const std::string &outputname);
-ROOT::RDF::RNode njets_float(ROOT::RDF::RNode df, const std::string &outputname,const std::string &njets_column);
-
+ROOT::RDF::RNode njets_float(ROOT::RDF::RNode df, const std::string &njets_column,const std::string &outputname);
+ROOT::RDF::RNode pnn_mass(ROOT::RDF::RNode df, const std::string &njets,const std::string &outputname);
 
 ROOT::RDF::RNode pt_vis(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::vector<std::string> &inputvectors);
