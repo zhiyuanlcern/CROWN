@@ -1,0 +1,8 @@
+# higgs_analysis.sub
+universe   = vanilla
+executable = ./run_higgs_analysis.sh
+arguments  = $(inputFile) $(mass) $(channel) $(path)
+log        = higgs_analysis.log
+output     = higgs_analysis.out
+error      = higgs_analysis.err
+queue inputFile, mass, channel, path from input_parameters.txt
