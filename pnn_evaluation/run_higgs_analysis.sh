@@ -4,4 +4,4 @@
 source /data/pku/home/zhiyuanl/CROWN-KIT/init.sh
 
 # Now run your actual program
-/data/pku/home/zhiyuanl/CROWN-KIT/test/build/HiggsAnalysis $@
+/data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/build/HiggsAnalysis $@
