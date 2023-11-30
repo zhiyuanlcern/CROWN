@@ -78,10 +78,10 @@ void higgs_analysis(const std::string& inputFile, int mass, const std::string& c
 
     // this following block of code creates a vector of strings storing all ntuple systematics 
     // (excluding weight systematics)
-    // Known base variable names (without version suffixes)
+    // Known base variable names (without systematics suffixes)
     std::vector<std::string> base_vars = {"mt_tot","pt_vis","m_vis","phi_1","phi_2","eta_1","eta_2","met","pt_1","pt_2","pt_tt","mt_1","mt_2","deltaR_ditaupair","metSumEt","pzetamissvis","dxy_1","metphi","mTdileptonMET","m_fastmtt","pt_fastmtt","eta_fastmtt", /* ... other base variable names ... */};
 
-    // Use a set to store unique version suffixes
+    // Use a set to store unique systematics suffixes
     std::set<std::string> version_suffixes;
 
     // Regular expression to match base variable names and extract suffixes
@@ -136,144 +136,122 @@ void higgs_analysis(const std::string& inputFile, int mass, const std::string& c
         }
         
         
-    // Define the NN score for this version
-    std::string nnScoreName = "pnn_" +  mass_name+ (ver.empty() ? "" : "_" + ver);
-    
+        // Define the NN score for this version
+        std::string nnScoreName = "pnn_" +  mass_name+ (ver.empty() ? "" : "_" + ver);
+        
 
-    if (channel ==  "mt"){
-        df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
-                            .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
-                            .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
-    }       
-    else if (channel ==  "et"){
-        df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
-                            .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
-                            .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
-    }
-    else if (channel ==  "tt"){
-        df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
-                            .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
-                            .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
-    }
-    else if (channel ==  "em"){
-        df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
-                            .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
-                            .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
-    }
-    else {
-        std::cerr<< "Usage:  <channel> is mt, et, tt, or em" << std::endl;
-    }
-        
-    //  key step: systematics shifts result in different # of events. The event's variable are saved as -10 if the event is not passing selections. 
-    // so we defined the nn score to be -10 if any of the input variables is < -9.9, excluding the nominal variables 
-    std::string condition = "";  // Start with a condition that is initially false
-    for (const auto& var : input_vars_ver) {
-        // Skip nominal variables
-        if (var.find("__") == std::string::npos) {
-            continue;
+        if (channel ==  "mt"){
+            df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
+                                .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
+        }       
+        else if (channel ==  "et"){
+            df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
+                                .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }
-        if (!condition.empty()) {
-            condition += " || ";
+        else if (channel ==  "tt"){
+            df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
+                                .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }
-        condition += "(" + var + " < -9.9)";
-    }
-    if (condition.empty()){
-        // when evaluating for nominal, the condition list is empty
+        else if (channel ==  "em"){
+            df_scaled = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(32, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(32, weight_file_odd), input_vars_ver)
+                                .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
+        }
+        else {
+            std::cerr<< "Usage:  <channel> is mt, et, tt, or em" << std::endl;
+        }
+            
+        //  key step: systematics shifts result in different # of events. The event's variable are saved as -10 if the event is not passing selections. 
+        // so we defined the nn score to be -10 if any of the input variables is < -9.9, excluding the nominal variables 
+        std::string condition = "";  // Start with a condition that is initially false
         for (const auto& var : input_vars_ver) {
-        
+            // Skip nominal variables
+            if (var.find("__") == std::string::npos) {
+                continue;
+            }
             if (!condition.empty()) {
                 condition += " || ";
             }
             condition += "(" + var + " < -9.9)";
-        
-        }             
-    }
-    if (!condition.empty()) df_scaled = df_scaled.Redefine(nnScoreName, "(" + condition + ") ? -10.0 : " + nnScoreName);
-
-
-        // following the simiar logic, we now multiply the weight to the pnn score and the corresponding systematics
-
-
-
-    // this following block of code creates a vector of strings storing all ntuple systematics 
-    // (excluding weight systematics)
-    // Known base variable names (without version suffixes)
-    std::vector<std::string> base_vars = {"mt_tot","pt_vis","m_vis","phi_1","phi_2","eta_1","eta_2","met","pt_1","pt_2","pt_tt","mt_1","mt_2","deltaR_ditaupair","metSumEt","pzetamissvis","dxy_1","metphi","mTdileptonMET","m_fastmtt","pt_fastmtt","eta_fastmtt", /* ... other base variable names ... */};
-
-    // Use a set to store unique version suffixes
-    std::set<std::string> version_suffixes;
-
-    // Regular expression to match base variable names and extract suffixes
-    std::regex base_var_regex("(" + std::accumulate(next(base_vars.begin()), base_vars.end(), base_vars[0],
-                            [](std::string a, std::string b) { return a + "|" + b; }) + ")(.*)");
-
-   // Loop over all column names in the DataFrame
-    for (const auto& colName : df1.GetColumnNames()) {
-        std::smatch match;
-        if (std::regex_match(colName, match, base_var_regex) && match.size() > 2) {
-            std::string suffix = match[2];
-
-            // Check if the suffix matches the pattern to exclude
-            // _pf variables are not used. Puppi MET is more reliable that the nominal MET (which is _pf variables)
-            // suffix shuold start with '__'
-            if (suffix.rfind("__", 0) == 0 && suffix.find("_pf") == std::string::npos) {
-                // Add the extracted version suffix to the set
-                version_suffixes.insert(suffix);
-            }
         }
+        if (condition.empty()){
+            // when evaluating for nominal, the condition list is empty
+            for (const auto& var : input_vars_ver) {
+            
+                if (!condition.empty()) {
+                    condition += " || ";
+                }
+                condition += "(" + var + " < -9.9)";
+            
+            }             
+        }
+        if (!condition.empty()) df_scaled = df_scaled.Redefine(nnScoreName, "(" + condition + ") ? -10.0 : " + nnScoreName);
     }
-    // Create the vector and add the nominal version
-    std::vector<std::string> versions;
-    versions.push_back("");
 
-    // Then, add the contents of the set to the vector
-    versions.insert(versions.end(), version_suffixes.begin(), version_suffixes.end());
-    for (const auto& ver : versions) {
-        std::cout << ver << std::endl;
-    }
+    
+//     // following the simiar logic, we now multiply the weight to the pnn score and the corresponding systematics
+//     // this following block of code creates a vector of strings storing all weight systematics 
+//     // Known weight names (without systematics suffixes)
+//     std::vector<std::string> weight_vars = {"mt_tot","pt_vis","m_vis","phi_1","phi_2","eta_1","eta_2","met","pt_1","pt_2","pt_tt","mt_1","mt_2","deltaR_ditaupair","metSumEt","pzetamissvis","dxy_1","metphi","mTdileptonMET","m_fastmtt","pt_fastmtt","eta_fastmtt", /* ... other base variable names ... */};
+
+//     // Use a set to store unique systematics suffixes
+//     std::set<std::string> weight_suffixes;
+
+//     // Regular expression to match base variable names and extract suffixes
+//     std::regex weight_var_regex("(" + std::accumulate(next(weight_vars.begin()), weight_vars.end(), weight_vars[0],
+//                             [](std::string a, std::string b) { return a + "|" + b; }) + ")(.*)");
+
+//    // Loop over all column names in the DataFrame
+//     for (const auto& colName : df1.GetColumnNames()) {
+//         std::smatch match;
+//         if (std::regex_match(colName, match, weight_var_regex) && match.size() > 2) {
+//             std::string suffix = match[2];
+
+//             // Check if the suffix matches the pattern to exclude
+//             // _pf variables are not used. Puppi MET is more reliable that the nominal MET (which is _pf variables)
+//             // suffix shuold start with '__'
+//             if (suffix.rfind("__", 0) == 0 && suffix.find("_pf") == std::string::npos) {
+//                 // Add the extracted version suffix to the set
+//                 weight_suffixes.insert(suffix);
+//             }
+//         }
+//     }
+//     // Create the vector and add the nominal version
+//     std::vector<std::string> weight_systs;
+//     weight_systs.push_back("");
+
+//     // Then, add the contents of the set to the vector
+//     weight_systs.insert(weight_systs.end(), weight_suffixes.begin(), weight_suffixes.end());
+//     for (const auto& ver : weight_systs) {
+//         std::cout << ver << std::endl;
+//     }
 
    
 
 
-    // For each version, compute NN scores
-    for (const auto &ver : versions) {
-        std::vector<std::string> input_vars_ver;
-        for (const auto &var : input_vars) {
-            std::string var_ver = var + ver;
-            std::string var_ver_input = var_ver;
-            // Check if the version exists, else use the nominal version
-            if (!ColumnExists(df1, var_ver)) {
-                var_ver_input = var; // Use the nominal version
-            }
-            auto scale_info = scale_map.at(var);
-            // Define the scaled variable for this version
-            df_scaled = df_scaled.Define("scaled_" + var_ver, 
-            [scale_info, var_ver_input](float value) {
-                return (value - scale_info.first) / scale_info.second;
-            }, {var_ver_input});
-        input_vars_ver.push_back("scaled_" + var_ver);
-        }
+//     // For each version, compute NN scores
+//     for (const auto &ver : weight_systs) {
+//         std::vector<std::string> weights_vars_ver;
+//         for (const auto &var : input_vars) {
+//             std::string var_ver = var + ver;
+//             std::string var_ver_input = var_ver;
+//             // Check if the version exists, else use the nominal version
+//             if (!ColumnExists(df1, var_ver)) {
+//                 var_ver_input = var; // Use the nominal version
+//             }
+//             auto scale_info = scale_map.at(var);
+//             // Define the scaled variable for this version
+//             df_scaled = df_scaled.Define("scaled_" + var_ver, 
+//             [scale_info, var_ver_input](float value) {
+//                 return (value - scale_info.first) / scale_info.second;
+//             }, {var_ver_input});
+//         weights_vars_ver.push_back("scaled_" + var_ver);
+//         }
         
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    }
-
+    
 
 
     auto originalColumns = df_scaled.GetColumnNames();
