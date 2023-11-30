@@ -2,6 +2,7 @@
 create a build dir and compile:
 ```
 cd [dir_to_this_repo]
+ln -s ../data . 
 mkdir build
 cd build
 cmake ..

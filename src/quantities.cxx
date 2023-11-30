@@ -1,16 +1,21 @@
 #ifndef GUARD_QUANTITIES_H
 #define GUARD_QUANTITIES_H
 
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <string>
 #include "ROOT/RDFHelpers.hxx"
 #include "../include/SVFit/FastMTT.hxx"
-#include "data/pnn/tt_even_lowmass.hxx"
-#include "data/pnn/tt_odd_lowmass.hxx"
-#include "data/pnn/et_even_lowmass.hxx"
-#include "data/pnn/et_odd_lowmass.hxx"
-#include "data/pnn/mt_even_lowmass.hxx"
-#include "data/pnn/mt_odd_lowmass.hxx"
-#include "data/pnn/em_even_lowmass.hxx"
-#include "data/pnn/em_odd_lowmass.hxx"
+#include "../include/tt_even_lowmass.hxx"
+#include "../include/tt_odd_lowmass.hxx"
+#include "../include/et_even_lowmass.hxx"
+#include "../include/et_odd_lowmass.hxx"
+#include "../include/mt_even_lowmass.hxx"
+#include "../include/mt_odd_lowmass.hxx"
+#include "../include/em_even_lowmass.hxx"
+#include "../include/em_odd_lowmass.hxx"
 #include "TMVA/SOFIEHelpers.hxx"
 using namespace TMVA::Experimental;
 #include "../include/SVFit/MeasuredTauLepton.hxx"
@@ -751,7 +756,7 @@ ROOT::RDF::RNode pnn_score(ROOT::RDF::RNode df, const std::string &outputname, c
             df_scaled = df_scaled.Define(mass_name+ "scaled_pnn_mass", [scaled_mass]() { return scaled_mass; });
 
             // ... use df_scaled instead of df for further processing ...
-            auto input_vars_list =  {
+            std::vector<std::string> input_vars_list =  {
                     index_tmp,
                     mass_name + "scaled_" + mt_tot,
                     mass_name + "scaled_" + pt_vis,
@@ -780,44 +785,43 @@ ROOT::RDF::RNode pnn_score(ROOT::RDF::RNode df, const std::string &outputname, c
                     mass_name + "scaled_" + eta_fastmtt,
                     mass_name+ "scaled_pnn_mass" };
             auto df2 = df_scaled;    
-            auto df4 = df_scaled;
             if (mass_name.find("mt") != std::string::npos) {
-                int nslots_even = df2.GetNSlots();
-                Logger::get("pnn_score")
+                 Logger::get("pnn_score")
                 ->debug(
-                    "df2 running for NSlots {}", 
-                     nslots_even);
-                auto df3 = df2.Define("even" + outputname, SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(nslots_even), input_vars_list);
-                int nslots_odd = df3.GetNSlots();
-                Logger::get("pnn_score")
-                ->debug(
-                    "df3 running for NSlots {}", 
-                     nslots_odd);
-                df4 = df3.Define("odd" + outputname, SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(nslots_odd), input_vars_list);
+                    "mass_name entered mt , mass name: {}", mass_name);
+                df2 = df2
+                .Define("even" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(), input_vars_list)
+                .Define("odd" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(), input_vars_list);
             } else if (mass_name.find("et") != std::string::npos) {
-                int nslots_even = df2.GetNSlots();
-                auto df3 = df2.Define("even" + outputname, SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(nslots_even), input_vars_list);
-                int nslots_odd = df3.GetNSlots();
-                df4 = df3.Define("odd" + outputname, SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(nslots_odd), input_vars_list);
+                Logger::get("pnn_score")
+                ->debug(
+                    "mass_name entered et , mass name: {}", mass_name);
+                 df2 = df2
+                .Define("even" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(), input_vars_list)
+                .Define("odd" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(), input_vars_list);
             } else if (mass_name.find("tt") != std::string::npos) {
-                int nslots_even = df2.GetNSlots();
-                auto df3 = df2.Define("even" + outputname, SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(nslots_even), input_vars_list);
-                int nslots_odd = df3.GetNSlots();
-                df4 = df3.Define("odd" + outputname, SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(nslots_odd), input_vars_list);
+                Logger::get("pnn_score")
+                ->debug(
+                    "mass_name entered tt , mass name: {}", mass_name);
+                 df2 = df2
+                .Define("even" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(), input_vars_list)
+                .Define("odd" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(), input_vars_list);
             } else if (mass_name.find("em") != std::string::npos) {
-                int nslots_even = df2.GetNSlots();
-                auto df3 = df2.Define("even" + outputname, SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(nslots_even), input_vars_list);
-                int nslots_odd = df3.GetNSlots();
-                df4 = df3.Define("odd" + outputname, SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(nslots_odd), input_vars_list);
+                Logger::get("pnn_score")
+                ->debug(
+                    "mass_name entered em , mass name: {}", mass_name);
+                 df2 = df2
+                .Define("even" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(), input_vars_list)
+                .Define("odd" + mass_name + outputname, SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(), input_vars_list);
             } else {
                 Logger::get("pnn_score")->error(
                     "mass_name {} not supported by pnn_score", mass_name);
-                return df4;
+                return df2;
             }
             // returns odd score for even event and even score for odd event
             // this looks like: auto df3 = df2.Define("pnn_score", "event % 2 == 0 ? odd_score : even_score");
-            auto df5 =  df4.Define(outputname, event + " %2 == 0 ? " + "odd" + outputname + ":" + "even" + outputname  );
-            return df5;
+            auto df3 =  df2.Define(outputname, event + " %2 == 0 ? " + "odd" + mass_name + outputname + ":" + "even" + mass_name+ outputname  );
+            return df3;
     }
 
 
