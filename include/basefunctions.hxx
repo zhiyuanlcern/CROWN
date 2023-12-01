@@ -295,6 +295,20 @@ inline auto FilterMaxInt(const int &cut) {
     };
 }
 
+/// Function to apply a maxmimal filter requirement to an integer quantity.
+/// Returns true if the value is larger than the given cut value
+/// This is only for NanoV11 as the working points are not stored as bit
+/// \param cut The cut value of the filter
+///
+/// \returns a lambda function to be used in RDF Define
+inline auto FilterMaxUChar_t(const UChar_t &cut) {
+    // As in ROOT, for min we use >=
+    return [cut](const ROOT::RVec<UChar_t> &values) {
+        ROOT::RVec<int> mask = values < cut;
+        return mask;
+    };
+}
+
 /// Function to apply a maximal filter requirement to a quantity.
 /// Returns true if the absolute value is smaller than the given cut value
 ///
@@ -419,7 +433,7 @@ inline auto FilterJetID(const int &index) {
 /// \param index The bitmask index to be used for comparison
 ///
 /// \returns a lambda function to be used in RDF Define
-inline auto FilterJetID_UChar_t(const int &index) {
+inline auto FilterJetID_UChar_t(const UChar_t &index) {
     return [index](const ROOT::RVec<UChar_t> &IDs) {
         ROOT::RVec<int> mask = IDs >= index;
         Logger::get("FilterJetID")->debug("IDs: {}", IDs);

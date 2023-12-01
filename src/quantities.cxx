@@ -149,7 +149,19 @@ ROOT::RDF::RNode charge(ROOT::RDF::RNode df, const std::string &outputname,
         outputname,
         [position](const ROOT::RVec<int> &pair, const ROOT::RVec<int> &charge) {
             const int index = pair.at(position);
-            return charge.at(index, default_int);
+            return (int)charge.at(index, default_int);
+        },
+        {pairname, chargecolumn});
+}
+
+ROOT::RDF::RNode charge_short(ROOT::RDF::RNode df, const std::string &outputname,
+                        const int &position, const std::string &pairname,
+                        const std::string &chargecolumn) {
+    return df.Define(
+        outputname,
+        [position](const ROOT::RVec<int> &pair, const ROOT::RVec<Short_t> &charge) {
+            const int index = pair.at(position);
+            return (Short_t)charge.at(index, default_short);
         },
         {pairname, chargecolumn});
 }
@@ -290,8 +302,8 @@ p4_fastmtt(ROOT::RDF::RNode df, const std::string &outputname,
                      const float &mass_1, const float &mass_2,
                      const float &met_pt, const float &met_phi,
                      const float &met_cov_xx, const float &met_cov_xy,
-                     const float &met_cov_yy, const int &decay_mode_1,
-                     const int &decay_mode_2) {
+                     const float &met_cov_yy, const UChar_t &decay_mode_1,
+                     const UChar_t &decay_mode_2) {
             std::vector<fastmtt::MeasuredTauLepton> measuredTauLeptons;
             TMatrixD covMET(2, 2);
             covMET[0][0] = met_cov_xx;
@@ -303,7 +315,7 @@ p4_fastmtt(ROOT::RDF::RNode df, const std::string &outputname,
             // set the decay modes according to the final state
             auto decay_obj_1 = fastmtt::MeasuredTauLepton::kTauToHadDecay;
             auto decay_obj_2 = fastmtt::MeasuredTauLepton::kTauToHadDecay;
-            int dm_1, dm_2;
+            UChar_t dm_1, dm_2;
             if (finalstate == "mt") {
                 dm_1 = -1;
                 dm_2 = decay_mode_2;
@@ -327,6 +339,7 @@ p4_fastmtt(ROOT::RDF::RNode df, const std::string &outputname,
                     "Final state {} not supported by FastMTT", finalstate);
                 return (ROOT::Math::PtEtaPhiMVector)LorentzVector();
             }
+            Logger::get("FastMTT")->debug("FastMTT result:decay_obj_1, pt_1, eta_1, phi_1, mass_1, dm_1: {}, {}, {}, {},{},{}", decay_obj_1, pt_1, eta_1, phi_1, mass_1, dm_1);
             measuredTauLeptons.push_back(fastmtt::MeasuredTauLepton(
                 decay_obj_1, pt_1, eta_1, phi_1, mass_1, dm_1));
             measuredTauLeptons.push_back(fastmtt::MeasuredTauLepton(
@@ -736,9 +749,9 @@ ROOT::RDF::RNode decaymode(ROOT::RDF::RNode df, const std::string &outputname,
                            const std::string &decaymodecolumn) {
     return df.Define(outputname,
                      [position](const ROOT::RVec<int> &pair,
-                                const ROOT::RVec<int> &decaymode) {
+                                const ROOT::RVec<UChar_t> &decaymode) {
                          const int index = pair.at(position);
-                         return decaymode.at(index, default_int);
+                         return (UChar_t) decaymode.at(index, default_uchar);
                      },
                      {pairname, decaymodecolumn});
 }
@@ -792,10 +805,10 @@ ROOT::RDF::RNode matching_jet_pt(ROOT::RDF::RNode df,
                                  const std::string &jetpt_column) {
     return df.Define(outputname,
                      [position](const ROOT::RVec<int> &pair,
-                                const ROOT::RVec<int> &taujets,
+                                const ROOT::RVec<Short_t> &taujets,
                                 const ROOT::RVec<float> &jetpt) {
                          const int tauindex = pair.at(position);
-                         const int jetindex = taujets.at(tauindex, -1);
+                         const Short_t jetindex = taujets.at(tauindex, -1);
                          return jetpt.at(jetindex, default_float);
                      },
                      {pairname, taujet_index, jetpt_column});
@@ -821,12 +834,12 @@ ROOT::RDF::RNode matching_genjet_pt(
     const std::string &genjet_index, const std::string &genjetpt_column) {
     return df.Define(outputname,
                      [position](const ROOT::RVec<int> &pair,
-                                const ROOT::RVec<int> &taujets,
-                                const ROOT::RVec<int> &genjets,
+                                const ROOT::RVec<Short_t> &taujets,
+                                const ROOT::RVec<Short_t> &genjets,
                                 const ROOT::RVec<float> &genjetpt) {
                          const int tauindex = pair.at(position);
-                         const int jetindex = taujets.at(tauindex, -1);
-                         const int genjetindex = genjets.at(jetindex, -1);
+                         const Short_t jetindex = taujets.at(tauindex, -1);
+                         const Short_t genjetindex = genjets.at(jetindex, -1);
                          return genjetpt.at(genjetindex, default_float);
                      },
                      {pairname, taujet_index, genjet_index, genjetpt_column});

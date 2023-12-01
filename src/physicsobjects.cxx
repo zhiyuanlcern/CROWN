@@ -628,10 +628,10 @@ namespace tau {
 /// \return a dataframe containing the new mask
 ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
                                const std::string &tau_dms,
-                               const std::vector<int> &SelectedDecayModes) {
+                               const std::vector<UChar_t> &SelectedDecayModes) {
     auto df1 = df.Define(
         maskname,
-        [SelectedDecayModes](const ROOT::RVec<Int_t> &decaymodes) {
+        [SelectedDecayModes](const ROOT::RVec<UChar_t> &decaymodes) {
             ROOT::RVec<int> mask;
             for (auto n : decaymodes) {
                 mask.push_back(int(std::find(SelectedDecayModes.begin(),
@@ -653,7 +653,7 @@ ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
 /// \param[in] IDvalue value of the WP the has to be passed
 ///
 /// \return a dataframe containing the new mask
-ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
+ROOT::RDF::RNode CutTauUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
                          const std::string &nameID, const UChar_t &idxID) {
                         //  const std::string &nameID, const UChar_t &IDvalue) {
     auto df1 =
@@ -717,7 +717,7 @@ PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                                         const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
                                         // const ROOT::RVec<UChar_t> &decay_modes,
-                                        const ROOT::RVec<int> &decay_modes,
+                                        const ROOT::RVec<UChar_t> &decay_modes,
                                         const ROOT::RVec<UChar_t> &genmatch) {
         ROOT::RVec<float> corrected_pt_values(pt_values.size());
         for (int i = 0; i < pt_values.size(); i++) {
@@ -801,7 +801,7 @@ PtCorrection_muFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
         [evaluator, idAlgorithm, sf_es](const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
                                         // const ROOT::RVec<UChar_t> &decay_modes,
-                                        const ROOT::RVec<int> &decay_modes,
+                                        const ROOT::RVec<UChar_t> &decay_modes,
                                         const ROOT::RVec<UChar_t> &genmatch) {
             ROOT::RVec<float> corrected_pt_values(pt_values.size());
             for (int i = 0; i < pt_values.size(); i++) {
@@ -847,7 +847,7 @@ PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
                      const float &sf_dm10, const float &sf_dm11) {
     auto tau_pt_correction_lambda =
         [sf_dm0, sf_dm1, sf_dm10, sf_dm11](const ROOT::RVec<float> &pt_values,
-                                           const ROOT::RVec<int> &decay_modes) {
+                                           const ROOT::RVec<UChar_t> &decay_modes) {
             ROOT::RVec<float> corrected_pt_values(pt_values.size());
             for (int i = 0; i < pt_values.size(); i++) {
                 if (decay_modes.at(i) == 0)
@@ -906,7 +906,7 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                                      DM11](
                                         const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
-                                        const ROOT::RVec<int> &decay_modes,
+                                        const ROOT::RVec<UChar_t> &decay_modes,
                                         // const ROOT::RVec<UChar_t> &decay_modes,
                                         const ROOT::RVec<UChar_t> &genmatch) {
         ROOT::RVec<float> corrected_pt_values(pt_values.size());
@@ -1013,11 +1013,11 @@ ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
 ///
 /// \return a dataframe containing the new mask
 ROOT::RDF::RNode CutCBID(ROOT::RDF::RNode df, const std::string &maskname,
-                         const std::string &nameID, const int &IDvalue) {
+                         const std::string &nameID, const UChar_t &IDvalue) {
                         //  const std::string &nameID, const UChar_t &IDvalue) {
     auto df1 =
-        df.Define(maskname, basefunctions::FilterMinInt(IDvalue), {nameID});
-        // df.Define(maskname, basefunctions::FilterMinUChar_t(IDvalue), {nameID});
+        // df.Define(maskname, basefunctions::FilterMinInt(IDvalue), {nameID});
+        df.Define(maskname, basefunctions::FilterMinUChar_t(IDvalue), {nameID});
     return df1;
 }
 /// Function to cut electrons based on failing the cut based electron ID
@@ -1030,9 +1030,9 @@ ROOT::RDF::RNode CutCBID(ROOT::RDF::RNode df, const std::string &maskname,
 ///
 /// \return a dataframe containing the new mask
 ROOT::RDF::RNode AntiCutCBID(ROOT::RDF::RNode df, const std::string &maskname,
-                             const std::string &nameID, const int &IDvalue) {
+                             const std::string &nameID, const UChar_t &IDvalue) {
     auto df1 =
-        df.Define(maskname, basefunctions::FilterMaxInt(IDvalue), {nameID});
+        df.Define(maskname, basefunctions::FilterMaxUChar_t(IDvalue), {nameID});
     return df1;
 }
 

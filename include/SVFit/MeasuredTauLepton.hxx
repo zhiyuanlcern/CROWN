@@ -18,7 +18,7 @@ class MeasuredTauLepton {
     };
 
     MeasuredTauLepton();
-    MeasuredTauLepton(int, double, double, double, double, int = -1);
+    MeasuredTauLepton(int, double, double, double, double, UChar_t = -1);
     MeasuredTauLepton(const MeasuredTauLepton &);
     ~MeasuredTauLepton();
 
@@ -47,7 +47,7 @@ class MeasuredTauLepton {
     double p() const;
 
     /// return decay mode of the reconstructed hadronic tau decay
-    int decayMode() const;
+    UChar_t decayMode() const;
 
     /// return the lorentz vector in the labframe
     LorentzVector p4() const;
@@ -86,7 +86,7 @@ class MeasuredTauLepton {
     double p_;
 
     /// decay mode (hadronic tau decays only)
-    int decayMode_;
+    UChar_t decayMode_;
 
     /// visible momentum in labframe (four-vector)
     LorentzVector p4_;

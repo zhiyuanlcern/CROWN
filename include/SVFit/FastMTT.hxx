@@ -40,8 +40,8 @@ class Likelihood {
 
     void setLeptonInputs(const LorentzVector &aLeg1P4,
                          const LorentzVector &aLeg2P4, int aLeg1DecayType,
-                         int aLeg2DecayType, int aLeg1DecayMode,
-                         int aLeg2DecayMode);
+                         int aLeg2DecayType, UChar_t aLeg1DecayMode,
+                         UChar_t aLeg2DecayMode);
 
     void setMETInputs(const LorentzVector &aMET, const TMatrixD &aCovMET);
 
@@ -67,7 +67,7 @@ class Likelihood {
     double mVis, mVisLeg1, mVisLeg2;
 
     int leg1DecayType, leg2DecayType;
-    int leg1DecayMode, leg2DecayMode;
+    UChar_t leg1DecayMode, leg2DecayMode;
 
     std::vector<double> parameters;
 

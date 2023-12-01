@@ -12,7 +12,7 @@
 #include <Math/Vector4D.h>
 #include <Math/VectorUtil.h>
 
-typedef std::bitset<15> StatusBits;
+typedef std::bitset<16> StatusBits;
 namespace whtautau_tripleselection {
 /**
  * Function used to sort three particles based on the isolation and the

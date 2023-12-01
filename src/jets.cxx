@@ -223,6 +223,14 @@ ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
     
     return df1;
 }
+ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
+                       const std::string &nameID, const UChar_t &idxID){ 
+                    //    const std::string &nameID, const UChar_t &idxID) {
+    auto df1 = df.Define(maskname, basefunctions::FilterJetID_UChar_t(idxID), {nameID});
+    // auto df1 = df.Define(maskname, basefunctions::FilterJetID_UChar_t(idxID), {nameID});
+    
+    return df1;
+}
 /// Function to cut jets based on the jet pileup ID
 ///
 /// \param[in] df the input dataframe
@@ -334,7 +342,7 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                          const ROOT::RVec<float> &area_values,
                                          const ROOT::RVec<float>
                                              &rawFactor_values,
-                                         const ROOT::RVec<int> &ID_values,
+                                         const ROOT::RVec<UChar_t> &ID_values,
                                          const ROOT::RVec<float> &gen_pt_values,
                                          const ROOT::RVec<float>
                                              &gen_eta_values,
@@ -665,13 +673,13 @@ ROOT::RDF::RNode flavor(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &flavorcolumn,
                         const std::string &jetcollection, const int &position) {
     return df.Define(outputname,
-                     [position](const ROOT::RVec<int> &flavorvalues,
+                     [position](const ROOT::RVec<UChar_t> &flavorvalues,
                                 const ROOT::RVec<int> &jetcollection) {
-                         int flavorValue = default_int;
+                         UChar_t flavorValue = default_uchar;
                          const int index =
                              jetcollection.at(position, default_int);
                          flavorValue = flavorvalues.at(index, default_int);
-                         return flavorValue;
+                         return (UChar_t) flavorValue;
                      },
                      {flavorcolumn, jetcollection});
 }

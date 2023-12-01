@@ -8,11 +8,11 @@
 #include "utility/Logger.hxx"
 #include "utility/utility.hxx"
 
-typedef std::bitset<15> StatusBits;
+typedef std::bitset<16> StatusBits;
 struct GenParticle {
     int index;
     int status;
-    std::bitset<15> statusflag;
+    std::bitset<16> statusflag;
     int pdgid;
     int motherid;
 };

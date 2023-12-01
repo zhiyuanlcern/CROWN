@@ -46,7 +46,7 @@ std::array<double, max_order + 1> getPowTable(double x) {
 void Likelihood::setLeptonInputs(const LorentzVector &aLeg1P4,
                                  const LorentzVector &aLeg2P4,
                                  int aLeg1DecayType, int aLeg2DecayType,
-                                 int aLeg1DecayMode, int aLeg2DecayMode) {
+                                 UChar_t aLeg1DecayMode, UChar_t aLeg2DecayMode) {
     leg1P4 = aLeg1P4;
     leg2P4 = aLeg2P4;
     using PowTable = std::array<double, 5u>;

@@ -1874,13 +1874,13 @@ ROOT::RDF::RNode BTagScaleFactors(
                        const int &is_jjbb, const int &is_jjjb,
                        const int &is_jjjbb, const float &nonbjet_pt_1,
                        const float &nonbjet_eta_1, const float &nonbjet_btag_1,
-                       const int &nonbjet_flavor_1, const float &nonbjet_pt_2,
+                       const UChar_t &nonbjet_flavor_1, const float &nonbjet_pt_2,
                        const float &nonbjet_eta_2, const float &nonbjet_btag_2,
-                       const int &nonbjet_flavor_2, const float &bjet_pt_1,
+                       const UChar_t &nonbjet_flavor_2, const float &bjet_pt_1,
                        const float &bjet_eta_1, const float &bjet_btag_1,
-                       const int &bjet_flavor_1, const float &bjet_pt_2,
+                       const UChar_t &bjet_flavor_1, const float &bjet_pt_2,
                        const float &bjet_eta_2, const float &bjet_btag_2,
-                       const int &bjet_flavor_2) {
+                       const UChar_t &bjet_flavor_2) {
         unsigned n_vars = shift_HF.size();
 
         ROOT::RVec<double> sf_vec(n_vars, 1.);

@@ -112,8 +112,8 @@ applyRoccoRMC(ROOT::RDF::RNode df, const std::string &outputname,
 namespace tau {
 ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
                                const std::string &tau_dms,
-                               const std::vector<int> &SelectedDecayModes);
-ROOT::RDF::RNode CutUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
+                               const std::vector<UChar_t> &SelectedDecayModes);
+ROOT::RDF::RNode CutTauUChar_tID(ROOT::RDF::RNode df, const std::string &maskname,
                          const std::string &nameID, const UChar_t &IDvalue) ;
 ROOT::RDF::RNode CutTauID(ROOT::RDF::RNode df, const std::string &maskname,
                           const std::string &nameID, const int &IDvalue);
@@ -156,9 +156,9 @@ PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID);
 ROOT::RDF::RNode CutCBID(ROOT::RDF::RNode df, const std::string &maskname,
-                         const std::string &nameID, const int &IDvalue);
+                         const std::string &nameID, const UChar_t &IDvalue);
 ROOT::RDF::RNode AntiCutCBID(ROOT::RDF::RNode df, const std::string &maskname,
-                             const std::string &nameID, const int &IDvalue);
+                             const std::string &nameID, const UChar_t &IDvalue);
 ROOT::RDF::RNode CutIsolation(ROOT::RDF::RNode df, const std::string &maskname,
                               const std::string &isolationName,
                               const float &Threshold);

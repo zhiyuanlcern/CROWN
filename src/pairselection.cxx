@@ -11,7 +11,7 @@
 #include <Math/Vector4D.h>
 #include <Math/VectorUtil.h>
 
-typedef std::bitset<15> StatusBits;
+typedef std::bitset<16> StatusBits;
 /**
  * @brief A struct to store the information of a generator pair for easier
  * access
@@ -20,7 +20,7 @@ typedef std::bitset<15> StatusBits;
 struct GenParticle {
     int index;
     int status;
-    std::bitset<15> statusflag;
+    std::bitset<16> statusflag;
     int pdgid;
     int motherid;
 };
@@ -71,8 +71,8 @@ ROOT::RDF::RNode buildgenpair(ROOT::RDF::RNode df, const std::string &recopair,
                               const std::string &genindex_particle2,
                               const std::string &genpairname) {
     auto getGenPair = [](const ROOT::RVec<int> &recopair,
-                         const ROOT::RVec<int> &genindex_particle1,
-                         const ROOT::RVec<int> &genindex_particle2) {
+                         const ROOT::RVec<Short_t> &genindex_particle1,
+                         const ROOT::RVec<Short_t> &genindex_particle2) {
         ROOT::RVec<int> genpair = {-1, -1};
         Logger::get("buildgenpair")->debug("existing DiTauPair: {}", recopair);
         genpair[0] = genindex_particle1.at(recopair.at(0), -1);
@@ -118,7 +118,7 @@ buildtruegenpair(ROOT::RDF::RNode df, const std::string &statusflags,
                  const int daughter_1_pdgid, const int daughter_2_pdgid) {
 
     auto getTrueGenPair = [mother_pdgid, daughter_1_pdgid,
-                           daughter_2_pdgid](const ROOT::RVec<int> &statusflags,
+                           daughter_2_pdgid](const ROOT::RVec<UShort_t> &statusflags,
                                              const ROOT::RVec<int> &status,
                                              const ROOT::RVec<int> &pdgids,
                                              const ROOT::RVec<int> &motherids,

@@ -75,7 +75,7 @@ ROOT::RDF::RNode genmatching(ROOT::RDF::RNode df, const std::string &outputname,
                              const std::string &lepton_p4) {
     auto match_lepton = [](const std::vector<int> &hadronicGenTaus,
                            const ROOT::RVec<int> &pdgids,
-                           const ROOT::RVec<int> &status_flags,
+                           const ROOT::RVec<UShort_t> &status_flags,
                            const ROOT::RVec<float> &pts,
                            const ROOT::RVec<float> &etas,
                            const ROOT::RVec<float> &phis,
@@ -234,8 +234,8 @@ ROOT::RDF::RNode genmatching_wh(
     const std::string &genparticles_status, const std::string &lepton_p4) {
     auto match_lepton = [](const std::vector<int> &hadronicGenTaus,
                            const ROOT::RVec<int> &pdgids,
-                           const ROOT::RVec<int> &mother_idx,
-                           const ROOT::RVec<int> &status_flags,
+                           const ROOT::RVec<Short_t> &mother_idx,
+                           const ROOT::RVec<UShort_t> &status_flags,
                            const ROOT::RVec<int> &status,
                            const ROOT::RVec<float> &pts,
                            const ROOT::RVec<float> &etas,
@@ -246,7 +246,7 @@ ROOT::RDF::RNode genmatching_wh(
         float min_delta_r = 9999;
         int closest_genparticle_index = 0;
         int closest_genparticle_mother_pdgid = 0;
-        int closest_genparticle_mother_statusFlag = 0;
+        UShort_t closest_genparticle_mother_statusFlag = 0;
         int closest_genparticle_mother_status = 0;
         for (unsigned int i = 0; i < pdgids.size(); i++) {
             int pdgid = std::abs(pdgids.at(i));
@@ -408,8 +408,8 @@ ROOT::RDF::RNode hadronicGenTaus(ROOT::RDF::RNode df,
                                  const std::string &genparticles_motherid) {
 
     auto gentaus = [](const ROOT::RVec<int> &pdgids,
-                      const ROOT::RVec<int> &status_flags,
-                      const ROOT::RVec<int> &mother_index) {
+                      const ROOT::RVec<UShort_t> &status_flags,
+                      const ROOT::RVec<Short_t> &mother_index) {
         // set default values for the output
         std::vector<int> hadronicGenTaus;
         if (pdgids.size() == 0) {
@@ -436,7 +436,7 @@ ROOT::RDF::RNode hadronicGenTaus(ROOT::RDF::RNode df,
                     // find all daughters of the tau by checking which particles
                     // have the tauindex i as mother
                     std::vector<int> daughters;
-                    for (unsigned int j = 0; j < mother_index.size(); j++) {
+                    for ( Short_t j = 0; j < mother_index.size(); j++) {
                         if (mother_index.at(j) == i) {
                             daughters.push_back(j);
                             Logger::get("genmatching::tau::genpair")
