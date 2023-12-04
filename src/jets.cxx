@@ -329,8 +329,15 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         jer_tag + "_ScaleFactor_" + jec_algo);
     auto JetEnergyResolutionSF =
         [JER_SF_evaluator](const float eta, float pt, const std::string jer_shift) {
-            return JER_SF_evaluator->evaluate({eta, pt, jer_shift});
-        };
+            try{ 
+                // annoyingly the 2022 EE has 3 inputs, 
+                // 2022 post EE has 2 inputs
+                return JER_SF_evaluator->evaluate({eta, pt, jer_shift});    
+            }
+            catch (const std::exception&) {
+            return JER_SF_evaluator->evaluate({eta,  jer_shift});
+        }
+    };
     // lambda run with dataframe
     auto JetEnergyCorrectionLambda = [reapplyJES, JetEnergyScaleShifts,
                                       JetEnergyScaleSF, JetEnergyResolution,
