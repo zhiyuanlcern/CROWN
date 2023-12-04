@@ -18,6 +18,7 @@ if [[ "$distro" == "CentOS" ]]; then
         # source /cvmfs/sft-nightlies.cern.ch/lcg/views/dev3/latest/x86_64-centos7-clang12-opt/setup.sh
         # source /cvmfs/sft-nightlies.cern.ch/lcg/views/dev3/latest/x86_64-centos7-gcc11-dbg/setup.sh
         source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt/setup.sh
+        export CMAKE_PREFIX_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt
     else
         echo "Unsupported CentOS version, exiting..."
         return 0
