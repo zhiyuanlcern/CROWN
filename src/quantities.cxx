@@ -553,6 +553,18 @@ ROOT::RDF::RNode pt_tt(ROOT::RDF::RNode df, const std::string &outputname,
     return df.Define(outputname, calculate_pt_tt, {p_1_p4, p_2_p4, met});
 }
 
+ROOT::RDF::RNode mass_tt(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4,
+                       const std::string &met) {
+    auto calculate_mass_tt = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                              ROOT::Math::PtEtaPhiMVector &p_2_p4,
+                              ROOT::Math::PtEtaPhiMVector &met) {
+        auto dileptonmet = p_1_p4 + p_2_p4 + met;
+        return (float)dileptonmet.mass();
+    };
+    return df.Define(outputname, calculate_mass_tt, {p_1_p4, p_2_p4, met});
+}
+
 /**
  * @brief function used to calculate the pt of the dilepton + two leading jets +
  * met system. If the number of jets is less than 2, the quantity is set to 10
