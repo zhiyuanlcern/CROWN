@@ -1,0 +1,18 @@
+# higgs_analysis.sub
+universe   = vanilla
+executable = ./run_higgs_analysis.sh
+log        = higgs_analysis.log
+output     = higgs_analysis.out
+error      = higgs_analysis.err
+
+# Queue jobs for specific mass values (100, 125, 150)
+# using inputFile, channel, and path from input_parameters.txt
+
+arguments = $(inputFile) 100 $(channel) $(path)
+queue inputFile, channel, path from input_parameters.txt
+
+arguments = $(inputFile) 125 $(channel) $(path)
+queue inputFile, channel, path from input_parameters.txt
+
+arguments = $(inputFile) 150 $(channel) $(path)
+queue inputFile, channel, path from input_parameters.txt

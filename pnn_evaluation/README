@@ -1,0 +1,33 @@
+# Instructions to compile: 
+This pnn_evaluation folder should be placed under CROWN
+create a build dir and compile:
+```
+cd pnn_evaluation/
+mkdir build
+cd build
+cmake ..
+make
+ln -s ../../data . 
+```
+
+then you should be able to run the executable:
+```
+./HiggsAnalysis test_mt_allsyst.root 100 mt ./ 
+```
+
+
+# running on condor:
+in run_higgs_analysis.sh,change these lines to your local path:
+```
+# Source the setup script
+source [Path_to_your_CROWN]/init.sh
+
+# Now run your actual program
+[Path_to_your_pnn_evaluation_build]/HiggsAnalysis $@
+```
+
+And the samples, mass and channel to be run is configured in input_parameters.txt, example:
+```
+/data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/test_mt_allsyst.root 100 mt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/build
+```
+
