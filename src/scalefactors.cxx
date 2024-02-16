@@ -882,6 +882,7 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                                  corr_algorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(corr_algorithm);
+    
 
     auto btagSF_lambda = [evaluator,
                           variation](const ROOT::RVec<float> &pt_values,
@@ -907,6 +908,11 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                 float jet_sf = 1.;
                 // considering only phase space where the scale factors are
                 // defined
+                float btag_tmp_values = btag_values.at(i);
+                if (btag_values.at(i) < 0){
+                    btag_tmp_values = 0;
+                }
+                Logger::get("btagSF")->debug("btag_tmp_values {}", btag_tmp_values);
                 if (pt_values.at(i) >= 20.0 && pt_values.at(i) < 10000.0 &&
                     std::abs(eta_values.at(i)) < 2.5) {
                     // for c jet related uncertainties only scale factors of
@@ -917,12 +923,12 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                             jet_sf = evaluator->evaluate(
                                 {variation, flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         } else {
                             jet_sf = evaluator->evaluate(
                                 {"central", flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         }
                     }
                     // for nominal/central and all other uncertainties c-jets
@@ -933,12 +939,12 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                             jet_sf = evaluator->evaluate(
                                 {variation, flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         } else {
                             jet_sf = evaluator->evaluate(
                                 {"central", flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         }
                     }
                 }
