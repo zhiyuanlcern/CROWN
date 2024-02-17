@@ -1077,8 +1077,19 @@ ROOT::RDF::RNode muon_sf(ROOT::RDF::RNode df, const std::string &pt,
                         "factor {}",
                         pt, eta, correctiontype, extrapolation_factor);
             double sf = 1.;
-            sf = extrapolation_factor *
-                 evaluator->evaluate({pt, std::abs(eta), correctiontype});
+            if(pt < 26.0){
+                sf = extrapolation_factor *
+                 evaluator->evaluate({std::abs(eta), 26.0, correctiontype});
+                             Logger::get("EmbeddingMuonSF")
+                ->debug("In if loop, pt {}, eta {}, correctiontype {}, extrapolation "
+                        "factor {}",
+                        pt, eta, correctiontype, extrapolation_factor);
+            }
+            else{
+                sf = extrapolation_factor *
+                 evaluator->evaluate({std::abs(eta), pt, correctiontype});
+            }
+            // change the order of pt and eta
             Logger::get("EmbeddingMuonSF")->debug("sf {}", sf);
             return sf;
         },
@@ -1107,7 +1118,9 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                              const std::string &sf_file,
                              const std::string correctiontype,
                              const std::string &idAlgorithm,
-                             const float &extrapolation_factor = 1.0) {
+                             const float &extrapolation_factor,
+                             const std::string &year,
+                             const std::string &trigger) {
 
     Logger::get("EmbeddingElectronSF")
         ->debug("Correction - Name {}", idAlgorithm);
@@ -1115,15 +1128,16 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
     auto df1 = df.Define(
         output,
-        [evaluator, correctiontype, extrapolation_factor](const float &pt,
+        [evaluator, correctiontype, extrapolation_factor, year, trigger](const float &pt,
                                                           const float &eta) {
             Logger::get("EmbeddingElectronSF")
                 ->debug(" pt {}, eta {}, correctiontype {}, extrapolation "
                         "factor {}",
                         pt, eta, correctiontype, extrapolation_factor);
             double sf = 1.;
-            sf = extrapolation_factor *
-                 evaluator->evaluate({pt, eta, correctiontype});
+            // sf = extrapolation_factor *
+            //      evaluator->evaluate({pt, eta, correctiontype});
+            sf = extrapolation_factor * evaluator->evaluate({year, correctiontype, trigger, eta, pt});
             Logger::get("EmbeddingElectronSF")->debug("sf {}", sf);
             return sf;
         },

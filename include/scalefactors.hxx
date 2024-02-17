@@ -124,7 +124,9 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                              const std::string &sf_file,
                              const std::string correctiontype,
                              const std::string &idAlgorithm,
-                             const float &extrapolation_factor = 1.0);
+                             const float &extrapolation_factor,
+                             const std::string &year,
+                             const std::string &trigger);
 ROOT::RDF::RNode
 ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
                  const std::string &decaymode, const std::string &output,
