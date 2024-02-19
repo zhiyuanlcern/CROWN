@@ -830,6 +830,7 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
                 ->debug("Year {}, Name {}, WP {}", year_id, idAlgorithm, wp);
             Logger::get("electronIDSF")->debug("ID - pt {}, eta {}", pt, eta);
             double sf = 1.;
+            // in 2022 the order of input is year_id, variation, wp, eta, pt
             if (pt >= 0.0) {
                 sf = evaluator->evaluate({year_id, variation, wp, eta, pt});
             }
