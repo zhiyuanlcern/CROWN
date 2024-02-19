@@ -31,7 +31,7 @@ namespace tau {
 ROOT::RDF::RNode
 id_vsJet_lt(ROOT::RDF::RNode df, const std::string &pt,
             const std::string &decayMode, const std::string &genMatch,
-            const std::vector<UChar_t> &selectedDMs, const std::string &wp,
+            const std::vector<UChar_t> &selectedDMs, const std::string &wp, const std::string &VSe_wp,
             const std::string &sf_vsjet_tau30to35,
             const std::string &sf_vsjet_tau35to40,
             const std::string &sf_vsjet_tau40to500,
@@ -56,7 +56,8 @@ ROOT::RDF::RNode id_vsJet_tt_embedding(
 ROOT::RDF::RNode id_vsJet_tt(
     ROOT::RDF::RNode df, const std::string &pt, const std::string &decayMode,
     const std::string &genMatch, const std::vector<UChar_t> &selectedDMs,
-    const std::string &wp, const std::string &sf_vsjet_tauDM0,
+    const std::string &wp, const std::string &VSe_wp,
+    const std::string &sf_vsjet_tauDM0,
     const std::string &sf_vsjet_tauDM1, const std::string &sf_vsjet_tauDM10,
     const std::string &sf_vsjet_tauDM11, const std::string &sf_dependence,
     const std::string &id_output, const std::string &sf_file,

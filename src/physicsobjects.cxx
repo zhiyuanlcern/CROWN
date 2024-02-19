@@ -707,13 +707,13 @@ PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                      const std::string &pt, const std::string &eta,
                      const std::string &decayMode, const std::string &genMatch,
                      const std::string &sf_file, const std::string &jsonESname,
-                     const std::string &idAlgorithm,
+                     const std::string &idAlgorithm, const std::string &tau_ES_wp, const std::string &tau_ES_wp_VSe, 
                      const std::string &sf_dm0_b, const std::string &sf_dm1_b,
                      const std::string &sf_dm0_e, const std::string &sf_dm1_e) {
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(jsonESname);
-    auto tau_pt_correction_lambda = [evaluator, idAlgorithm, sf_dm0_b, sf_dm1_b,
-                                     sf_dm0_e, sf_dm1_e](
+    auto tau_pt_correction_lambda = [evaluator, idAlgorithm,  tau_ES_wp, tau_ES_wp_VSe, 
+                                     sf_dm0_b, sf_dm1_b, sf_dm0_e, sf_dm1_e](
                                         const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
                                         // const ROOT::RVec<UChar_t> &decay_modes,
@@ -728,7 +728,7 @@ PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, sf_dm0_b});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, sf_dm0_b});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 0 &&
                            std::abs(eta_values.at(i)) > 1.5 &&
@@ -736,14 +736,14 @@ PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, sf_dm0_e});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, sf_dm0_e});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 1 &&
                            std::abs(eta_values.at(i)) <= 1.5) {
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, sf_dm1_b});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, sf_dm1_b});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 1 &&
                            std::abs(eta_values.at(i)) > 1.5 &&
@@ -751,15 +751,16 @@ PtCorrection_eleFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, sf_dm1_e});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, sf_dm1_e});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 }
-            } else {
-                corrected_pt_values[i] = pt_values.at(i);
-            }
             Logger::get("ptcorrection ele fake")
                 ->debug("tau pt before {}, tau pt after {}", pt_values.at(i),
                         corrected_pt_values.at(i));
+            } else {
+                corrected_pt_values[i] = pt_values.at(i);
+            }
+ 
         }
         return corrected_pt_values;
     };
@@ -794,11 +795,12 @@ PtCorrection_muFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     const std::string &pt, const std::string &eta,
                     const std::string &decayMode, const std::string &genMatch,
                     const std::string &sf_file, const std::string &jsonESname,
-                    const std::string &idAlgorithm, const std::string &sf_es) {
+                    const std::string &idAlgorithm, const std::string &tau_ES_wp, const std::string &tau_ES_wp_VSe, 
+                    const std::string &sf_es) {
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(jsonESname);
     auto tau_pt_correction_lambda =
-        [evaluator, idAlgorithm, sf_es](const ROOT::RVec<float> &pt_values,
+        [evaluator, idAlgorithm,  tau_ES_wp, tau_ES_wp_VSe,  sf_es](const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
                                         // const ROOT::RVec<UChar_t> &decay_modes,
                                         const ROOT::RVec<UChar_t> &decay_modes,
@@ -810,7 +812,7 @@ PtCorrection_muFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, sf_es});
+                         idAlgorithm,  tau_ES_wp, tau_ES_wp_VSe, sf_es});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else {
                     corrected_pt_values[i] = pt_values.at(i);
@@ -897,12 +899,12 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     const std::string &pt, const std::string &eta,
                     const std::string &decayMode, const std::string &genMatch,
                     const std::string &sf_file, const std::string &jsonESname,
-                    const std::string &idAlgorithm, const std::string &DM0,
-                    const std::string &DM1, const std::string &DM10,
+                    const std::string &idAlgorithm, const std::string &tau_ES_wp, const std::string &tau_ES_wp_VSe, 
+                    const std::string &DM0, const std::string &DM1, const std::string &DM10,
                     const std::string &DM11) {
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(jsonESname);
-    auto tau_pt_correction_lambda = [evaluator, idAlgorithm, DM0, DM1, DM10,
+    auto tau_pt_correction_lambda = [evaluator, idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM0, DM1, DM10,
                                      DM11](
                                         const ROOT::RVec<float> &pt_values,
                                         const ROOT::RVec<float> &eta_values,
@@ -917,25 +919,25 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, DM0});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM0});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 1) {
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, DM1});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM1});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 10) {
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, DM10});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM10});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 } else if (decay_modes.at(i) == 11) {
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
-                         idAlgorithm, DM11});
+                         idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM11});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 }
             } else {
