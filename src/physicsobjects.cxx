@@ -807,7 +807,7 @@ PtCorrection_muFake(ROOT::RDF::RNode df, const std::string &corrected_pt,
                                         const ROOT::RVec<UChar_t> &genmatch) {
             ROOT::RVec<float> corrected_pt_values(pt_values.size());
             for (int i = 0; i < pt_values.size(); i++) {
-                if (genmatch.at(i) == 2 || genmatch.at(i) == 4) {
+                if ((genmatch.at(i) == 2 || genmatch.at(i) == 4) && std::abs(eta_values.at(i) <= 2.5)) {
                     // only considering wanted tau decay modes
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
@@ -913,7 +913,9 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                                         const ROOT::RVec<UChar_t> &genmatch) {
         ROOT::RVec<float> corrected_pt_values(pt_values.size());
         for (int i = 0; i < pt_values.size(); i++) {
-            if (genmatch.at(i) == 5) {
+            if (genmatch.at(i) == 5 && std::abs(eta_values.at(i))<=2.5) {
+                Logger::get("tauEnergyCorrection")->debug("debug tauenergy scale variation: DM0 {}, DM1 {}, DM10 {}, DM11 {}, pt {}, eta {}, dm {}, genmatch {}",
+                DM0, DM1, DM10, DM11, pt_values.at(i), std::abs(eta_values.at(i)),decay_modes.at(i), static_cast<int>(genmatch.at(i)));
                 // only considering wanted tau decay modes
                 if (decay_modes.at(i) == 0) {
                     auto sf = evaluator->evaluate(
@@ -921,7 +923,8 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
                          idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM0});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
-                } else if (decay_modes.at(i) == 1) {
+                } 
+                else if (decay_modes.at(i) == 1) {
                     auto sf = evaluator->evaluate(
                         {pt_values.at(i), std::abs(eta_values.at(i)),
                          decay_modes.at(i), static_cast<int>(genmatch.at(i)),
@@ -940,6 +943,8 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                          idAlgorithm, tau_ES_wp, tau_ES_wp_VSe, DM11});
                     corrected_pt_values[i] = pt_values.at(i) * sf;
                 }
+             Logger::get("tauEnergyCorrection")->debug("Finishing debugging, debug tauenergy scale variation: DM0 {}, DM1 {}, DM10 {}, DM11 {}, pt {}, eta {}, dm {}, genmatch {}",
+                DM0, DM1, DM10, DM11, pt_values.at(i), std::abs(eta_values.at(i)),decay_modes.at(i), static_cast<int>(genmatch.at(i)));
             } else {
                 corrected_pt_values[i] = pt_values.at(i);
             }
@@ -947,6 +952,7 @@ PtCorrection_genTau(ROOT::RDF::RNode df, const std::string &corrected_pt,
                 ->debug("tau pt before {}, tau pt after {}, decaymode {}",
                         pt_values.at(i), corrected_pt_values.at(i),
                         decay_modes.at(i));
+           
         }
         return corrected_pt_values;
     };

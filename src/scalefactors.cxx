@@ -115,7 +115,9 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
             // shifts below good tau pt selection
             // current 2022 Muon SF only supports muon with pt 15--200 GeVf
             if (pt >= 0.0 && std::abs(eta) >= 0.0) {
-                if (pt >=200) tmp_pt = 199.0;
+                if (pt >=200) tmp_pt = 199.9;
+                else tmp_pt = pt;
+                if (pt <= 15) tmp_pt = 15.0;
                 else tmp_pt = pt;
                 sf = evaluator->evaluate(
                     { std::abs(eta), tmp_pt, variation});
