@@ -27,22 +27,7 @@ bool ColumnExists(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df, co
 }
 
 void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses, const std::string& channel, const std::string& path) {
-    ROOT::EnableImplicitMT(10); 
-    // std::string inputFile = "./test_mt_allsyst.root";
-
-    ROOT::RDataFrame df1("ntuple", inputFile);
-    
-    // auto df2 = df1.Define("pnn_mass", [mass]() { return float(mass); }).Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
-    auto df2 = df1.Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
-    
-    // std::vector<int> masses = {100, 120, 200};
-    std::vector<std::string> columnsToSave;
-
-    for (int mass : masses) {    df2 = df2.Define("pnn_mass_" + std::to_string(mass), [mass]() { return float(mass); });}
-    auto df_scaled = df2;
-    for (int mass : masses) {
-    columnsToSave.clear();
-     // Read the scaling JSON file
+    // Read the scaling JSON file
     std::string json_file;  
     std::string weight_file_even; 
     std::string weight_file_odd; 
@@ -69,6 +54,23 @@ void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses
     else {
         std::cerr<< "Usage:  <channel> is mt, et, tt, or em" << std::endl;
     }
+
+    ROOT::EnableImplicitMT(10); 
+    // std::string inputFile = "./test_mt_allsyst.root";
+
+    ROOT::RDataFrame df1("ntuple", inputFile);
+    
+    // auto df2 = df1.Define("pnn_mass", [mass]() { return float(mass); }).Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
+    auto df2 = df1.Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
+    
+    // std::vector<int> masses = {100, 120, 200};
+    std::vector<std::string> columnsToSave;
+
+    for (int mass : masses) {    df2 = df2.Define("pnn_mass_" + std::to_string(mass), [mass]() { return float(mass); });}
+    auto df_scaled = df2;
+    for (int mass : masses) {
+    columnsToSave.clear();
+
     std::cout<< json_file << std::endl;
     std::ifstream ifs(json_file);
     nlohmann::json json_data;
@@ -226,15 +228,15 @@ void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses
         (colName.length() < std::string("_odd").length() || colName.rfind("_odd") != colName.length() - std::string("_odd").length()))) {
             if (colName.rfind("pnn", 0) == 0 ||
             colName.find("weight") != std::string::npos ||
-            // colName.find("wgt") != std::string::npos ||
+            colName.find("genEventSumW") != std::string::npos ||
+            colName.find("Xsec") != std::string::npos ||
+            colName.find("wgt") != std::string::npos ||
             colName.find("id_tau_vsJet_Medium") != std::string::npos ||
             colName.find("id_tau_vsMu_Loose") != std::string::npos ||
             colName.find("id_tau_vsMu_Tight") != std::string::npos ||
             colName.find("id_tau_vsEle_VVLoose") != std::string::npos ||
             colName.find("id_tau_vsMu_VLoose") != std::string::npos ||
             colName.find("id_tau_vsEle_Tight") != std::string::npos ||
-            colName.find("genEventSumW") != std::string::npos ||
-            colName.find("Xsec") != std::string::npos ||
             colName.find("trg") != std::string::npos ||
             colName.find("eta") != std::string::npos ||
             colName.find("dz") != std::string::npos ||
@@ -247,7 +249,9 @@ void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses
             colName.find("deltaR") != std::string::npos ||
             colName.find("gen_match") != std::string::npos ||
             colName.find("_veto") != std::string::npos ||
-            colName.find("is_") != std::string::npos ||
+            colName.find("is_fake") != std::string::npos ||
+            colName.find("is_wjets") != std::string::npos ||
+            colName.find("is_ttbar") != std::string::npos ||
             colName.find("Weight") != std::string::npos) {
                 columnsToSave.push_back(colName);
             }
@@ -258,10 +262,10 @@ void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses
     }
 
      // Replace ".root" with "pnn" + mass + ".root"
-    std::string suffix = "_pnn_" + channel + ".root";
+    std::string suffix = "_pnn_" + std::to_string(masses[0]) + "_" + channel + ".root";
     std::string newFileName = inputFile.substr(0, inputFile.find_last_of(".")) + suffix;
     // remove columns of pnn_mass 
-    std::vector<std::string> substringsToRemove = {"pnn_mass", };
+    std::vector<std::string> substringsToRemove = {"pnn_mass", "id_wgt_tau_vsMu", "id_wgt_tau_vsEle", "deta_12", "dphi_12", "njets_float", "index"};
 
     columnsToSave.erase(std::remove_if(columnsToSave.begin(), columnsToSave.end(),
         [&substringsToRemove](const std::string& colName) {
@@ -272,8 +276,23 @@ void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses
                 });
         }),
         columnsToSave.end());
+    columnsToSave.erase(std::remove_if(columnsToSave.begin(), columnsToSave.end(),
+    [](const std::string& colName) {
+        // Check if colName contains "__" and does not contain "pnn"
+        bool containsDoubleUnderscore = colName.find("__") != std::string::npos;
+        bool doesNotContainPnn = colName.find("pnn") == std::string::npos 
+        && colName.find("wgt") == std::string::npos
+        && colName.find("weight") == std::string::npos
+        && colName.find("id_wgt_tau_vsJet") == std::string::npos
+        && colName.find("id_wgt_mu") == std::string::npos
+        && colName.find("id_wgt_ele") == std::string::npos
+        && colName.find("Weight") == std::string::npos;
+        return containsDoubleUnderscore && doesNotContainPnn;
+    }),
+    columnsToSave.end());
 
      df_scaled.Snapshot("ntuple",  newFileName ,columnsToSave); 
+    //   df_scaled.Snapshot("ntuple",  inputFile ,columnsToSave); 
 
 }
 
