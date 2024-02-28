@@ -171,7 +171,6 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
         std::cerr<< "Usage:  <channel> is mt, et, tt, or em" << std::endl;
     }
 
-    // ROOT::EnableImplicitMT(10); 
     // std::string inputFile = "./test_mt_allsyst.root";
     
     // std::cout<<"getting dataframe df1 " << mass << std::endl;
@@ -287,9 +286,7 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
             auto start = std::chrono::system_clock::now();
             df_scaled =  define_newcol( df_scaled, nnScoreName,weight_file_even,weight_file_odd, input_vars_ver, channel );
             auto count = df_scaled.Count();
-            // Another example, if you want to create a histogram
-            auto hist = df_scaled.Histo1D(nnScoreName);
-            hist->Draw();
+            
             std::cout<<"finished defining " << nnScoreName << "Number of entries: " << *count <<std::endl;
             // for (const std::string& str : input_vars_ver) {
             // std::cout << str << " ";
@@ -333,7 +330,7 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
             if (!condition.empty()) df_scaled = df_scaled.Redefine(nnScoreName, "(" + condition + ") ? -10.0 : " + nnScoreName);
             i +=1;
             std::cout<< "counting : " << i << std::endl;
-            // if (i == 5) break;
+            // if (i == 10) break;
         }
 
 
@@ -357,11 +354,12 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
 }
 
 int main(int argc, char** argv) {
+
     if (argc < 5) {
         std::cout << "Usage: " << argv[0] << " <inputFile> <mass1,mass2,mass3,...> <channel> <path: working directory path>" << std::endl;
         return 1;
     }
-
+    // ROOT::EnableImplicitMT(10); 
     std::string inputFile = argv[1];
     std::string massArg = argv[2];
     std::string channel = argv[3];
@@ -378,11 +376,21 @@ int main(int argc, char** argv) {
     // Call higgs_analysis with the 'masses' vector
     // higgs_analysis(inputFile, 100, channel, path);
     for (const auto& mass : masses){
-    ROOT::RDataFrame df1("ntuple", inputFile);
-    auto df_scaled = higgs_analysis(df1, inputFile, mass, channel, path);
-    auto columnsToSave = filter_columns(df_scaled);
-    df_scaled.Snapshot("ntuple",  inputFile ,columnsToSave); 
-    // break;
+        ROOT::RDataFrame df1("ntuple", inputFile);
+        
+        // Construct the column name to check
+        std::string columnName = "pnn_" + std::to_string(mass);
+        
+        // Check if the column exists
+        if (df1.HasColumn(columnName)) {
+            std::cout << columnName << " exists" << std::endl;
+            continue; // Skip this iteration since the column exists
+        }
+        
+        // If the column doesn't exist, proceed with analysis and snapshot
+        auto df_scaled = higgs_analysis(df1, inputFile, mass, channel, path);
+        auto columnsToSave = filter_columns(df_scaled);
+        df_scaled.Snapshot("ntuple", inputFile, columnsToSave);
     }
     // higgs_analysis(inputFile, masses, channel, path);
     return 0;
