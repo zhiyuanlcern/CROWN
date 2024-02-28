@@ -21,7 +21,7 @@ R__ADD_INCLUDE_PATH($ROOTSYS/runtutorials)
 #include <string>
 using namespace TMVA::Experimental;
 // Function to check if a column exists in the DataFrame
-bool ColumnExists(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df, const std::string &colName) {
+bool ColumnExists(ROOT::RDF::RNode  &df, const std::string &colName) {
     auto columnNames = df.GetColumnNames();
     return std::find(columnNames.begin(), columnNames.end(), colName) != columnNames.end();
 }
@@ -111,27 +111,27 @@ auto filter_columns(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df_s
     //         std::cout << std::endl;
     return columnsToSave;
 }
-auto define_newcol(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df_scaled, std::string &nnScoreName, std::string &weight_file_even,std::string &weight_file_odd,std::vector<std::string>& input_vars_ver,const std::string& channel ){
+auto define_newcol(ROOT::RDF::RNode &df_scaled, std::string &nnScoreName, std::string &weight_file_even,std::string &weight_file_odd,std::vector<std::string>& input_vars_ver,const std::string& channel ){
         auto modifiedDf = df_scaled ; 
         
         if (channel ==  "mt"){
-             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(1, weight_file_even), input_vars_ver)
-                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(1, weight_file_odd), input_vars_ver)
+             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_mt_even_lowmass::Session>(4, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_mt_odd_lowmass::Session>(4, weight_file_odd), input_vars_ver)
                                 .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }       
         else if (channel ==  "et"){
-             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(1, weight_file_even), input_vars_ver)
-                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(1, weight_file_odd), input_vars_ver)
+             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_et_even_lowmass::Session>(4, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_et_odd_lowmass::Session>(4, weight_file_odd), input_vars_ver)
                                 .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }
         else if (channel ==  "tt"){
-             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(1, weight_file_even), input_vars_ver)
-                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(1, weight_file_odd), input_vars_ver)
+             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_tt_even_lowmass::Session>(4, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_tt_odd_lowmass::Session>(4, weight_file_odd), input_vars_ver)
                                 .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }
         else if (channel ==  "em"){
-             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(1, weight_file_even), input_vars_ver)
-                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(1, weight_file_odd), input_vars_ver)
+             modifiedDf  = df_scaled.DefineSlot(nnScoreName + "_even", SofieFunctor<26, TMVA_SOFIE_em_even_lowmass::Session>(4, weight_file_even), input_vars_ver)
+                                .DefineSlot(nnScoreName + "_odd", SofieFunctor<26, TMVA_SOFIE_em_odd_lowmass::Session>(4, weight_file_odd), input_vars_ver)
                                 .Define(nnScoreName, "event %2 == 0 ? " + nnScoreName + "_odd : " + nnScoreName + "_even");
         }
         else {
@@ -141,31 +141,31 @@ auto define_newcol(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df_sc
         
 }
 // void higgs_analysis(const std::string& inputFile, const std::vector<int>& masses, const std::string& channel, const std::string& path) {
-auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1, const std::string& inputFile, const int& mass, const std::string& channel, const std::string& path) {
+auto higgs_analysis(ROOT::RDF::RNode  &df1, const std::string& inputFile, const int& mass, const std::string& channel, const std::string& path) {
     std::cout<<"starting evaluation for mass " << mass << std::endl;
     // Read the scaling JSON file
     std::string json_file;  
     std::string weight_file_even; 
     std::string weight_file_odd; 
     if (channel ==  "mt"){
-        json_file = path + "data/pnn/mt_scaling.json";
-        weight_file_even = path + "data/pnn/mt_even_lowmass.dat";
-        weight_file_odd = path + "data/pnn/mt_odd_lowmass.dat";
+        json_file = path + "/data/pnn/mt_scaling.json";
+        weight_file_even = path + "/data/pnn/mt_even_lowmass.dat";
+        weight_file_odd = path + "/data/pnn/mt_odd_lowmass.dat";
     }
     else if (channel ==  "et"){
-        json_file = path + "data/pnn/et_scaling.json";
-        weight_file_even = path + "data/pnn/et_even_lowmass.dat";
-        weight_file_odd = path + "data/pnn/et_odd_lowmass.dat";
+        json_file = path + "/data/pnn/et_scaling.json";
+        weight_file_even = path + "/data/pnn/et_even_lowmass.dat";
+        weight_file_odd = path + "/data/pnn/et_odd_lowmass.dat";
     }
     else if (channel ==  "tt"){
-        json_file = path +  "data/pnn/tt_scaling.json";
-        weight_file_even = path + "data/pnn/tt_even_lowmass.dat";
-        weight_file_odd = path + "data/pnn/tt_odd_lowmass.dat";
+        json_file = path +  "/data/pnn/tt_scaling.json";
+        weight_file_even = path + "/data/pnn/tt_even_lowmass.dat";
+        weight_file_odd = path + "/data/pnn/tt_odd_lowmass.dat";
     }
     else if (channel ==  "em"){
-        json_file = path + "data/pnn/em_scaling.json";
-        weight_file_even = path + "data/pnn/em_even_lowmass.dat";
-        weight_file_odd = path + "data/pnn/em_odd_lowmass.dat";
+        json_file = path + "/data/pnn/em_scaling.json";
+        weight_file_even = path + "/data/pnn/em_even_lowmass.dat";
+        weight_file_odd = path + "/data/pnn/em_odd_lowmass.dat";
     }
     else {
         std::cerr<< "Usage:  <channel> is mt, et, tt, or em" << std::endl;
@@ -177,7 +177,12 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
     
     
     // auto df2 = df1.Define("pnn_mass", [mass]() { return float(mass); }).Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
-    auto df2 = df1.Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
+    auto df2 =df1;
+    if  (ColumnExists(df1, "index")){
+         df2 = df1;
+    }
+
+    else  df2 = df1.Define("index", []() { return uint(0); } ).Define("njets_float", "float(njets)").Define("deta_12", "eta_1 - eta_2").Define("dphi_12", "phi_1 - phi_2");
     
     // std::vector<int> masses = {100, 120, 200};
     
@@ -330,7 +335,7 @@ auto higgs_analysis(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df1,
             if (!condition.empty()) df_scaled = df_scaled.Redefine(nnScoreName, "(" + condition + ") ? -10.0 : " + nnScoreName);
             i +=1;
             std::cout<< "counting : " << i << std::endl;
-            // if (i == 10) break;
+            // if (i == 5 ) break;
         }
 
 
@@ -372,11 +377,15 @@ int main(int argc, char** argv) {
     while (std::getline(massStream, massToken, ',')) {
         masses.push_back(std::stoi(massToken));
     }
-
+    std::cout<< "running over file: " <<  inputFile << std::endl;
     // Call higgs_analysis with the 'masses' vector
     // higgs_analysis(inputFile, 100, channel, path);
+    ROOT::RDataFrame df1("ntuple", inputFile);
+    // Placeholder for a potentially transformed dataframe
+    ROOT::RDF::RNode df_final = df1;
+    bool modified = false;
+        
     for (const auto& mass : masses){
-        ROOT::RDataFrame df1("ntuple", inputFile);
         
         // Construct the column name to check
         std::string columnName = "pnn_" + std::to_string(mass);
@@ -388,10 +397,14 @@ int main(int argc, char** argv) {
         }
         
         // If the column doesn't exist, proceed with analysis and snapshot
-        auto df_scaled = higgs_analysis(df1, inputFile, mass, channel, path);
-        auto columnsToSave = filter_columns(df_scaled);
-        df_scaled.Snapshot("ntuple", inputFile, columnsToSave);
+         df_final = higgs_analysis(df_final, inputFile, mass, channel, path);
+         modified = true;
+        // df1 = higgs_analysis(df1, inputFile, mass, channel, path);
     }
+        auto columnsToSave = filter_columns(df1);
+        if (modified) df_final.Snapshot("ntuple", inputFile, columnsToSave);
+        else std::cout<< "all mass point finished calculation! " ;
+        
     // higgs_analysis(inputFile, masses, channel, path);
     return 0;
 }
