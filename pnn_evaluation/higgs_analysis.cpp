@@ -26,7 +26,7 @@ bool ColumnExists(ROOT::RDF::RNode  &df, const std::string &colName) {
     return std::find(columnNames.begin(), columnNames.end(), colName) != columnNames.end();
 }
 
-auto filter_columns(ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager> &df_scaled){
+auto filter_columns(ROOT::RDF::RNode  &df_scaled){
         std::vector<std::string> columnsToSave;
         auto originalColumns = df_scaled.GetColumnNames();        
         // Filter out columns starts with 'scaled_' and ends with  "_even/odd" 
@@ -401,7 +401,7 @@ int main(int argc, char** argv) {
          modified = true;
         // df1 = higgs_analysis(df1, inputFile, mass, channel, path);
     }
-        auto columnsToSave = filter_columns(df1);
+        auto columnsToSave = filter_columns(df_final);
         if (modified) df_final.Snapshot("ntuple", inputFile, columnsToSave);
         else std::cout<< "all mass point finished calculation! " ;
         
