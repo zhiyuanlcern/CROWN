@@ -776,7 +776,7 @@ tau_trigger_sf(ROOT::RDF::RNode df, const std::string &decaymode,
     Logger::get("tau_trigger_sf")->info("WP {} - type {}", wp, type);
     auto trigger_sf_calculator = [evaluator, wp, type, correctionset](
                                      const UChar_t &decaymode, const float &pt) {
-        float sf = 1.;
+        double sf = 1.;
         Logger::get("tau_trigger_sf")
             ->info("ID {} - decaymode {}, wp {} "
                    "pt {}, type {}, ",
@@ -896,7 +896,7 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                                      const ROOT::RVec<int> &bjet_mask,
                                      const ROOT::RVec<int> &jet_veto_mask) {
         Logger::get("btagSF")->debug("Vatiation - Name {}", variation);
-        float sf = 1.;
+        double sf = 1.;
         for (int i = 0; i < pt_values.size(); i++) {
             Logger::get("btagSF")->debug(
                 "jet masks - jet {}, bjet {}, jet veto {}", jet_mask.at(i),
@@ -908,7 +908,7 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                     "SF - pt {}, eta {}, btag value {}, flavor {}",
                     pt_values.at(i), eta_values.at(i), btag_values.at(i),
                     flavors.at(i));
-                float jet_sf = 1.;
+                double jet_sf = 1.;
                 // considering only phase space where the scale factors are
                 // defined
                 float btag_tmp_values = btag_values.at(i);
@@ -1188,7 +1188,7 @@ ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("ditau_trigger")->debug("WP {} - trigger type {}, systematic {}", wp, type, syst);
     auto trigger_sf_calculator = [evaluator, wp, type, corrtype,
                                   syst](const float &pt, const UChar_t &decaymode) {
-        float sf = 1.;
+        double sf = 1.;
         float pt_threshold = 24.6;
         if (type == "ditau") pt_threshold = 39.598;
         else if (type == "etau") pt_threshold = 24.6;
