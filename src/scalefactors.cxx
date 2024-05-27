@@ -114,10 +114,8 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
             // preventing muons with default values due to tau energy correction
             // shifts below good tau pt selection
             // current 2022 Muon SF only supports muon with pt 15--200 GeVf
-            if (pt >= 0.0 && std::abs(eta) < 2.5 ) {
+            if (pt >= 23.0 && std::abs(eta) < 2.5 ) {
                 if (pt >=200) tmp_pt = 199.9;
-                else tmp_pt = pt;
-                if (pt <= 15) tmp_pt = 15.0;
                 else tmp_pt = pt;
                 sf = evaluator->evaluate(
                     { std::abs(eta), tmp_pt, variation});
@@ -169,8 +167,8 @@ ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
             // preventing muons with default values due to tau energy correction
             // shifts below good tau pt selection
             // current 2022 Muon SF only supports muon with pt 15--200 GeVf
-            if (pt >= 0.0 && std::abs(eta) < 2.5) {
-                if (pt >=200) tmp_pt = 199.0;
+            if (pt >= 23.0 && std::abs(eta) < 2.5) {
+                if (pt >=200) tmp_pt = 199.9;
                 else tmp_pt = pt;
                 sf = evaluator->evaluate(
                     { std::abs(eta), tmp_pt, variation});
@@ -834,7 +832,7 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
             Logger::get("electronIDSF")->debug("ID - pt {}, eta {}", pt, eta);
             double sf = 1.;
             // in 2022 the order of input is year_id, variation, wp, eta, pt
-            if (pt >= 0.0) {
+            if (pt >= 25.0) {
                 sf = evaluator->evaluate({year_id, variation, wp, eta, pt});
             }
             Logger::get("electronIDSF")->debug("Scale Factor {}", sf);
