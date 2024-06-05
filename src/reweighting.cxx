@@ -233,7 +233,19 @@ ROOT::RDF::RNode lhe_scale_weights(ROOT::RDF::RNode df,
         {{0.5, 0.5}, 0}, {{1.0, 0.5}, 1}, {{2.0, 0.5}, 2},
         {{0.5, 1.0}, 3}, {{1.0, 1.0}, 4}, {{2.0, 1.0}, 5},
         {{0.5, 2.0}, 6}, {{1.0, 2.0}, 7}, {{2.0, 2.0}, 8}};
-    std::pair<const float, const float> variations = {muR, muF};
+        // Float_t LHE scale variation weights (w_var / w_nominal); 
+        //  renscfact should be Renormalization Scale (muR)? 
+        //[0] is renscfact=0.5d0 facscfact=0.5d0 ; 
+        //[1] is renscfact=0.5d0 facscfact=1d0 ; 
+        //[2] is renscfact=0.5d0 facscfact=2d0 ; 
+        //[3] is renscfact=1d0 facscfact=0.5d0 ;
+        //[4] is renscfact=1d0 facscfact=1d0 ;
+        //[5] is renscfact=1d0 facscfact=2d0 ;
+        //[6] is renscfact=2d0 facscfact=0.5d0 ;
+        //[7] is renscfact=2d0 facscfact=1d0 ;
+        //[8] is renscfact=2d0 facscfact=2d0 *
+    // std::pair<const float, const float> variations = {muR, muF};  the original lines is this, Run3 2022 is the other way round?
+    std::pair<const float, const float> variations = {muF, muR};
     int index = index_map[variations];
     auto lhe_scale_weights_lambda =
         [index](const ROOT::RVec<float> scale_weight) {
@@ -241,6 +253,43 @@ ROOT::RDF::RNode lhe_scale_weights(ROOT::RDF::RNode df,
         };
     auto df1 =
         df.Define(weightname, lhe_scale_weights_lambda, {lhe_scale_weights});
+    return df1;
+}
+
+
+/**
+ * @brief Function used to retrieve the ggH_ME_reweighting_weight of an event. 
+The weights are stored in the nanoAOD file LHEReweightingWeight. The mapping
+between the index and the weights content is:
+
+ index  | meaning|
+|------| -------|
+ | 0    | h_tb    
+ | 1    | h_t
+ | 2    | h_b
+ | 3    | A_tb
+ | 4    | A_t
+ | 5    | A_b
+ 
+
+ *
+ * @param df The input dataframe
+ * @param weightname the output name of the generated weight
+ * @param weights name of the column containing the ggH_ME_reweighting_weight
+ * @param index the value of index
+ * @return ROOT::RDF::RNode
+ */
+
+ROOT::RDF::RNode ggH_ME_reweighting_weight(ROOT::RDF::RNode df,
+                                   const std::string &weightname,
+                                   const std::string &weights,
+                                   const int index) {
+    auto weights_lambda =
+        [index](const ROOT::RVec<float> reweighting_weight) {
+            return reweighting_weight.at(index);
+        };
+    auto df1 =
+        df.Define(weightname, weights_lambda, {weights});
     return df1;
 }
 } // namespace reweighting
