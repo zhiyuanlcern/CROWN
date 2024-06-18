@@ -141,5 +141,40 @@ ROOT::RDF::RNode scaleP4(ROOT::RDF::RNode df, const std::string &outputname,
         },
         inputvector);
 }
+
+ROOT::RDF::RNode buildHiggs(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &Genparticle_pdgId,
+                                 const std::string &Genparticle_statusFlags,
+                                 const std::string &Genparticle_pt,
+                                 const std::string &Genparticle_eta,
+                                 const std::string &Genparticle_phi,
+                                 const std::string &Genparticle_mass
+                                 ) {
+    auto Higgsp4 = [](const ROOT::RVec<int> &genparticle_pdgId,
+        const ROOT::RVec<unsigned short> &genparticle_statusFlags,const ROOT::RVec<float> &genparticle_pt,
+        const ROOT::RVec<float> &genparticle_eta,const ROOT::RVec<float> &genparticle_phi,
+        const ROOT::RVec<float> &genparticle_mass) {
+        ROOT::Math::PtEtaPhiMVector p4;
+        p4 = ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float);
+        for (unsigned int i = 0; i < (int)genparticle_pdgId.size(); ++i ) {
+            // check if the gen particle is H
+            // assign pt, eta, phi of higgs to p4 once found
+            if ( ( abs(genparticle_pdgId.at(i)) == 25 ) && ( (genparticle_statusFlags.at(i) >> 13) & 1 == 1 ) ) {
+                p4 = ROOT::Math::PtEtaPhiMVector(genparticle_pt.at(i),genparticle_eta.at(i),
+                genparticle_phi.at(i), genparticle_mass.at(i));
+                return p4; 
+                }
+            }
+        return p4; // if not found return the default p4
+    };
+                    
+    auto df1 = 
+        df.Define(outputname, Higgsp4, 
+            {Genparticle_pdgId, Genparticle_statusFlags, Genparticle_pt,Genparticle_eta,
+            Genparticle_phi,Genparticle_mass});
+    return df1;
+}
+
+
 } // namespace lorentzvectors
 #endif /* GUARDLVECS_H */

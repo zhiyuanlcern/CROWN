@@ -18,7 +18,14 @@ ROOT::RDF::RNode build(ROOT::RDF::RNode df,
 ROOT::RDF::RNode buildMet(ROOT::RDF::RNode df, const std::string &met_pt,
                           const std::string &met_phi,
                           const std::string &outputname);
-
+ROOT::RDF::RNode buildHiggs(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &GenPart_pdgId,
+                                 const std::string &GenPart_statusFlags,
+                                 const std::string &GenParticle_pt,
+                                 const std::string &GenParticle_eta,
+                                 const std::string &GenParticle_phi,
+                                 const std::string &GenParticle_mass
+                                 );
 /// This function constructs a vectorial sum of n lorentz vectors. Since it uses
 /// an aribtrary number of input vectors, it is implemented in the header file.
 ///
