@@ -305,6 +305,10 @@ p4_fastmtt(ROOT::RDF::RNode df, const std::string &outputname,
                      const float &met_cov_xx, const float &met_cov_xy,
                      const float &met_cov_yy, const UChar_t &decay_mode_1,
                      const UChar_t &decay_mode_2) {
+            
+            // if pt is negative result is unphysical
+            if (pt_1 < 0.0 || pt_2 < 0.0) return default_lorentzvector;
+            
             std::vector<fastmtt::MeasuredTauLepton> measuredTauLeptons;
             TMatrixD covMET(2, 2);
             covMET[0][0] = met_cov_xx;
@@ -482,6 +486,8 @@ ROOT::RDF::RNode mTdileptonMET(ROOT::RDF::RNode df,
     auto calculate_mTdileptonMET = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
                                       ROOT::Math::PtEtaPhiMVector &p_2_p4,
                                       ROOT::Math::PtEtaPhiMVector &met) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 || met.pt() < 0.0)
+            return default_float;                              
         ROOT::Math::PtEtaPhiMVector dilepton = p_1_p4 + p_2_p4;
         return vectoroperations::calculateMT(dilepton, met);
     };
@@ -528,6 +534,8 @@ ROOT::RDF::RNode mT(ROOT::RDF::RNode df, const std::string &outputname,
                     const std::string &particle_p4, const std::string &met) {
     auto calculate_mt = [](ROOT::Math::PtEtaPhiMVector &particle_p4,
                            ROOT::Math::PtEtaPhiMVector &met) {
+        if (particle_p4.pt() < 0.0  || met.pt() < 0.0)
+            return default_float;      
         return vectoroperations::calculateMT(particle_p4, met);
     };
     return df.Define(outputname, calculate_mt, {particle_p4, met});
@@ -550,6 +558,8 @@ ROOT::RDF::RNode pt_tt(ROOT::RDF::RNode df, const std::string &outputname,
     auto calculate_pt_tt = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
                               ROOT::Math::PtEtaPhiMVector &p_2_p4,
                               ROOT::Math::PtEtaPhiMVector &met) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 || met.pt() < 0.0)
+            return default_float;          
         auto dileptonmet = p_1_p4 + p_2_p4 + met;
         return (float)dileptonmet.Pt();
     };
@@ -562,6 +572,8 @@ ROOT::RDF::RNode mass_tt(ROOT::RDF::RNode df, const std::string &outputname,
     auto calculate_mass_tt = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
                               ROOT::Math::PtEtaPhiMVector &p_2_p4,
                               ROOT::Math::PtEtaPhiMVector &met) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 || met.pt() < 0.0)
+            return default_float;          
         auto dileptonmet = p_1_p4 + p_2_p4 + met;
         return (float)dileptonmet.mass();
     };
@@ -592,6 +604,8 @@ ROOT::RDF::RNode pt_ttjj(ROOT::RDF::RNode df, const std::string &outputname,
                                 ROOT::Math::PtEtaPhiMVector &jet_1_p4,
                                 ROOT::Math::PtEtaPhiMVector &jet_2_p4,
                                 ROOT::Math::PtEtaPhiMVector &met) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 || met.pt() < 0.0)
+            return default_float;          
         if (jet_1_p4.pt() < 0.0 || jet_2_p4.pt() < 0.0)
             return default_float;
         auto jetlepmet = p_1_p4 + p_2_p4 + met + jet_1_p4 + jet_2_p4;
@@ -675,6 +689,8 @@ ROOT::RDF::RNode mt_tot(ROOT::RDF::RNode df, const std::string &outputname,
     auto calculate_mt_tot = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
                                ROOT::Math::PtEtaPhiMVector &p_2_p4,
                                ROOT::Math::PtEtaPhiMVector &met) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 || met.pt() < 0.0)
+            return default_float;          
         const float mt_1 = vectoroperations::calculateMT(p_1_p4, met);
         const float mt_2 = vectoroperations::calculateMT(p_2_p4, met);
         const float mt_mix = vectoroperations::calculateMT(p_1_p4, p_2_p4);
