@@ -7,46 +7,26 @@ pathadd() {
 }
 # get the directory of the script
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" &>/dev/null && pwd 2>/dev/null)"
-distro=$(lsb_release -i | cut -f2)
-os_version=$(lsb_release -r | cut -f2)
+# distro=$(lsb_release -i | cut -f2)
+# os_version=$(lsb_release -r | cut -f2)
 echo "Setting up CROWN for $distro Version $os_version"
 # check if the distro is centos
-if [[ "$distro" == "CentOS" ]]; then
-    # if the first number of os_version is a 7, we are on centOS 7
-    if [[ ${os_version:0:1} == "7" ]]; then # if uname -a | grep -E 'el7' -q
-        # source /cvmfs/sft-nightlies.cern.ch/lcg/views/dev3/latest/x86_64-centos7-gcc11-opt/setup.sh
-        # source /cvmfs/sft-nightlies.cern.ch/lcg/views/dev3/latest/x86_64-centos7-clang12-opt/setup.sh
-        # source /cvmfs/sft-nightlies.cern.ch/lcg/views/dev3/latest/x86_64-centos7-gcc11-dbg/setup.sh
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt/setup.sh
-        export CMAKE_PREFIX_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt
-    else
-        echo "Unsupported CentOS version, exiting..."
-        return 0
-    fi
-elif [[ "$distro" == "RedHatEnterprise" ]]; then
-    if [[ ${os_version:0:1} == "8" ]]; then # elif uname -a | grep -E 'el8' -q
-        # no lcg 103 available for centOS 8
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos8-gcc11-opt/setup.sh
-    else
-        echo "Unsupported CentOS version, exiting..."
-        return 0
-    fi
-elif [[ "$distro" == "Ubuntu" ]]; then
-    if [[ ${os_version:0:2} == "20" ]]; then
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-ubuntu2004-gcc9-opt/setup.sh
-    elif [[ ${os_version:0:2} == "22" ]]; then
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-ubuntu2204-gcc11-opt/setup.sh
-    else
-        echo "Unsupported Ubuntu version, exiting..."
-        return 0
-    fi
-else
+
+PRETTY_NAME=$(grep "^PRETTY_NAME" /etc/os-release | cut -d= -f2 | tr -d '"')
+
+if [[ "$PRETTY_NAME" == *"Linux 9"* ]]; then
+    echo "This system is running Linux 9"
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh
+
+elif [[ "$PRETTY_NAME" == *"Linux 7"* ]]; then
+    echo "This is CentOS Linux 7"
     source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-centos7-gcc11-opt/setup.sh
-    
-    echo "You are not running on CentOS or Ubuntu, treating as cent 7"
-    # return 0
+    # Add commands specific to CentOS Linux 7 here
+else
+    echo "Unsupported OS: $PRETTY_NAME"
+    # Add commands for unsupported OS or default actions here
 fi
-# add ~/.local/bin to path if it is not already there
+
 pathadd "${HOME}/.local/bin/"
 # set the cmake generator to Ninja
 # export CMAKE_GENERATOR="Ninja"
