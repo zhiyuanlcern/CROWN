@@ -289,7 +289,8 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 const std::vector<std::string> &jes_shift_sources,
                 const int &jes_shift, const std::string &jer_shift,
                 const std::string &jec_file, const std::string &jer_tag,
-                const std::string &jes_tag, const std::string &jec_algo) {
+                const std::string &jes_tag, const std::string &jec_algo, 
+                const std::string &jet_veto_map, const std::string &jet_veto_tag) {
     // identifying jet radius from algorithm
     float jet_dR = 0.4;
     if (jec_algo.find("AK8") != std::string::npos) {
@@ -308,6 +309,8 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         }
     };
     // loading jet energy correction scale factor evaluation function
+    // 2022 (with python): >>> list(ceval.compound.keys())
+    // ['Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi', 'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi']
     auto JES_evaluator =
         correction::CorrectionSet::from_file(jec_file)->compound().at(
             jes_tag + "_L1L2L3Res_" + jec_algo);
@@ -338,11 +341,22 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
             return JER_SF_evaluator->evaluate({eta,  jer_shift});
         }
     };
+    // loading jet veto maps
+    auto jet_veto_map_evaluator = correction::CorrectionSet::from_file(jet_veto_map)->at(
+        jet_veto_tag);
+    auto jet_veto_SF =
+        [jet_veto_map_evaluator](const float eta, const float phi) {
+            auto tmp_phi  = phi;
+            if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
+            if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
+            return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
+    };
+
     // lambda run with dataframe
     auto JetEnergyCorrectionLambda = [reapplyJES, JetEnergyScaleShifts,
                                       JetEnergyScaleSF, JetEnergyResolution,
                                       JetEnergyResolutionSF, jes_shift_sources,
-                                      jes_shift, jer_shift, jet_dR](
+                                      jes_shift, jer_shift, jet_dR,jet_veto_SF ](
                                          const ROOT::RVec<float> &pt_values,
                                          const ROOT::RVec<float> &eta_values,
                                          const ROOT::RVec<float> &phi_values,
@@ -357,9 +371,35 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                              &gen_phi_values,
                                          const float &rho_value) {
         // random value generator for jet smearing
-        TRandom3 randm = TRandom3(0);
-
+        TRandom3 randm = TRandom3(12345);
+        float pt_veto = -999.0;
         ROOT::RVec<float> pt_values_corrected;
+        // // apply jet veto map. If any jet lies within jet veto map, reject the events. 
+        // // at the object level it's not straightforward to veto the events, so we return a RVec of pt -999 for all jets 
+        
+        // Flag to check if any non-zero jet_veto_sf_value is found
+        bool non_zero_veto = false;
+        // Loop to check if any non-zero jet_veto_sf_value exists
+        for (int i = 0; i < pt_values.size(); i++) {
+
+            Logger::get("JetEnergyResolution")
+                ->debug("checking jet veto map for index {} ", i);
+            float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+            if (jet_veto_sf_value != 0) {
+                non_zero_veto = true;
+            }
+        }
+        if (non_zero_veto) {
+            for (int i = 0; i < pt_values.size(); i++) {
+                // do jet veto here:         
+                // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
+                Logger::get("JetEnergyResolution")
+                    ->debug("checking jet veto map for index {} ", i);
+                pt_values_corrected.push_back(pt_veto);
+            }
+            return pt_values_corrected;
+        }            
+
         for (int i = 0; i < pt_values.size(); i++) {
             float corr_pt = pt_values.at(i);
             if (reapplyJES) {
@@ -486,6 +526,8 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
             // if (pt_values_corrected.at(i)>15.0), this
             // correction should be propagated to MET
             // (requirement for type I corrections)
+
+
         }
         return pt_values_corrected;
     };
@@ -510,11 +552,24 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
 /// \return a dataframe containing the modified jet pts
 ROOT::RDF::RNode
 JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
-                     const std::string &jet_pt, const std::string &jet_eta,
+                     const std::string &jet_pt, const std::string &jet_eta, const std::string &jet_phi, 
                      const std::string &jet_area,
                      const std::string &jet_rawFactor, const std::string &rho,
                      const std::string &jec_file, const std::string &jes_tag,
-                     const std::string &jec_algo) {
+                     const std::string &jec_algo, 
+                     const std::string &jet_veto_map, const std::string &jet_veto_tag) {
+    
+    // loading jet veto maps
+    auto jet_veto_map_evaluator = correction::CorrectionSet::from_file(jet_veto_map)->at(
+        jet_veto_tag);
+    auto jet_veto_SF =
+        [jet_veto_map_evaluator](const float eta, const float phi) {
+            auto tmp_phi  = phi;
+            if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
+            if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
+            return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
+    };
+
     if (jes_tag != "") {
         // loading jet energy correction scale factor evaluation function
         auto JES_evaluator =
@@ -532,12 +587,34 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         // lambda run with dataframe
         auto JetEnergyCorrectionLambda =
             [jes_tag,
-             JetEnergyScaleSF](const ROOT::RVec<float> &pt_values,
+             JetEnergyScaleSF, jet_veto_SF](const ROOT::RVec<float> &pt_values,
                                const ROOT::RVec<float> &eta_values,
+                               const ROOT::RVec<float> &phi_values,
                                const ROOT::RVec<float> &area_values,
                                const ROOT::RVec<float> &rawFactor_values,
                                const float &rho_value) {
                 ROOT::RVec<float> pt_values_corrected;
+                // apply jet veto map. If any jet lies within jet veto map, reject the events. 
+                // at the object level it's not straightforward to veto the events, so we return a RVec of pt -10 for all jets
+                
+                // Flag to check if any non-zero jet_veto_sf_value is found
+                bool non_zero_veto = false;
+                // Loop to check if any non-zero jet_veto_sf_value exists
+                for (int i = 0; i < pt_values.size(); i++) {
+                    float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    if (jet_veto_sf_value != 0) {
+                        non_zero_veto = true;
+                        break;  // No need to continue if we already found one non-zero value
+                    }
+                }
+                // If any non-zero jet_veto_sf_value was found, return a vector filled with -10
+                if (non_zero_veto) {
+                    for (int i = 0; i < pt_values.size(); i++) {
+                        pt_values_corrected.push_back(-10);
+                    }
+                    return pt_values_corrected;
+                } 
+
                 for (int i = 0; i < pt_values.size(); i++) {
                     float corr_pt = pt_values.at(i);
                     if (jes_tag != "") {

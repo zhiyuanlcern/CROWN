@@ -679,9 +679,27 @@ ROOT::RDF::RNode propagateJetsToMet(
         ROOT::Math::PtEtaPhiMVector corrected_jet;
         float corr_x = 0.0;
         float corr_y = 0.0;
+        float veto_met = -999.0;
+        Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet pt size  {} ", jet_pt.size());
+        Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet corrected pt size  {} ", jet_pt_corrected.size());  
         // now loop through all jets in the event
         for (std::size_t index = 0; index < jet_pt.size(); ++index) {
+
+            Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet index {}  ",index);
+            Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet index {} pt {} ",index, jet_pt.at(index));
+            Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet corrected index {} pt {} ", index, jet_pt_corrected.at(index));                    
             // only propagate jets above the given pt threshold
+            if (jet_pt_corrected.at(index) <= -900.0) {
+                // jet vetoed is given pt -999, any events with vetoded jets should be vetoed as well
+                // save this as -999
+                corrected_met=ROOT::Math::PtEtaPhiMVector(veto_met, veto_met, veto_met,veto_met);
+                return corrected_met;
+            }
             if (jet_pt_corrected.at(index) > min_jet_pt) {
                 // construct the uncorrected and the corrected lorentz
                 // vectors

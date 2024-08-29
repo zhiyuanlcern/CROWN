@@ -105,6 +105,8 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("muonIdSF")->debug("ID - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+
+    Logger::get("muonIdSF")->debug("ID - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50,variation} ) );
     auto df1 = df.Define(
         id_output,
         [evaluator, variation]( const float &eta, const float &pt) {
@@ -158,6 +160,8 @@ ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("muonIsoSF")->debug("ISO - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    
+    Logger::get("muonIsoSF")->debug("ISO - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50.0,variation} ) );
     auto df1 = df.Define(
         iso_output,
         [evaluator, variation](const float &pt, const float &eta) {
@@ -883,7 +887,7 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                                  corr_algorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(corr_algorithm);
-    
+    Logger::get("btagSF")->debug("ID - Name {} test evaluate {}", corr_algorithm, evaluator->evaluate({"central", 5, 1.0, 50.0,0.2} ) );
 
     auto btagSF_lambda = [evaluator,
                           variation](const ROOT::RVec<float> &pt_values,
@@ -1073,6 +1077,7 @@ ROOT::RDF::RNode muon_sf(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("EmbeddingMuonSF")->debug("Correction - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    Logger::get("EmbeddingMuonSF")->debug("Correction - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50.0,correctiontype} ) );
     auto df1 = df.Define(
         output,
         [evaluator, correctiontype, extrapolation_factor](const float &pt,
@@ -1126,6 +1131,8 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
         ->debug("Correction - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    
+    Logger::get("EmbeddingElectronSF")->debug("Correction - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({year,correctiontype, trigger, 1.0, 50.0} ) );
     auto df1 = df.Define(
         output,
         [evaluator, correctiontype, extrapolation_factor, year, trigger](const float &pt,
@@ -1187,14 +1194,14 @@ ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
     auto trigger_sf_calculator = [evaluator, wp, type, corrtype,
                                   syst](const float &pt, const UChar_t &decaymode) {
         double sf = 1.;
-        float pt_threshold = 24.6;
-        if (type == "ditau") pt_threshold = 39.598;
-        else if (type == "etau") pt_threshold = 24.6;
-        else if (type == "mutau") pt_threshold = 24.6;
-        else pt_threshold = 24.6;
+        float pt_threshold = 25.0;
+        if (type == "ditau") pt_threshold = 39.6;
+        else if (type == "etau") pt_threshold = 25.0;
+        else if (type == "mutau") pt_threshold = 25.0;
+        else pt_threshold = 25.0;
         Logger::get("ditau_trigger")
             ->debug("decaymode {}, pt {}, pt_threshold {}" , decaymode, pt, pt_threshold);
-        if (pt >= pt_threshold) {
+        if (pt > pt_threshold) {
             if (decaymode == 0 || decaymode == 1 || decaymode == 10 ||
                 decaymode == 11) {
                 sf = evaluator->evaluate(
