@@ -25,6 +25,7 @@ elif [[ "$PRETTY_NAME" == *"Linux 7"* ]]; then
 else
     echo "Unsupported OS: $PRETTY_NAME"
     # Add commands for unsupported OS or default actions here
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc11-opt/setup.sh
 fi
 
 pathadd "${HOME}/.local/bin/"
