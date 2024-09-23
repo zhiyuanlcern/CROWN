@@ -353,7 +353,7 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
             auto tmp_phi  = phi;
             if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
             if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
-            if (std::abs(eta) < 4.7) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});  // the bin edge is 5.1  , 3.0 should be enough
+            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});  // the bin edge is 5.1  , 3.0 should be enough
             else return 1.0;
     };
 
@@ -581,7 +581,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
             auto tmp_phi  = phi;
             if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
             if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
-            if (std::abs(eta) < 4.7) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
+            if (std::abs(eta) < 5.1) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
             else return 1.0;
     };
 
@@ -618,17 +618,17 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 // Loop to check if any non-zero jet_veto_sf_value exists
                 for (int i = 0; i < pt_values.size(); i++) {
                     float jet_veto_sf_value=0;
-                    if (std::abs(eta_values.at(i)) < 4.7)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
                     else jet_veto_sf_value =0;
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
                         break;  // No need to continue if we already found one non-zero value
                     }
                 }
-                // If any non-zero jet_veto_sf_value was found, return a vector filled with -10
+                // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
                 if (non_zero_veto) {
                     for (int i = 0; i < pt_values.size(); i++) {
-                        pt_values_corrected.push_back(-10);
+                        pt_values_corrected.push_back(-999.0);
                     }
                     return pt_values_corrected;
                 } 
@@ -678,17 +678,17 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 // Loop to check if any non-zero jet_veto_sf_value exists
                 for (int i = 0; i < pt_values.size(); i++) {
                     float jet_veto_sf_value=0;
-                    if (std::abs(eta_values.at(i)) < 4.7)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
                     else jet_veto_sf_value =0;
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
                         break;  // No need to continue if we already found one non-zero value
                     }
                 }
-                // If any non-zero jet_veto_sf_value was found, return a vector filled with -10
+                // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
                 if (non_zero_veto) {
                     for (int i = 0; i < pt_values.size(); i++) {
-                        pt_values_corrected.push_back(-10);
+                        pt_values_corrected.push_back(-999.0);
                     }
                     return pt_values_corrected;
                 } 
