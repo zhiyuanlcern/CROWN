@@ -71,6 +71,10 @@ ROOT::RDF::RNode pt_tt(ROOT::RDF::RNode df, const std::string &outputname,
 ROOT::RDF::RNode mass_tt(ROOT::RDF::RNode df, const std::string &outputname,
                        const std::string &p_1_p4, const std::string &p_2_p4,
                        const std::string &met);
+ROOT::RDF::RNode pt_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4);
+ROOT::RDF::RNode mass_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4);                       
 ROOT::RDF::RNode pt_ttjj(ROOT::RDF::RNode df, const std::string &outputname,
                          const std::string &p_1_p4, const std::string &p_2_p4,
                          const std::string &jet_1_p4,
