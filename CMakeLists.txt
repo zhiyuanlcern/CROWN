@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 # Unset some cached variables
 unset(CMAKE_BUILD_TYPE CACHE)
 unset(CMAKE_CXX_FLAGS_RELEASE CACHE)
+set(CMAKE_EXCLUDE_PATH "run*" "build*" "test*")
+
 
 # read debug and optimized flags from command line
 option(BUILD_CROWNLIB_ONLY "Build only the CROWNLIB library" OFF)

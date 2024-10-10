@@ -80,13 +80,17 @@ int main(int argc, char *argv[]) {
         TTree *t2 = (TTree *)f1->Get("Runs");
         Double_t variable;
         t2->SetBranchAddress("genEventSumw", &variable);
-        t2->GetEntry(0);
-        sumofweight += variable;
+
+        Long64_t nentries = t2->GetEntries();
+        for (Long64_t j = 0; j < nentries; ++j) {
+            t2->GetEntry(j);
+            sumofweight += variable;
+        }        
 
         Logger::get("main")->info("input_file {}: {} - {} Events", i - 1,
                                   argv[i], t1->GetEntries());
         Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
-                                  argv[i], variable);  
+                                  argv[i], sumofweight);  
 
     }
     const auto output_path = argv[1];
