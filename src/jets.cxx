@@ -657,13 +657,12 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 return pt_values_corrected;
             };
         auto df1 = df.Define(corrected_jet_pt, JetEnergyCorrectionLambda,
-                             {jet_pt, jet_eta, jet_area, jet_rawFactor, rho});
+                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor, rho});
         return df1;
     } else {
             // we still need to do jet veto
            auto JetEnergyCorrectionLambda =
-            [jes_tag,
-             JetEnergyScaleSF, jet_veto_SF](const ROOT::RVec<float> &pt_values,
+            [jes_tag, jet_veto_SF](const ROOT::RVec<float> &pt_values,
                                const ROOT::RVec<float> &eta_values,
                                const ROOT::RVec<float> &phi_values,
                                const ROOT::RVec<float> &area_values,
@@ -699,7 +698,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 return pt_values_corrected;
             };
         auto df1 = df.Define(corrected_jet_pt, JetEnergyCorrectionLambda,
-                             {jet_pt, jet_eta, jet_area, jet_rawFactor, rho});
+                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor, rho});
         return df1;        
         // auto df1 = df.Define(
         //     corrected_jet_pt,

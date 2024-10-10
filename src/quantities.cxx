@@ -580,6 +580,30 @@ ROOT::RDF::RNode mass_tt(ROOT::RDF::RNode df, const std::string &outputname,
     return df.Define(outputname, calculate_mass_tt, {p_1_p4, p_2_p4, met});
 }
 
+
+ROOT::RDF::RNode pt_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_pt_ll = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                              ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 )
+            return default_float;          
+        auto dileptonmet = p_1_p4 + p_2_p4;
+        return (float)dileptonmet.Pt();
+    };
+    return df.Define(outputname, calculate_pt_ll, {p_1_p4, p_2_p4});
+}
+
+ROOT::RDF::RNode mass_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4) {
+    auto calculate_mass_ll = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
+                              ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+        if (p_1_p4.pt() < 0.0 || p_2_p4.pt() < 0.0 )
+            return default_float;          
+        auto dileptonmet = p_1_p4 + p_2_p4;
+        return (float)dileptonmet.mass();
+    };
+    return df.Define(outputname, calculate_mass_ll, {p_1_p4, p_2_p4});
+}
 /**
  * @brief function used to calculate the pt of the dilepton + two leading jets +
  * met system. If the number of jets is less than 2, the quantity is set to 10
