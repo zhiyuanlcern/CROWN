@@ -103,7 +103,7 @@ message(STATUS "Creating Project")
 project(CROWN CXX)
 message(STATUS "Finding Packages")
 # Find ROOT and print details
-find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RooFit GenVector)
+find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RooFit GenVector RIO Physics)
 # add OpenMP and MPI
 find_package(OpenMP)
 find_package(MPI)
@@ -210,9 +210,11 @@ function(find_python_package PYPINAME NAME MIN_VERSION)
             message(FATAL_ERROR "Failed to import ${PYPINAME} or get version.")
         endif()
     endif()
-    if(PACKAGE_VERSION VERSION_LESS MIN_VERSION)
-        message(FATAL_ERROR "The version of Python package ${PYPINAME} is too old (found ${PACKAGE_VERSION}, require at least ${MIN_VERSION}).")
-    endif()
+# xiaohu: since 202210 GitPython provides a git with version "git" not a number
+# this fails the check in CMake, thus comment it out
+#    if(PACKAGE_VERSION VERSION_LESS MIN_VERSION)
+#        message(FATAL_ERROR "The version of Python package ${PYPINAME} is too old (found ${PACKAGE_VERSION}, require at least ${MIN_VERSION}).")
+#    endif()
     message(STATUS "Found Python package ${PYPINAME} (require ${MIN_VERSION}, found ${PACKAGE_VERSION})")
 endfunction()
 
@@ -336,6 +338,20 @@ if(NOT EXISTS ${GENERATE_CPP_OUTPUT_FILELIST})
 endif()
 
 
+# build a shared lib from all CROWN functions
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+file(GLOB SOURCES_1 ${CMAKE_SOURCE_DIR}/src/*.cxx)
+file(GLOB SOURCES_2
+    ${CMAKE_SOURCE_DIR}/src/utility/*.cxx
+    ${CMAKE_SOURCE_DIR}/src/RecoilCorrections/*.cxx
+    ${CMAKE_SOURCE_DIR}/src/SVFit/*.cxx)
+set(SOURCES ${SOURCES_1} ${SOURCES_2})
+add_library(CROWNLIB SHARED ${SOURCES})
+target_include_directories(CROWNLIB PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json)
+
+
 # Iterate over files from output filelist and add build and install targets
 FILE(READ ${GENERATE_CPP_OUTPUT_FILELIST} FILELIST)
 STRING(REGEX REPLACE "\n" ";" FILELIST ${FILELIST})
@@ -366,7 +382,8 @@ foreach(FILENAME ${FILELIST})
     add_executable(${TARGET_NAME} ${FULL_PATH} ${GENERATED_CXX_FILES})
     # Adds a pre-build event to the Target copying the correctionlib.so file into the /lib folder in the install directory
     target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} $ORIGIN/lib/ lib/)
-    target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
+    target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
+
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CORRECTION_LIB_PATH}"

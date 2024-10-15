@@ -60,7 +60,9 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
+
     Double_t sumofweight = 0;
+
     Logger::get("main")->info("Checking input files");
     std::string basetree = "Events";
     for (int i = 2; i < argc; i++) {
@@ -74,6 +76,7 @@ int main(int argc, char *argv[]) {
                                           argv[i]);
             return 1;
         }
+
 
         TTree *t1 = (TTree *)f1->Get("Events");
         nevents += t1->GetEntries();
@@ -91,6 +94,7 @@ int main(int argc, char *argv[]) {
                                   argv[i], t1->GetEntries());
         Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
                                   argv[i], sumofweight);  
+
 
     }
     const auto output_path = argv[1];
@@ -155,7 +159,9 @@ int main(int argc, char *argv[]) {
         conditions_meta.Branch(config.c_str(), &setup_clean);
         conditions_meta.Branch(era.c_str(), &setup_clean);
         conditions_meta.Branch(sample.c_str(), &setup_clean);
+
         conditions_meta.Branch(genEventSumw.c_str(), &sumofweight);
+
         conditions_meta.Fill();
         conditions_meta.Write();
         TTree commit_meta = TTree("commit", "commit");
