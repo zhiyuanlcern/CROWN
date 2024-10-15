@@ -30,6 +30,9 @@ ROOT::RDF::RNode dz(ROOT::RDF::RNode df, const std::string &outputname,
 ROOT::RDF::RNode charge(ROOT::RDF::RNode df, const std::string &outputname,
                         const int &position, const std::string &pairname,
                         const std::string &chargecolumn);
+ROOT::RDF::RNode charge_short(ROOT::RDF::RNode df, const std::string &outputname,
+                        const int &position, const std::string &pairname,
+                        const std::string &chargecolumn);
 ROOT::RDF::RNode scalarPtSum(ROOT::RDF::RNode df, const std::string &outputname,
                        const std::string &pt_1, const std::string &pt_2, const std::string &pt_3);
 ROOT::RDF::RNode m_vis(ROOT::RDF::RNode df, const std::string &outputname,
@@ -71,6 +74,13 @@ ROOT::RDF::RNode mT(ROOT::RDF::RNode df, const std::string &outputname,
 ROOT::RDF::RNode pt_tt(ROOT::RDF::RNode df, const std::string &outputname,
                        const std::string &p_1_p4, const std::string &p_2_p4,
                        const std::string &met);
+ROOT::RDF::RNode mass_tt(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4,
+                       const std::string &met);
+ROOT::RDF::RNode pt_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4);
+ROOT::RDF::RNode mass_ll(ROOT::RDF::RNode df, const std::string &outputname,
+                       const std::string &p_1_p4, const std::string &p_2_p4);                       
 ROOT::RDF::RNode pt_ttjj(ROOT::RDF::RNode df, const std::string &outputname,
                          const std::string &p_1_p4, const std::string &p_2_p4,
                          const std::string &jet_1_p4,
@@ -116,7 +126,7 @@ ROOT::RDF::RNode matching_genjet_pt(
     const std::string &genjet_index, const std::string &genjetpt_column);
 ROOT::RDF::RNode TauIDFlag(ROOT::RDF::RNode df, const std::string &outputname,
                            const int &position, const std::string &pairname,
-                           const std::string &nameID, const int &idxID);
+                           const std::string &nameID, const UChar_t &idxID);
 } // end namespace tau
 namespace muon {
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
@@ -125,6 +135,9 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
 ROOT::RDF::RNode is_global(ROOT::RDF::RNode df, const std::string &outputname,
                            const int &position, const std::string &pairname,
                            const std::string &globalflagcolumn);
+ROOT::RDF::RNode is_tracker(ROOT::RDF::RNode df, const std::string &outputname,
+                            const int &position, const std::string &pairname,
+                            const std::string &trackerflagcolumn);
 } // namespace muon
 namespace electron {
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,

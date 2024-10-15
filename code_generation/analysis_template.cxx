@@ -60,8 +60,9 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
-    int sumw_num = 0;
-    Double_t sumofgenweight = 0;
+
+    Double_t sumofweight = 0;
+
     Logger::get("main")->info("Checking input files");
     std::string basetree = "Events";
     for (int i = 2; i < argc; i++) {
@@ -75,36 +76,26 @@ int main(int argc, char *argv[]) {
                                           argv[i]);
             return 1;
         }
-        // Get a list of all keys in the file
-        TList *list = f1->GetListOfKeys();
-        // Check if the Events tree exists
-        if (list->FindObject("Events")) {
-            TTree *t1 = (TTree *)f1->Get("Events");
-            nevents += t1->GetEntries();
-            TTree *t2 = (TTree *)f1->Get("Runs");
-            Double_t variable;
-            t2->SetBranchAddress("genEventSumw", &variable);
-            sumw_num = t2->GetEntries();
-            for (int i = 0; i < sumw_num; i++) {
-                t2->GetEntry(i);
-                sumofgenweight += variable;
-            }
-            Logger::get("main")->info("NanoAOD input_file {}: {} - {} Events",
-                                      i - 1, argv[i], t1->GetEntries());
-            Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
-                                  argv[i], sumofgenweight);
-        } else if (list->FindObject("ntuple")) {
-            TTree *t1 = (TTree *)f1->Get("ntuple");
-            nevents += t1->GetEntries();
-            basetree = "ntuple";
-            Logger::get("main")->info("CROWN input_file {}: {} - {} Events",
-                                      i - 1, argv[i], t1->GetEntries());
-        } else {
-            Logger::get("main")->critical("File {} does not contain a tree "
-                                          "named 'Events' or 'ntuple'",
-                                          argv[i]);
-            return 1;
-        }
+
+
+        TTree *t1 = (TTree *)f1->Get("Events");
+        nevents += t1->GetEntries();
+        TTree *t2 = (TTree *)f1->Get("Runs");
+        Double_t variable;
+        t2->SetBranchAddress("genEventSumw", &variable);
+
+        Long64_t nentries = t2->GetEntries();
+        for (Long64_t j = 0; j < nentries; ++j) {
+            t2->GetEntry(j);
+            sumofweight += variable;
+        }        
+
+        Logger::get("main")->info("input_file {}: {} - {} Events", i - 1,
+                                  argv[i], t1->GetEntries());
+        Logger::get("main")->info("input_file {}: {} - SumOfGenWeight: {} ", i - 1,
+                                  argv[i], sumofweight);  
+
+
     }
     const auto output_path = argv[1];
     Logger::get("main")->info("Output directory: {}", output_path);
@@ -168,7 +159,9 @@ int main(int argc, char *argv[]) {
         conditions_meta.Branch(config.c_str(), &setup_clean);
         conditions_meta.Branch(era.c_str(), &setup_clean);
         conditions_meta.Branch(sample.c_str(), &setup_clean);
-        conditions_meta.Branch(genEventSumw.c_str(), &sumofgenweight);
+
+        conditions_meta.Branch(genEventSumw.c_str(), &sumofweight);
+
         conditions_meta.Fill();
         conditions_meta.Write();
         TTree commit_meta = TTree("commit", "commit");

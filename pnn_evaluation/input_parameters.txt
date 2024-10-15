@@ -1,0 +1,42 @@
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2L-4Jets_MLL-50_TuneCP5_13p6TeV_madgraphMLM-pythia8Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-10to50_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-120to200_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-1500to2500_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-200to400_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-2500to4000_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-4000to6000_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-400to800_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-50to120_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-6000_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+/data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/DYto2Tau_MLL-800to1500_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/FF_Combined.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ggZH_Hto2B_Zto2L_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ggZH_Hto2B_Zto2Nu_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ggZH_Hto2B_Zto2Q_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/GluGluHto2B_PT-200_M-125_TuneCP5_13p6TeV_powheg-minlo-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/GluGluHToTauTau_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/Tau_Sep2022_Run2022C_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/Tau_Sep2022_Run2022D_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TbarWplus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ttHto2B_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TTto4Q_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/TWminus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/VBFHto2B_M-125_dipoleRecoilOn_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/VBFHToTauTau_M125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WminusH_Hto2B_Wto2Q_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WminusH_Hto2B_WtoLNu_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WplusH_Hto2B_Wto2Q_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WplusH_Hto2B_WtoLNu_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WtoLNu-4Jets_1J_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WtoLNu-4Jets_2J_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WtoLNu-4Jets_3J_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WtoLNu-4Jets_4J_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WW_TuneCP5_13p6TeV_pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/WZ_TuneCP5_13p6TeV_pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ZH_Hto2B_Zto2L_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ZH_Hto2B_Zto2Q_M-125_TuneCP5_13p6TeV_powheg-pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/
+# /data/bond/zhiyuanl/Plotting/2022EE_tt_run2_corrected/ZZ_TuneCP5_13p6TeV_pythia8_Run3Summer22NanoAODv12_tt.root tt /data/pku/home/zhiyuanl/CROWN-KIT/pnn_evaluation/

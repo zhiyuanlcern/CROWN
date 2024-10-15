@@ -312,6 +312,20 @@ inline auto FilterMaxInt(const int &cut) {
     };
 }
 
+/// Function to apply a maxmimal filter requirement to an integer quantity.
+/// Returns true if the value is larger than the given cut value
+/// This is only for NanoV11 as the working points are not stored as bit
+/// \param cut The cut value of the filter
+///
+/// \returns a lambda function to be used in RDF Define
+inline auto FilterMaxUChar_t(const UChar_t &cut) {
+    // As in ROOT, for min we use >=
+    return [cut](const ROOT::RVec<UChar_t> &values) {
+        ROOT::RVec<int> mask = values < cut;
+        return mask;
+    };
+}
+
 /// Function to apply a maximal filter requirement to a quantity.
 /// Returns true if the absolute value is smaller than the given cut value
 ///
@@ -352,6 +366,21 @@ inline auto FilterMinInt(const int &cut) {
         return mask;
     };
 }
+
+/// Function to apply a minimal filter requirement to an integer quantity.
+/// Returns true if the value is larger than the given cut value
+/// This is only for NanoV11 as the working points are not stored as bit
+/// \param cut The cut value of the filter
+///
+/// \returns a lambda function to be used in RDF Define
+inline auto FilterMinUChar_t(const UChar_t &cut) {
+    // As in ROOT, for min we use >=
+    return [cut](const ROOT::RVec<UChar_t> &values) {
+        ROOT::RVec<int> mask = values >= cut;
+        return mask;
+    };
+}
+
 
 /// Function to apply a minimal filter requirement to a quantity.
 /// Returns true if the absolute value is larger than the given cut value
@@ -406,6 +435,23 @@ inline auto FilterID(const int &index) {
 /// \returns a lambda function to be used in RDF Define
 inline auto FilterJetID(const int &index) {
     return [index](const ROOT::RVec<Int_t> &IDs) {
+        ROOT::RVec<int> mask = IDs >= index;
+        Logger::get("FilterJetID")->debug("IDs: {}", IDs);
+        Logger::get("FilterJetID")->debug("Filtered mask: {}", mask);
+        return mask;
+    };
+}
+
+
+/// Function to filter the Jet ID in NanoAOD. The Jet ID has 3 possible values
+/// (for UL): 0==fail tight ID and fail tightLepVeto, 2==pass tight ID and fail
+/// tightLepVeto, 6==pass tight ID and pass tightLepVeto
+///
+/// \param index The bitmask index to be used for comparison
+///
+/// \returns a lambda function to be used in RDF Define
+inline auto FilterJetID_UChar_t(const UChar_t &index) {
+    return [index](const ROOT::RVec<UChar_t> &IDs) {
         ROOT::RVec<int> mask = IDs >= index;
         Logger::get("FilterJetID")->debug("IDs: {}", IDs);
         Logger::get("FilterJetID")->debug("Filtered mask: {}", mask);

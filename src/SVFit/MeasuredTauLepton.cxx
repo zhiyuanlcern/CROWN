@@ -7,12 +7,12 @@ using namespace fastmtt;
 
 MeasuredTauLepton::MeasuredTauLepton()
     : type_(kUndefinedDecayType), pt_(0.), eta_(0.), phi_(0.), mass_(0.),
-      decayMode_(-1) {
+      decayMode_(255) {
     initialize();
 }
 
 MeasuredTauLepton::MeasuredTauLepton(int type, double pt, double eta,
-                                     double phi, double mass, int decayMode)
+                                     double phi, double mass, UChar_t decayMode)
     : type_(type), pt_(pt), eta_(eta), phi_(phi), mass_(mass),
       decayMode_(decayMode) {
     double minVisMass = electronMass;
@@ -24,7 +24,7 @@ MeasuredTauLepton::MeasuredTauLepton(int type, double pt, double eta,
         minVisMass = muonMass;
         maxVisMass = minVisMass;
     } else if (type_ == kTauToHadDecay) {
-        if (decayMode_ == -1) {
+        if (decayMode_ == 255) {
             minVisMass = chargedPionMass;
             maxVisMass = 1.5;
         } else if (decayMode_ == 0) {
@@ -69,7 +69,7 @@ double MeasuredTauLepton::pz() const { return pz_; }
 
 double MeasuredTauLepton::p() const { return p_; }
 
-int MeasuredTauLepton::decayMode() const { return decayMode_; }
+UChar_t MeasuredTauLepton::decayMode() const { return decayMode_; }
 
 LorentzVector MeasuredTauLepton::p4() const { return p4_; }
 

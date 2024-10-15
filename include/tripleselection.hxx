@@ -8,7 +8,7 @@
 #include "utility/Logger.hxx"
 #include "utility/utility.hxx"
 
-typedef std::bitset<15> StatusBits;
+typedef std::bitset<16> StatusBits;
 bool check_mother(ROOT::RVec<GenParticle> genparticles, const int index,
                   const int mother_pdgid);
 

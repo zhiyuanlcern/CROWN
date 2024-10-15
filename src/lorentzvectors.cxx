@@ -103,6 +103,7 @@ ROOT::RDF::RNode build(ROOT::RDF::RNode df,
  * energy lorentz vector.
  * @return a new df, containing the new column
  */
+
 ROOT::RDF::RNode buildMet(ROOT::RDF::RNode df, const std::string &met_pt,
                           const std::string &met_phi,
                           const std::string &outputname) {
@@ -116,37 +117,64 @@ ROOT::RDF::RNode buildMet(ROOT::RDF::RNode df, const std::string &met_pt,
     return df.Define(outputname, construct_metvector, {met_pt, met_phi});
 }
 /**
- * @brief Function used to construct the missing transverse energy lorentz
- * vector from the dileptonsystem from the Higgs boson
+ * @brief Function to scale a lorentz vector by a scale factor.
  *
  * @param df the input dataframe
  * @param outputname name of the new column containing the missing transverse
  * energy lorentz vector.
- * @param inputvector a vector of the two names of the columns containing the required lorentz vectors
- * @param p4_miss_sf the scale factor, that is applied to the di lepton system to obtain the vector of missing
- * energy
+ * @param inputvector a vector of the two names of the columns containing the
+ * required lorentz vectors
+ * @param p4_sf the scale factor, that is applied to the input lorentz vector
  * @return a new df, containing the new column
  */
-/// Function to calculate the neutrino four vector from a pair of lorentz vectors (visible Higgs system) and
-/// add it to the dataframe. see AN(HIG-19-010)
-///
-/// \param df the dataframe to add the quantity to
-/// \param outputname name of the new column containing the pt value
-
-///
-/// \returns a dataframe with the new column
 ROOT::RDF::RNode scaleP4(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::vector<std::string> &inputvector, const float &p4_sf) {
+                         const std::vector<std::string> &inputvector,
+                         const float &p4_sf) {
     return df.Define(
         outputname,
         [p4_sf](const ROOT::Math::PtEtaPhiMVector &p4) {
             if (p4.pt() < 0.0)
-                return ROOT::Math::PtEtaPhiMVector(default_float,default_float,default_float,
-                default_float);
-            auto p4_scaled = p4_sf*p4;
+                return ROOT::Math::PtEtaPhiMVector(
+                    default_float, default_float, default_float, default_float);
+            auto p4_scaled = p4_sf * p4;
             return p4_scaled;
         },
         inputvector);
 }
+
+ROOT::RDF::RNode buildHiggs(ROOT::RDF::RNode df, const std::string &outputname,
+                                 const std::string &Genparticle_pdgId,
+                                 const std::string &Genparticle_statusFlags,
+                                 const std::string &Genparticle_pt,
+                                 const std::string &Genparticle_eta,
+                                 const std::string &Genparticle_phi,
+                                 const std::string &Genparticle_mass
+                                 ) {
+    auto Higgsp4 = [](const ROOT::RVec<int> &genparticle_pdgId,
+        const ROOT::RVec<unsigned short> &genparticle_statusFlags,const ROOT::RVec<float> &genparticle_pt,
+        const ROOT::RVec<float> &genparticle_eta,const ROOT::RVec<float> &genparticle_phi,
+        const ROOT::RVec<float> &genparticle_mass) {
+        ROOT::Math::PtEtaPhiMVector p4;
+        p4 = ROOT::Math::PtEtaPhiMVector(default_float, default_float,default_float, default_float);
+        for (unsigned int i = 0; i < (int)genparticle_pdgId.size(); ++i ) {
+            // check if the gen particle is H
+            // assign pt, eta, phi of higgs to p4 once found
+            if ( ( abs(genparticle_pdgId.at(i)) == 25 ) && ( (genparticle_statusFlags.at(i) >> 13) & 1 == 1 ) ) {
+                p4 = ROOT::Math::PtEtaPhiMVector(genparticle_pt.at(i),genparticle_eta.at(i),
+                genparticle_phi.at(i), genparticle_mass.at(i));
+                return p4; 
+                }
+            }
+        return p4; // if not found return the default p4
+    };
+                    
+    auto df1 = 
+        df.Define(outputname, Higgsp4, 
+            {Genparticle_pdgId, Genparticle_statusFlags, Genparticle_pt,Genparticle_eta,
+            Genparticle_phi,Genparticle_mass});
+    return df1;
+}
+
+
 } // namespace lorentzvectors
 #endif /* GUARDLVECS_H */

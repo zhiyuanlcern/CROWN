@@ -9,7 +9,8 @@
 const int default_int = -10;
 const int default_pdgid = -999;
 const float default_float = -10.0;
-const UChar_t default_uchar = -10;
+const UChar_t default_uchar = 255;
+const Short_t default_short = -10;
 const bool default_bool = false;
 const auto default_lorentzvector = ROOT::Math::PtEtaPhiMVector(
     default_float, default_float, default_float, default_float);
@@ -31,6 +32,9 @@ template <typename T> const T default_value() {
         return default_uchar;
     } else if (std::is_same<T, const UChar_t>::value) {
         return default_uchar;
+    }
+     else if (std::is_same<T, const Short_t>::value) {
+        return default_short;
     }
     // is there a better way to handle this?
     return static_cast<T>(default_int);

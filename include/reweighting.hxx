@@ -26,5 +26,9 @@ ROOT::RDF::RNode lhe_scale_weights(ROOT::RDF::RNode df,
                                    const std::string &weightname,
                                    const std::string &lhe_scale_weights,
                                    const float muR, const float muF);
+ROOT::RDF::RNode ggH_ME_reweighting_weight(ROOT::RDF::RNode df,
+                                   const std::string &weightname,
+                                   const std::string &weights,
+                                   const int index);                                
 } // namespace reweighting
 #endif /* GUARD_REWEIGHTING_H */

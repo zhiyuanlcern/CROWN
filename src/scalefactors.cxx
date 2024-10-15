@@ -96,7 +96,7 @@ ROOT::RDF::RNode iso_rooworkspace(ROOT::RDF::RNode df, const std::string &pt,
  * @return a new dataframe containing the new column
  */
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
-                    const std::string &eta, const std::string &year_id,
+                    const std::string &eta,
                     const std::string &variation, const std::string &id_output,
                     const std::string &sf_file,
                     const std::string &idAlgorithm) {
@@ -105,16 +105,22 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("muonIdSF")->debug("ID - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+
+    Logger::get("muonIdSF")->debug("ID - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50,variation} ) );
     auto df1 = df.Define(
         id_output,
-        [evaluator, year_id, variation](const float &pt, const float &eta) {
+        [evaluator, variation]( const float &eta, const float &pt) {
             Logger::get("muonIdSF")->debug("ID - pt {}, eta {}", pt, eta);
             double sf = 1.;
+            float tmp_pt = 0.;
             // preventing muons with default values due to tau energy correction
             // shifts below good tau pt selection
-            if (pt >= 0.0 && std::abs(eta) >= 0.0) {
+            // current 2022 Muon SF only supports muon with pt 15--200 GeVf
+            if (pt >= 23.0 && std::abs(eta) < 2.5 ) {
+                if (pt >=200) tmp_pt = 199.9;
+                else tmp_pt = pt;
                 sf = evaluator->evaluate(
-                    {year_id, std::abs(eta), pt, variation});
+                    { std::abs(eta), tmp_pt, variation});
             }
             return sf;
         },
@@ -175,7 +181,7 @@ ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4,
  * @return a new dataframe containing the new column
  */
 ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
-                     const std::string &eta, const std::string &year_id,
+                     const std::string &eta,
                      const std::string &variation,
                      const std::string &iso_output, const std::string &sf_file,
                      const std::string &idAlgorithm) {
@@ -184,16 +190,22 @@ ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("muonIsoSF")->debug("ISO - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    
+    Logger::get("muonIsoSF")->debug("ISO - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50.0,variation} ) );
     auto df1 = df.Define(
         iso_output,
-        [evaluator, year_id, variation](const float &pt, const float &eta) {
+        [evaluator, variation](const float &pt, const float &eta) {
             Logger::get("muonIsoSF")->debug("ISO - pt {}, eta {}", pt, eta);
             double sf = 1.;
+            float tmp_pt = 0.;
             // preventing muons with default values due to tau energy correction
             // shifts below good tau pt selection
-            if (pt >= 0.0 && std::abs(eta) >= 0.0) {
+            // current 2022 Muon SF only supports muon with pt 15--200 GeVf
+            if (pt >= 23.0 && std::abs(eta) < 2.5) {
+                if (pt >=200) tmp_pt = 199.9;
+                else tmp_pt = pt;
                 sf = evaluator->evaluate(
-                    {year_id, std::abs(eta), pt, variation});
+                    { std::abs(eta), tmp_pt, variation});
             }
             return sf;
         },
@@ -282,7 +294,8 @@ for nominal
 ROOT::RDF::RNode
 id_vsJet_lt(ROOT::RDF::RNode df, const std::string &pt,
             const std::string &decayMode, const std::string &genMatch,
-            const std::vector<int> &selectedDMs, const std::string &wp,
+            const std::vector<UChar_t> &selectedDMs, const std::string &wp,
+            const std::string &VSe_wp,
             const std::string &sf_vsjet_tau30to35,
             const std::string &sf_vsjet_tau35to40,
             const std::string &sf_vsjet_tau40to500,
@@ -296,11 +309,11 @@ id_vsJet_lt(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("TauIDvsJet_lt_SF")->debug("ID - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
-    auto idSF_calculator = [evaluator, wp, sf_vsjet_tau30to35,
+    auto idSF_calculator = [evaluator, wp, VSe_wp,sf_vsjet_tau30to35,
                             sf_vsjet_tau35to40, sf_vsjet_tau40to500,
                             sf_vsjet_tau500to1000, sf_vsjet_tau1000toinf,
                             sf_dependence, selectedDMs,
-                            idAlgorithm](const float &pt, const int &decayMode,
+                            idAlgorithm](const float &pt, const UChar_t &decayMode,
                                          const UChar_t &genMatch) {
         Logger::get("TauIDvsJet_lt_SF")->debug("ID - decayMode {}", decayMode);
         // only calculate SFs for allowed tau decay modes (also excludes default
@@ -320,23 +333,23 @@ id_vsJet_lt(ROOT::RDF::RNode df, const std::string &pt,
                         sf_vsjet_tau1000toinf, sf_dependence);
             if (pt >= 30.0 && pt < 35.0) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tau30to35, sf_dependence});
             } else if (pt >= 35.0 && pt < 40.0) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tau35to40, sf_dependence});
             } else if (pt >= 40.0 && pt < 500.0) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp, 
                                           sf_vsjet_tau40to500, sf_dependence});
             } else if (pt >= 500.0 && pt < 1000.0) {
                 sf = evaluator->evaluate(
-                    {pt, decayMode, static_cast<int>(genMatch), wp,
+                    {pt, decayMode, static_cast<int>(genMatch), wp,VSe_wp,
                      sf_vsjet_tau500to1000, sf_dependence});
             } else if (pt >= 1000.0 && pt < 2000.0) {
                 sf = evaluator->evaluate(
-                    {pt, decayMode, static_cast<int>(genMatch), wp,
+                    {pt, decayMode, static_cast<int>(genMatch), wp,VSe_wp,
                      sf_vsjet_tau1000toinf, sf_dependence});
             } else {
                 sf = 1.;
@@ -405,9 +418,10 @@ ROOT::RDF::RNode id_vsJet_lt_embedding(
                     correctionset, pt, wp, sf_vsjet_tau20to25,
                     sf_vsjet_tau25to30, sf_vsjet_tau30to35, sf_vsjet_tau35to40,
                     sf_vsjet_tau40toInf);
-        if (pt >= 20.0 && pt < 25.0) {
-            sf = evaluator->evaluate({pt, sf_vsjet_tau20to25, wp});
-        } else if (pt >= 25.0 && pt < 30.0) {
+        // if (pt >= 20.0 && pt < 25.0) {
+        //     sf = evaluator->evaluate({pt, sf_vsjet_tau20to25, wp});
+        // } else 
+        if (pt >= 25.0 && pt < 30.0) {
             sf = evaluator->evaluate({pt, sf_vsjet_tau25to30, wp});
         } else if (pt >= 30.0 && pt < 35.0) {
             sf = evaluator->evaluate({pt, sf_vsjet_tau30to35, wp});
@@ -464,7 +478,7 @@ ROOT::RDF::RNode id_vsJet_tt_embedding(
         correction::CorrectionSet::from_file(sf_file)->at(correctionset);
     auto idSF_calculator = [evaluator, wp, sf_vsjet_tauDM0, sf_vsjet_tauDM1,
                             sf_vsjet_tauDM10, sf_vsjet_tauDM11,
-                            correctionset](const int &decaymode) {
+                            correctionset](const UChar_t &decaymode) {
         double sf = 1.;
         Logger::get("TauIDvsJet_tt_SF_embedding")
             ->debug("ID {} - decaymode {}, wp {} "
@@ -535,8 +549,9 @@ nominal
  */
 ROOT::RDF::RNode id_vsJet_tt(
     ROOT::RDF::RNode df, const std::string &pt, const std::string &decayMode,
-    const std::string &genMatch, const std::vector<int> &selectedDMs,
-    const std::string &wp, const std::string &sf_vsjet_tauDM0,
+    const std::string &genMatch, const std::vector<UChar_t> &selectedDMs,
+    const std::string &wp, const std::string &VSe_wp,
+    const std::string &sf_vsjet_tauDM0,
     const std::string &sf_vsjet_tauDM1, const std::string &sf_vsjet_tauDM10,
     const std::string &sf_vsjet_tauDM11, const std::string &sf_dependence,
     const std::string &id_output, const std::string &sf_file,
@@ -547,10 +562,10 @@ ROOT::RDF::RNode id_vsJet_tt(
     Logger::get("TauIDvsJet_tt_SF")->debug("ID - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
-    auto idSF_calculator = [evaluator, wp, sf_vsjet_tauDM0, sf_vsjet_tauDM1,
+    auto idSF_calculator = [evaluator, wp, VSe_wp,sf_vsjet_tauDM0, sf_vsjet_tauDM1,
                             sf_vsjet_tauDM10, sf_vsjet_tauDM11, sf_dependence,
                             selectedDMs,
-                            idAlgorithm](const float &pt, const int &decayMode,
+                            idAlgorithm](const float &pt, const UChar_t &decayMode,
                                          const UChar_t &genMatch) {
         Logger::get("TauIDvsJet_tt_SF")->debug("ID - decayMode {}", decayMode);
         // only calculate SFs for allowed tau decay modes (also excludes default
@@ -558,30 +573,27 @@ ROOT::RDF::RNode id_vsJet_tt(
         // selection)
         double sf = 1.;
         if (std::find(selectedDMs.begin(), selectedDMs.end(), decayMode) !=
-            selectedDMs.end()) {
-            Logger::get("TauIDvsJet_tt_SF")
-                ->debug("ID {} - pt {}, decayMode {}, genMatch {}, wp {}, "
-                        "sf_vsjet_tauDM0 {}, sf_vsjet_tauDM1 {}, "
-                        "sf_vsjet_tauDM1 {}, sf_vsjet_tauDM10{}, "
-                        "sf_vsjet_tauDM11 {}, sf_dependence {}",
-                        idAlgorithm, pt, decayMode, genMatch, wp,
+            selectedDMs.end() && pt >=25.0) {
+            Logger::get("TauIDvsJet_tt_SF")->debug("ID {} - pt {}",idAlgorithm, pt);
+            Logger::get("TauIDvsJet_tt_SF")->debug(" decayMode {}, genMatch {}, wp {}, ",decayMode, genMatch, wp);
+            Logger::get("TauIDvsJet_tt_SF")->debug("sf_vsjet_tauDM0 {}, sf_vsjet_tauDM1 {},  sf_vsjet_tauDM10{}, sf_vsjet_tauDM11 {}, sf_dependence {}",
                         sf_vsjet_tauDM0, sf_vsjet_tauDM1, sf_vsjet_tauDM10,
                         sf_vsjet_tauDM11, sf_dependence);
             if (decayMode == 0) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tauDM0, sf_dependence});
             } else if (decayMode == 1) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tauDM1, sf_dependence});
             } else if (decayMode == 10) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tauDM10, sf_dependence});
             } else if (decayMode == 11) {
                 sf = evaluator->evaluate({pt, decayMode,
-                                          static_cast<int>(genMatch), wp,
+                                          static_cast<int>(genMatch), wp,VSe_wp,
                                           sf_vsjet_tauDM11, sf_dependence});
             } else {
                 sf = 1.;
@@ -640,7 +652,7 @@ nominal
 ROOT::RDF::RNode
 id_vsEle(ROOT::RDF::RNode df, const std::string &eta,
          const std::string &decayMode, const std::string &genMatch,
-         const std::vector<int> &selectedDMs, const std::string &wp,
+         const std::vector<UChar_t> &selectedDMs, const std::string &wp,
          const std::string &sf_vsele_barrel, const std::string &sf_vsele_endcap,
          const std::string &id_output, const std::string &sf_file,
          const std::string &idAlgorithm) {
@@ -652,7 +664,7 @@ id_vsEle(ROOT::RDF::RNode df, const std::string &eta,
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
     auto idSF_calculator = [evaluator, wp, sf_vsele_barrel, sf_vsele_endcap,
                             selectedDMs,
-                            idAlgorithm](const float &eta, const int &decayMode,
+                            idAlgorithm](const float &eta, const UChar_t &decayMode,
                                          const UChar_t &genMatch) {
         double sf = 1.;
         Logger::get("TauIDvsEleSF")->debug("ID - decayMode {}", decayMode);
@@ -668,10 +680,10 @@ id_vsEle(ROOT::RDF::RNode df, const std::string &eta,
                         sf_vsele_endcap);
             if (std::abs(eta) < 1.46) {
                 sf = evaluator->evaluate(
-                    {eta, static_cast<int>(genMatch), wp, sf_vsele_barrel});
-            } else if (std::abs(eta) >= 1.558 && std::abs(eta) < 2.3) {
+                    {eta, decayMode, static_cast<int>(genMatch), wp, sf_vsele_barrel});
+            } else if (std::abs(eta) >= 1.56 && std::abs(eta) < 2.5) {
                 sf = evaluator->evaluate(
-                    {eta, static_cast<int>(genMatch), wp, sf_vsele_endcap});
+                    {eta, decayMode, static_cast<int>(genMatch), wp, sf_vsele_endcap});
             } else {
                 sf = 1.;
             }
@@ -739,7 +751,7 @@ nominal
 ROOT::RDF::RNode
 id_vsMu(ROOT::RDF::RNode df, const std::string &eta,
         const std::string &decayMode, const std::string &genMatch,
-        const std::vector<int> &selectedDMs, const std::string &wp,
+        const std::vector<UChar_t> &selectedDMs, const std::string &wp,
         const std::string &sf_vsmu_wheel1, const std::string &sf_vsmu_wheel2,
         const std::string &sf_vsmu_wheel3, const std::string &sf_vsmu_wheel4,
         const std::string &sf_vsmu_wheel5, const std::string &id_output,
@@ -752,7 +764,7 @@ id_vsMu(ROOT::RDF::RNode df, const std::string &eta,
     auto idSF_calculator = [evaluator, wp, sf_vsmu_wheel1, sf_vsmu_wheel2,
                             sf_vsmu_wheel3, sf_vsmu_wheel4, sf_vsmu_wheel5,
                             selectedDMs,
-                            idAlgorithm](const float &eta, const int &decayMode,
+                            idAlgorithm](const float &eta, const UChar_t &decayMode,
                                          const UChar_t &genMatch) {
         double sf = 1.;
         Logger::get("TauIDvsMuSF")->debug("ID - decayMode {}", decayMode);
@@ -780,7 +792,7 @@ id_vsMu(ROOT::RDF::RNode df, const std::string &eta,
             } else if (std::abs(eta) >= 1.2 && std::abs(eta) < 1.7) {
                 sf = evaluator->evaluate(
                     {eta, static_cast<int>(genMatch), wp, sf_vsmu_wheel4});
-            } else if (std::abs(eta) >= 1.7 && std::abs(eta) < 2.3) {
+            } else if (std::abs(eta) >= 1.7 && std::abs(eta) < 2.4) {
                 sf = evaluator->evaluate(
                     {eta, static_cast<int>(genMatch), wp, sf_vsmu_wheel5});
             } else {
@@ -825,8 +837,8 @@ tau_trigger_sf(ROOT::RDF::RNode df, const std::string &decaymode,
         correction::CorrectionSet::from_file(sf_file)->at(correctionset);
     Logger::get("tau_trigger_sf")->info("WP {} - type {}", wp, type);
     auto trigger_sf_calculator = [evaluator, wp, type, correctionset](
-                                     const int &decaymode, const float &pt) {
-        float sf = 1.;
+                                     const UChar_t &decaymode, const float &pt) {
+        double sf = 1.;
         Logger::get("tau_trigger_sf")
             ->info("ID {} - decaymode {}, wp {} "
                    "pt {}, type {}, ",
@@ -883,7 +895,8 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
                 ->debug("Year {}, Name {}, WP {}", year_id, idAlgorithm, wp);
             Logger::get("electronIDSF")->debug("ID - pt {}, eta {}", pt, eta);
             double sf = 1.;
-            if (pt >= 0.0) {
+            // in 2022 the order of input is year_id, variation, wp, eta, pt
+            if (pt >= 25.0) {
                 sf = evaluator->evaluate({year_id, variation, wp, eta, pt});
             }
             Logger::get("electronIDSF")->debug("Scale Factor {}", sf);
@@ -964,17 +977,18 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                                  corr_algorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(corr_algorithm);
+    Logger::get("btagSF")->debug("ID - Name {} test evaluate {}", corr_algorithm, evaluator->evaluate({"central", 5, 1.0, 50.0,0.2} ) );
 
     auto btagSF_lambda = [evaluator,
                           variation](const ROOT::RVec<float> &pt_values,
                                      const ROOT::RVec<float> &eta_values,
                                      const ROOT::RVec<float> &btag_values,
-                                     const ROOT::RVec<int> &flavors,
+                                     const ROOT::RVec<UChar_t> &flavors,
                                      const ROOT::RVec<int> &jet_mask,
                                      const ROOT::RVec<int> &bjet_mask,
                                      const ROOT::RVec<int> &jet_veto_mask) {
         Logger::get("btagSF")->debug("Vatiation - Name {}", variation);
-        float sf = 1.;
+        double sf = 1.;
         for (int i = 0; i < pt_values.size(); i++) {
             Logger::get("btagSF")->debug(
                 "jet masks - jet {}, bjet {}, jet veto {}", jet_mask.at(i),
@@ -986,9 +1000,14 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                     "SF - pt {}, eta {}, btag value {}, flavor {}",
                     pt_values.at(i), eta_values.at(i), btag_values.at(i),
                     flavors.at(i));
-                float jet_sf = 1.;
+                double jet_sf = 1.;
                 // considering only phase space where the scale factors are
                 // defined
+                float btag_tmp_values = btag_values.at(i);
+                if (btag_values.at(i) < 0){
+                    btag_tmp_values = 0;
+                }
+                Logger::get("btagSF")->debug("btag_tmp_values {}", btag_tmp_values);
                 if (pt_values.at(i) >= 20.0 && pt_values.at(i) < 10000.0 &&
                     std::abs(eta_values.at(i)) < 2.5) {
                     // for c jet related uncertainties only scale factors of
@@ -999,12 +1018,12 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                             jet_sf = evaluator->evaluate(
                                 {variation, flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         } else {
                             jet_sf = evaluator->evaluate(
                                 {"central", flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         }
                     }
                     // for nominal/central and all other uncertainties c-jets
@@ -1015,12 +1034,12 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                             jet_sf = evaluator->evaluate(
                                 {variation, flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         } else {
                             jet_sf = evaluator->evaluate(
                                 {"central", flavors.at(i),
                                  std::abs(eta_values.at(i)), pt_values.at(i),
-                                 btag_values.at(i)});
+                                 btag_tmp_values});
                         }
                     }
                 }
@@ -1074,8 +1093,9 @@ selection_trigger(ROOT::RDF::RNode df, const std::string &pt_1,
                 ->debug(" pt_1 {}, eta_1 {}, pt_2 {}, eta_2 {}", pt_1, eta_1,
                         pt_2, eta_2);
             double sf = 1.;
-            sf = evaluator->evaluate(
+            if (pt_1 > 25.0) {sf = evaluator->evaluate(
                 {pt_1, std::abs(eta_1), pt_2, std::abs(eta_2)});
+            }
             Logger::get("EmbeddingSelectionTriggerSF")->debug("sf {}", sf);
             return sf;
         },
@@ -1111,7 +1131,10 @@ ROOT::RDF::RNode selection_id(ROOT::RDF::RNode df, const std::string &pt,
                       Logger::get("EmbeddingSelectionIDSF")
                           ->debug(" pt {}, eta {},", pt, eta);
                       double sf = 1.;
-                      sf = evaluator->evaluate({pt, std::abs(eta)});
+                      if (pt > 25.0) {
+                        sf = evaluator->evaluate({pt, std::abs(eta)});
+                      }
+                      
                       Logger::get("EmbeddingSelectionIDSF")->debug("sf {}", sf);
                       return sf;
                   },
@@ -1144,6 +1167,7 @@ ROOT::RDF::RNode muon_sf(ROOT::RDF::RNode df, const std::string &pt,
     Logger::get("EmbeddingMuonSF")->debug("Correction - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    Logger::get("EmbeddingMuonSF")->debug("Correction - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({1.0, 50.0,correctiontype} ) );
     auto df1 = df.Define(
         output,
         [evaluator, correctiontype, extrapolation_factor](const float &pt,
@@ -1153,9 +1177,15 @@ ROOT::RDF::RNode muon_sf(ROOT::RDF::RNode df, const std::string &pt,
                         "factor {}",
                         pt, eta, correctiontype, extrapolation_factor);
             double sf = 1.;
-            sf = extrapolation_factor *
-                 evaluator->evaluate({pt, std::abs(eta), correctiontype});
+            auto pt_tmp = pt;
+            if (pt < 26 ) pt_tmp = 26;
+            if (std::abs(eta) < 2.5){
+                sf = extrapolation_factor *
+                evaluator->evaluate({std::abs(eta), pt_tmp, correctiontype});
+            // change the order of pt and eta
+            }     
             Logger::get("EmbeddingMuonSF")->debug("sf {}", sf);
+            
             return sf;
         },
         {pt, eta});
@@ -1183,27 +1213,99 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                              const std::string &sf_file,
                              const std::string correctiontype,
                              const std::string &idAlgorithm,
-                             const float &extrapolation_factor = 1.0) {
+                             const float &extrapolation_factor,
+                             const std::string &year,
+                             const std::string &trigger) {
 
     Logger::get("EmbeddingElectronSF")
         ->debug("Correction - Name {}", idAlgorithm);
     auto evaluator =
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    
+    Logger::get("EmbeddingElectronSF")->debug("Correction - Name {} test evaluate {}", idAlgorithm, evaluator->evaluate({year,correctiontype, trigger, 1.0, 50.0} ) );
     auto df1 = df.Define(
         output,
-        [evaluator, correctiontype, extrapolation_factor](const float &pt,
+        [evaluator, correctiontype, extrapolation_factor, year, trigger](const float &pt,
                                                           const float &eta) {
             Logger::get("EmbeddingElectronSF")
                 ->debug(" pt {}, eta {}, correctiontype {}, extrapolation "
                         "factor {}",
                         pt, eta, correctiontype, extrapolation_factor);
             double sf = 1.;
-            sf = extrapolation_factor *
-                 evaluator->evaluate({pt, eta, correctiontype});
+            // sf = extrapolation_factor *
+            //      evaluator->evaluate({pt, eta, correctiontype});
+            if(pt < 25){
+                return sf;
+            }
+            else{
+                sf = extrapolation_factor * evaluator->evaluate({year, correctiontype, trigger, eta, pt});
+            }
             Logger::get("EmbeddingElectronSF")->debug("sf {}", sf);
             return sf;
         },
         {pt, eta});
+    return df1;
+}
+/**
+ * @brief Function to evaluate the di-tau trigger or etau/mutau cross trigger
+ * scale factor for embedded events from a xpog file
+ *
+ * @param df the input dataframe
+ * @param pt the name of the column containing the tau pt variable
+ * @param decaymode the name of the column containing the tau decay mode
+ * variable
+ * @param output name of the scale factor column
+ * @param wp the name of the the tau id working point VVVLoose-VVTight
+ * @param sf_file path to the file with the tau trigger scale factors
+ * @param type the type of the tau trigger, available are "ditau", "etau",
+ * "mutau", "ditauvbf"
+ * @param corrtype name of the tau trigger correction type, available are
+ * "eff_data", "eff_mc", "sf"
+ * @param syst name of the systematic variation, options are "nom", "up", "down"
+ * @return ROOT::RDF::RNode a new dataframe containing the new sf column
+ */
+
+ROOT::RDF::RNode
+ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
+                 const std::string &decaymode, const std::string &output,
+                 const std::string &wp, const std::string &sf_file,
+                 const std::string &type, const std::string &corrtype,
+                 const std::string &syst) {
+
+    Logger::get("ditau_trigger")
+        ->debug("Setting up function for di-tau trigger sf");
+    Logger::get("ditau_trigger")
+        ->debug("trigger type {}, correction type {}, file {}",type, corrtype, sf_file);
+    // tauTriggerSF is the only correction set in the file for now, might change
+    // with official sf release -> change into additional input parameter
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at("tauTriggerSF");
+    Logger::get("ditau_trigger")->debug("WP {} - trigger type {}, systematic {}", wp, type, syst);
+    auto trigger_sf_calculator = [evaluator, wp, type, corrtype,
+                                  syst](const float &pt, const UChar_t &decaymode) {
+        double sf = 1.;
+        float pt_threshold = 25.0;
+        if (type == "ditau") pt_threshold = 39.6;
+        else if (type == "etau") pt_threshold = 25.0;
+        else if (type == "mutau") pt_threshold = 25.0;
+        else pt_threshold = 25.0;
+        Logger::get("ditau_trigger")
+            ->debug("decaymode {}, pt {}, pt_threshold {}" , decaymode, pt, pt_threshold);
+        if (pt > pt_threshold) {
+            if (decaymode == 0 || decaymode == 1 || decaymode == 10 ||
+                decaymode == 11) {
+                sf = evaluator->evaluate(
+                    {pt, decaymode, type, wp, corrtype, syst});
+                    
+            } else {
+                sf = evaluator->evaluate({pt, -1, type, wp, corrtype, syst});
+                
+            }
+        }
+        Logger::get("ditau_trigger")->debug("Scale Factor {}", sf);
+        return sf;
+    };
+    auto df1 = df.Define(output, trigger_sf_calculator, {pt, decaymode});
     return df1;
 }
 } // namespace embedding
