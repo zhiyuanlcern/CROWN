@@ -845,6 +845,35 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
         {pt, eta});
     return df1;
 }
+ROOT::RDF::RNode id_2023(ROOT::RDF::RNode df, const std::string &pt,
+                    const std::string &eta, const std::string &phi, const std::string &year_id,
+                    const std::string &wp, const std::string &variation,
+                    const std::string &id_output, const std::string &sf_file,
+                    const std::string &idAlgorithm) {
+
+    Logger::get("electronIDSF")
+        ->debug("Setting up functions for electron id sf with correctionlib");
+    Logger::get("electronIDSF")->debug("ID - Name {}", idAlgorithm);
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    auto df1 = df.Define(
+        id_output,
+        [evaluator, year_id, idAlgorithm, wp, variation](const float &pt,
+                                                         const float &eta, const float &phi) {
+            Logger::get("electronIDSF")
+                ->debug("Year {}, Name {}, WP {}", year_id, idAlgorithm, wp);
+            Logger::get("electronIDSF")->debug("ID - pt {}, eta {}, phi {}", pt, eta, phi);
+            double sf = 1.;
+            // in 2022 the order of input is year_id, variation, wp, eta, pt
+            if (pt >= 25.0) {
+                sf = evaluator->evaluate({year_id, variation, wp, eta, pt, phi});
+            }
+            Logger::get("electronIDSF")->debug("Scale Factor {}", sf);
+            return sf;
+        },
+        {pt, eta, phi});
+    return df1;
+}
 
 } // namespace electron
 namespace jet {

@@ -534,7 +534,7 @@ ROOT::RDF::RNode mT(ROOT::RDF::RNode df, const std::string &outputname,
                     const std::string &particle_p4, const std::string &met) {
     auto calculate_mt = [](ROOT::Math::PtEtaPhiMVector &particle_p4,
                            ROOT::Math::PtEtaPhiMVector &met) {
-        if (particle_p4.pt() < 0.0  || met.pt() < 0.0)
+        if (particle_p4.pt() < 0.0  || met.pt() < -9.9)
             return default_float;      
         return vectoroperations::calculateMT(particle_p4, met);
     };
