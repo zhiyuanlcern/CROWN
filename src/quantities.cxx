@@ -11,7 +11,8 @@
 #include "ROOT/RVec.hxx"
 #include <Math/Vector4D.h>
 #include <Math/VectorUtil.h>
-
+#include <TLorentzVector.h>
+#include <TVector3.h>
 /// The namespace that is used to hold the functions for basic quantities that
 /// are needed for every event
 namespace quantities {
@@ -1026,5 +1027,35 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
         {pairname, idcolumn});
 }
 } // end namespace electron
+
+
+ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4) {
+    auto calculate_costheta = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &TauTau_p4) {
+        if (tau_1.pt() < 0.0 || TauTau_p4.pt() < 0.0)
+            return default_float;          
+        TLorentzVector tau_1_TL;
+        TLorentzVector tautau_TL;
+        tau_1_TL.SetPtEtaPhiM(tau_1.Pt(), tau_1.Eta(), tau_1.Phi(), tau_1.M());
+        tautau_TL.SetPtEtaPhiM(TauTau_p4.Pt(), TauTau_p4.Eta(), TauTau_p4.Phi(), TauTau_p4.M());
+
+        // tautau_TL is equivalent to Higgs/Z 
+        TVector3 tautau_v = tautau_TL.Vect();
+        TVector3 tautauboost = -(tautau_TL.BoostVector());
+        tau_1_TL.Boost(tautauboost);
+        TVector3 tau_1_v = tau_1_TL.Vect();
+        // Calculate cos(theta) in the rest frame of the parent particle
+        float costheta = tau_1_v.CosTheta(); // cos(theta) = pz / |p|
+        if ( !std::isnan(costheta) && !std::isinf(costheta) ) {
+            return costheta;
+        } else {
+            return -10.0f;
+        }
+    };
+    return df.Define(outputname, calculate_costheta, {tau_1, TauTau_p4});
+}
+
+
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */

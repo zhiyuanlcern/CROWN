@@ -6,6 +6,8 @@
 #include "utility/Logger.hxx"
 #include "vectoroperations.hxx"
 #include <Math/Vector4D.h>
+#include "TLorentzVector.h"
+#include "TVector3.h"
 namespace quantities {
 ROOT::RDF::RNode pt(ROOT::RDF::RNode df, const std::string &outputname,
                     const std::string &inputvector);
@@ -135,5 +137,7 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
                     const int &position, const std::string &pairname,
                     const std::string &idcolumn);
 } // end namespace electron
+ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4); 
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */
