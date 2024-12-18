@@ -1189,6 +1189,62 @@ ROOT::RDF::RNode calculate_boost_pt(ROOT::RDF::RNode df, const std::string &outp
 }
 
 
+ROOT::RDF::RNode calculate_boost_eta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4) {
+    auto calculate_boost_eta = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &TauTau_p4) {
+        if (tau_1.pt() < 0.0 || TauTau_p4.pt() < 0.0)
+            return default_float;          
+        TLorentzVector tau_1_TL;
+        TLorentzVector tautau_TL;
+        tau_1_TL.SetPtEtaPhiM(tau_1.Pt(), tau_1.Eta(), tau_1.Phi(), tau_1.M());
+        tautau_TL.SetPtEtaPhiM(TauTau_p4.Pt(), TauTau_p4.Eta(), TauTau_p4.Phi(), TauTau_p4.M());
+        
+
+        TVector3 tautau_v = tautau_TL.Vect();
+        TVector3 tautauboost = -(tautau_TL.BoostVector());
+        tau_1_TL.Boost(tautauboost);
+        TVector3 tau_1_v = tau_1_TL.Vect();
+
+        float result =tau_1_TL.Eta() ;
+
+        if ( !std::isnan(result) && !std::isinf(result) ) {
+            return result;
+        } else {
+            return -10.0f;
+        }
+    };
+    return df.Define(outputname, calculate_boost_eta, {tau_1, TauTau_p4});
+}
+
+
+ROOT::RDF::RNode calculate_boost_phi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4) {
+    auto calculate_boost_phi = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &TauTau_p4) {
+        if (tau_1.pt() < 0.0 || TauTau_p4.pt() < 0.0)
+            return default_float;          
+        TLorentzVector tau_1_TL;
+        TLorentzVector tautau_TL;
+        tau_1_TL.SetPtEtaPhiM(tau_1.Pt(), tau_1.Eta(), tau_1.Phi(), tau_1.M());
+        tautau_TL.SetPtEtaPhiM(TauTau_p4.Pt(), TauTau_p4.Eta(), TauTau_p4.Phi(), TauTau_p4.M());
+        
+
+        TVector3 tautau_v = tautau_TL.Vect();
+        TVector3 tautauboost = -(tautau_TL.BoostVector());
+        tau_1_TL.Boost(tautauboost);
+        TVector3 tau_1_v = tau_1_TL.Vect();
+
+        float result =tau_1_TL.Phi() ;
+
+        if ( !std::isnan(result) && !std::isinf(result) ) {
+            return result;
+        } else {
+            return -10.0f;
+        }
+    };
+    return df.Define(outputname, calculate_boost_phi, {tau_1, TauTau_p4});
+}
 
 // add m_vis_square by Leyan 2024/12/18
 ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &outputname,

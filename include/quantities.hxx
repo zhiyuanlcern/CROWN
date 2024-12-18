@@ -144,6 +144,10 @@ ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outp
 // add pt_1_LT by Leyan 2024/12/18
 ROOT::RDF::RNode calculate_boost_pt(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
+ROOT::RDF::RNode calculate_boost_eta(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4); 
+ROOT::RDF::RNode calculate_boost_phi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4); 
 // add m_vis_square by Leyan 2024/12/18
 ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
