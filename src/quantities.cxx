@@ -1248,10 +1248,10 @@ ROOT::RDF::RNode calculate_boost_phi(ROOT::RDF::RNode df, const std::string &out
 
 // add m_vis_square by Leyan 2024/12/18
 ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::string &tau_1, const std::string &TauTau_p4) {
+                        const std::string &tau_1, const std::string &tau_2) {
     auto calculate_m_vis_square = [](ROOT::Math::PtEtaPhiMVector &tau_1,
-                               ROOT::Math::PtEtaPhiMVector &TauTau_p4) {
-        if (tau_1.pt() < 0.0 || TauTau_p4.pt() < 0.0)
+                               ROOT::Math::PtEtaPhiMVector &tau_2) {
+        if (tau_1.pt() < 0.0 || tau_2.pt() < 0.0)
             return default_float;          
         float result =((tau_1 + tau_2).M2());
 
@@ -1262,7 +1262,7 @@ ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &
         }
         
     };
-    return df.Define(outputname, calculate_boost_pt, {tau_1, TauTau_p4});
+    return df.Define(outputname, calculate_m_vis_square, {tau_1, tau_2});
 }
 
 
