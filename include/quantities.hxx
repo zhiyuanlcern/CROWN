@@ -140,6 +140,7 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
 ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
 
+
 // add pt_1_LT by Leyan 2024/12/18
 ROOT::RDF::RNode calculate_boost_pt(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
@@ -147,6 +148,19 @@ ROOT::RDF::RNode calculate_boost_pt(ROOT::RDF::RNode df, const std::string &outp
 ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
 
+
+
+ROOT::RDF::RNode calculate_ratio(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &A, const std::string &B);
+
+ROOT::RDF::RNode calculate_costhstar(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4);
+ROOT::RDF::RNode calculate_kT(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2);
+ROOT::RDF::RNode calculate_antikT(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2);
+ROOT::RDF::RNode calculate_dphi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2);
 
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */
