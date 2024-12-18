@@ -139,5 +139,9 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
 } // end namespace electron
 ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &TauTau_p4); 
+
+ROOT::RDF::RNode calculate_ratio(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &A, const std::string &B);
+
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */

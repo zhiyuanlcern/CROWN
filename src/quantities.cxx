@@ -1056,6 +1056,18 @@ ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outp
     return df.Define(outputname, calculate_costheta, {tau_1, TauTau_p4});
 }
 
+// calculate ratio of A/B
+ROOT::RDF::RNode calculate_ratio(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &A, const std::string &B) {
+    auto calculate_ratio = [](float A, float B) {
+        if( B==0 ){
+            return -10.0f;
+        }else{
+            return A/B;
+        }
+    };
+    return df.Define(outputname, calculate_ratio, {A,B});
+}
 
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */
