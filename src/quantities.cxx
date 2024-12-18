@@ -1055,6 +1055,95 @@ ROOT::RDF::RNode calculate_costheta(ROOT::RDF::RNode df, const std::string &outp
     };
     return df.Define(outputname, calculate_costheta, {tau_1, TauTau_p4});
 }
+ROOT::RDF::RNode calculate_costhstar(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &TauTau_p4) {
+    auto calculate_costhstar = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &TauTau_p4) {
+        if (tau_1.pt() < 0.0 || TauTau_p4.pt() < 0.0)
+            return default_float;          
+    TLorentzVector tau_1_TL;
+    TLorentzVector tautau_TL;
+    tau_1_TL.SetPtEtaPhiM(tau_1.Pt(), tau_1.Eta(), tau_1.Phi(), tau_1.M());
+    tautau_TL.SetPtEtaPhiM(TauTau_p4.Pt(), TauTau_p4.Eta(), TauTau_p4.Phi(), TauTau_p4.M());
+    
+    //TLorentzVector TL = tau_1_TL +tau_2_TL;
+
+    TVector3 tautau_v = tautau_TL.Vect();
+    TVector3 tautauboost = -(tautau_TL.BoostVector());
+    tau_1_TL.Boost(tautauboost);
+    TVector3 tau_1_v = tau_1_TL.Vect();
+
+    float cosh_angle = cos(tau_1_v.Angle(tautau_v));
+
+    if ( !std::isnan(cosh_angle) && !std::isinf(cosh_angle) ) {
+        return cosh_angle;
+    } else {
+        return -10.0f;
+    }
+    };
+    return df.Define(outputname, calculate_costhstar, {tau_1, TauTau_p4});
+}
+ROOT::RDF::RNode calculate_kT(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2) {
+    auto calculate_kT = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &tau_2) {
+        if (tau_1.pt() < 0.0 || tau_2.pt() < 0.0)
+            return default_float;          
+    float pt_1 = tau_1.pt();
+    float pt_2 = tau_2.pt();
+    float result =std::min(pt_1, pt_2) * ROOT::Math::VectorUtil::DeltaR(tau_1, tau_2);
+
+    if ( !std::isnan(result) && !std::isinf(result) ) {
+        return result;
+    } else {
+        return -10.0f;
+    }
+    };
+    return df.Define(outputname, calculate_kT, {tau_1, tau_2});
+}
+
+
+ROOT::RDF::RNode calculate_antikT(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2) {
+    auto calculate_antikT = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &tau_2) {
+        if (tau_1.pt() < 0.0 || tau_2.pt() < 0.0)
+            return default_float;          
+    float pt_1 = tau_1.pt();
+    float pt_2 = tau_2.pt();
+    float result =std::min(1/pt_1, 1/pt_2) * ROOT::Math::VectorUtil::DeltaR(tau_1, tau_2);
+
+    if ( !std::isnan(result) && !std::isinf(result) ) {
+        return result;
+    } else {
+        return -10.0f;
+    }
+    };
+    return df.Define(outputname, calculate_antikT, {tau_1, tau_2});
+}
+
+
+
+ROOT::RDF::RNode calculate_dphi(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &tau_1, const std::string &tau_2) {
+    auto calculate_dphi = [](ROOT::Math::PtEtaPhiMVector &tau_1,
+                               ROOT::Math::PtEtaPhiMVector &tau_2) {
+        if (tau_1.pt() < 0.0 || tau_2.pt() < 0.0)
+            return default_float;          
+    float phi_1 = tau_1.phi();
+    float phi_2 = tau_2.phi();
+    float result =abs(TVector2::Phi_mpi_pi(phi_1 - phi_2));
+
+    if ( !std::isnan(result) && !std::isinf(result) ) {
+        return result;
+    } else {
+        return -10.0f;
+    }
+    };
+    return df.Define(outputname, calculate_dphi, {tau_1, tau_2});
+}
+
+
 
 // calculate ratio of A/B
 ROOT::RDF::RNode calculate_ratio(ROOT::RDF::RNode df, const std::string &outputname,
