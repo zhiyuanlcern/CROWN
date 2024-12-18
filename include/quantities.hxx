@@ -164,7 +164,12 @@ ROOT::RDF::RNode calculate_kT(ROOT::RDF::RNode df, const std::string &outputname
 ROOT::RDF::RNode calculate_antikT(ROOT::RDF::RNode df, const std::string &outputname,
                         const std::string &tau_1, const std::string &tau_2);
 ROOT::RDF::RNode calculate_dphi(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::string &tau_1, const std::string &tau_2);
+                        const std::string &phi_1, const std::string &phi_2);
+ROOT::RDF::RNode calculate_subtract(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &a, const std::string &b);
+
+ROOT::RDF::RNode buildLorentzVector(ROOT::RDF::RNode df, const std::string &outputname,
+        const std::string &pt, const std::string &eta, const std::string &phi, const std::string &mass);
 
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */

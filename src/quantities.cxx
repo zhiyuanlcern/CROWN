@@ -1125,22 +1125,30 @@ ROOT::RDF::RNode calculate_antikT(ROOT::RDF::RNode df, const std::string &output
 
 
 ROOT::RDF::RNode calculate_dphi(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::string &tau_1, const std::string &tau_2) {
-    auto calculate_dphi = [](ROOT::Math::PtEtaPhiMVector &tau_1,
-                               ROOT::Math::PtEtaPhiMVector &tau_2) {
-        if (tau_1.pt() < 0.0 || tau_2.pt() < 0.0)
-            return default_float;          
-    float phi_1 = tau_1.phi();
-    float phi_2 = tau_2.phi();
-    float result =abs(TVector2::Phi_mpi_pi(phi_1 - phi_2));
+                        const std::string &phi_1, const std::string &phi_2) {
+    auto calculate_dphi = [](float phi_1, float phi_2) {
+        float result =abs(TVector2::Phi_mpi_pi(phi_1 - phi_2));
+        if ( !std::isnan(result) && !std::isinf(result) ) {
+                return result;
+            } else {
+                return -10.0f;
+            }
+        };
+    return df.Define(outputname, calculate_dphi, {phi_1, phi_2});
+}
 
-    if ( !std::isnan(result) && !std::isinf(result) ) {
-        return result;
-    } else {
-        return -10.0f;
-    }
-    };
-    return df.Define(outputname, calculate_dphi, {tau_1, tau_2});
+ROOT::RDF::RNode calculate_subtract(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &a, const std::string &b) {
+    // subtract two variables                            
+    auto calculate_subtract = [](float a, float b) {
+        float result =a - b;
+        if ( !std::isnan(result) && !std::isinf(result) ) {
+                return result;
+            } else {
+                return -10.0f;
+            }
+        };
+    return df.Define(outputname, calculate_subtract, {a, b});
 }
 
 
@@ -1265,6 +1273,17 @@ ROOT::RDF::RNode calculate_m_vis_square(ROOT::RDF::RNode df, const std::string &
     return df.Define(outputname, calculate_m_vis_square, {tau_1, tau_2});
 }
 
+ROOT::RDF::RNode buildLorentzVector(ROOT::RDF::RNode df, const std::string &outputname,
+        const std::string &pt, const std::string &eta, const std::string &phi, const std::string &mass) {
+        auto buildLorentzVector = [](float &pt, float &eta, float &phi, float &mass) {
+        if (pt < 0.0 || mass < 0.0)
+            return default_lorentzvector;          
+        ROOT::Math::PtEtaPhiMVector tau_1;
+        tau_1 = ROOT::Math::PtEtaPhiMVector(pt, eta, phi, mass);
+        return tau_1;
+    };
+    return df.Define(outputname, buildLorentzVector, {pt, eta, phi, mass});
+}
 
 
 
