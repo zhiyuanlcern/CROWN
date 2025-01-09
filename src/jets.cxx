@@ -581,7 +581,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
             auto tmp_phi  = phi;
             if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
             if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
-            if (std::abs(eta) < 5.1) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
+            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
             else return 1.0;
     };
 
@@ -674,23 +674,44 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 
                 // Flag to check if any non-zero jet_veto_sf_value is found
                 bool non_zero_veto = false;
+                float pt_veto = -999.0;
                 // Loop to check if any non-zero jet_veto_sf_value exists
+                // for (int i = 0; i < pt_values.size(); i++) {
+                //     float jet_veto_sf_value=0;
+                //     if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                //     else jet_veto_sf_value =0;
+                //     if (jet_veto_sf_value != 0) {
+                //         non_zero_veto = true;
+                //         break;  // No need to continue if we already found one non-zero value
+                //     }
+                // }
                 for (int i = 0; i < pt_values.size(); i++) {
-                    float jet_veto_sf_value=0;
-                    if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
-                    else jet_veto_sf_value =0;
+
+                    Logger::get("JetEnergyResolution")
+                        ->debug("checking jet veto map for index {} ", i);
+                    float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
-                        break;  // No need to continue if we already found one non-zero value
                     }
                 }
                 // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
+                // if (non_zero_veto) {
+                //     for (int i = 0; i < pt_values.size(); i++) {
+                //         pt_values_corrected.push_back(-999.0);
+                //     }
+                //     return pt_values_corrected;
+                // } 
+
                 if (non_zero_veto) {
                     for (int i = 0; i < pt_values.size(); i++) {
-                        pt_values_corrected.push_back(-999.0);
+                        // do jet veto here:         
+                        // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
+                        Logger::get("JetEnergyResolution")
+                            ->debug("checking jet veto map for index {} ", i);
+                        pt_values_corrected.push_back(pt_veto);
                     }
                     return pt_values_corrected;
-                } 
+                }   
 
                 for (int i = 0; i < pt_values.size(); i++) {
                     pt_values_corrected.push_back(pt_values.at(i));
