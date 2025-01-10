@@ -183,7 +183,7 @@ ROOT::RDF::RNode OrderJetsByPt(ROOT::RDF::RNode df,
             Logger::get("OrderJetsByPt")->debug("Jetpt before {}", jet_pt);
             Logger::get("OrderJetsByPt")->debug("Mask {}", jetmask);
             auto good_jets_pt =
-                ROOT::VecOps::Where(jetmask > 0, jet_pt, (float)0.);
+                ROOT::VecOps::Where((jetmask > 0) || (jet_pt <= -999), jet_pt, (float)0.);
             Logger::get("OrderJetsByPt")->debug("Jetpt after {}", good_jets_pt);
             // we have to convert the result into an RVec of ints since argsort
             // gives back an unsigned long vector
@@ -692,6 +692,8 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                     float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
+                        Logger::get("JetEnergyResolution")
+                        ->debug("found jet to veto,  eta {}, phi {}",eta_values.at(i), phi_values.at(i));
                     }
                 }
                 // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
@@ -707,7 +709,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                         // do jet veto here:         
                         // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
                         Logger::get("JetEnergyResolution")
-                            ->debug("checking jet veto map for index {} ", i);
+                            ->debug("pushing pt for veto events {} ", i);
                         pt_values_corrected.push_back(pt_veto);
                     }
                     return pt_values_corrected;
