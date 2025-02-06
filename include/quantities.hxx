@@ -170,6 +170,7 @@ ROOT::RDF::RNode calculate_subtract(ROOT::RDF::RNode df, const std::string &outp
 
 ROOT::RDF::RNode buildLorentzVector(ROOT::RDF::RNode df, const std::string &outputname,
         const std::string &pt, const std::string &eta, const std::string &phi, const std::string &mass);
-
+ROOT::RDF::RNode calculate_z_NN(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &A, const std::string &B);
 } // end namespace quantities
 #endif /* GUARD_QUANTITIES_H */

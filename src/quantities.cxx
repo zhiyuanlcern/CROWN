@@ -1166,6 +1166,19 @@ ROOT::RDF::RNode calculate_ratio(ROOT::RDF::RNode df, const std::string &outputn
     return df.Define(outputname, calculate_ratio, {A,B});
 }
 
+
+// calculate Z NN
+ROOT::RDF::RNode calculate_z_NN(ROOT::RDF::RNode df, const std::string &outputname,
+                        const std::string &A, const std::string &B) {
+    auto calculate_z_NN = [](float A, float B) {
+        if( A<0 || B<0 ){
+            return -10.0f;
+        }else{
+            return std::min(A,B)/ (A+B);
+        }
+    };
+    return df.Define(outputname, calculate_z_NN, {A,B});
+}
 // add pt_1_LT by Leyan 2024/12/18
 
 ROOT::RDF::RNode calculate_boost_pt(ROOT::RDF::RNode df, const std::string &outputname,
