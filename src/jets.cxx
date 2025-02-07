@@ -350,10 +350,7 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         jet_veto_tag);
     auto jet_veto_SF =
         [jet_veto_map_evaluator](const float eta, const float phi) {
-            auto tmp_phi  = phi;
-            if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
-            if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
-            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});  // the bin edge is 5.1  , 3.0 should be enough
+            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi}); 
             else return 1.0;
     };
 
@@ -384,12 +381,16 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         
         // Flag to check if any non-zero jet_veto_sf_value is found
         bool non_zero_veto = false;
+        float jet_veto_sf_value = 0 ;
         // Loop to check if any non-zero jet_veto_sf_value exists
         for (int i = 0; i < pt_values.size(); i++) {
 
             Logger::get("JetEnergyResolution")
                 ->debug("checking jet veto map for index {} ", i);
-            float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+            
+            if (pt_values.at(i) > 15 && ID_values.at(i) >= 2){  // 2: tight jet ID
+                jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+            }
             if (jet_veto_sf_value != 0) {
                 non_zero_veto = true;
             }
@@ -568,7 +569,7 @@ ROOT::RDF::RNode
 JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                      const std::string &jet_pt, const std::string &jet_eta, const std::string &jet_phi, 
                      const std::string &jet_area,
-                     const std::string &jet_rawFactor, const std::string &rho,
+                     const std::string &jet_rawFactor, const std::string &jet_ID, const std::string &rho,
                      const std::string &jec_file, const std::string &jes_tag,
                      const std::string &jec_algo, 
                      const std::string &jet_veto_map, const std::string &jet_veto_tag) {
@@ -578,10 +579,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         jet_veto_tag);
     auto jet_veto_SF =
         [jet_veto_map_evaluator](const float eta, const float phi) {
-            auto tmp_phi  = phi;
-            if (phi > 3.141592653589793) tmp_phi = phi - (3.141592653589793 * 2);
-            if (phi < -3.141592653589793) tmp_phi = phi + (3.141592653589793 * 2);
-            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  tmp_phi});
+            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi});
             else return 1.0;
     };
 
@@ -607,7 +605,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                const ROOT::RVec<float> &eta_values,
                                const ROOT::RVec<float> &phi_values,
                                const ROOT::RVec<float> &area_values,
-                               const ROOT::RVec<float> &rawFactor_values,
+                               const ROOT::RVec<float> &rawFactor_values, const ROOT::RVec<UChar_t> &ID_values,
                                const float &rho_value) {
                 ROOT::RVec<float> pt_values_corrected;
                 // apply jet veto map. If any jet lies within jet veto map, reject the events. 
@@ -615,14 +613,18 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 
                 // Flag to check if any non-zero jet_veto_sf_value is found
                 bool non_zero_veto = false;
+                float jet_veto_sf_value = 0 ;
                 // Loop to check if any non-zero jet_veto_sf_value exists
                 for (int i = 0; i < pt_values.size(); i++) {
-                    float jet_veto_sf_value=0;
-                    if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
-                    else jet_veto_sf_value =0;
+
+                    Logger::get("JetEnergyResolution")
+                        ->debug("checking jet veto map for index {} ", i);
+                    
+                    if (pt_values.at(i) > 15 && ID_values.at(i) >= 2){  // 2: tight jet ID
+                        jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    }
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
-                        break;  // No need to continue if we already found one non-zero value
                     }
                 }
                 // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
@@ -657,7 +659,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 return pt_values_corrected;
             };
         auto df1 = df.Define(corrected_jet_pt, JetEnergyCorrectionLambda,
-                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor, rho});
+                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor,jet_ID, rho});
         return df1;
     } else {
             // we still need to do jet veto
@@ -666,7 +668,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                const ROOT::RVec<float> &eta_values,
                                const ROOT::RVec<float> &phi_values,
                                const ROOT::RVec<float> &area_values,
-                               const ROOT::RVec<float> &rawFactor_values,
+                               const ROOT::RVec<float> &rawFactor_values, const ROOT::RVec<UChar_t> &ID_values,
                                const float &rho_value) {
                 ROOT::RVec<float> pt_values_corrected;
                 // apply jet veto map. If any jet lies within jet veto map, reject the events. 
@@ -675,34 +677,20 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 // Flag to check if any non-zero jet_veto_sf_value is found
                 bool non_zero_veto = false;
                 float pt_veto = -999.0;
+                float jet_veto_sf_value = 0 ;
                 // Loop to check if any non-zero jet_veto_sf_value exists
-                // for (int i = 0; i < pt_values.size(); i++) {
-                //     float jet_veto_sf_value=0;
-                //     if (std::abs(eta_values.at(i)) < 5.19)  jet_veto_sf_value= jet_veto_SF(eta_values.at(i), phi_values.at(i));
-                //     else jet_veto_sf_value =0;
-                //     if (jet_veto_sf_value != 0) {
-                //         non_zero_veto = true;
-                //         break;  // No need to continue if we already found one non-zero value
-                //     }
-                // }
                 for (int i = 0; i < pt_values.size(); i++) {
 
                     Logger::get("JetEnergyResolution")
                         ->debug("checking jet veto map for index {} ", i);
-                    float jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    
+                    if (pt_values.at(i) > 15 && ID_values.at(i) >= 2){  // 2: tight jet ID
+                        jet_veto_sf_value = jet_veto_SF(eta_values.at(i), phi_values.at(i));
+                    }
                     if (jet_veto_sf_value != 0) {
                         non_zero_veto = true;
-                        Logger::get("JetEnergyResolution")
-                        ->debug("found jet to veto,  eta {}, phi {}",eta_values.at(i), phi_values.at(i));
                     }
                 }
-                // If any non-zero jet_veto_sf_value was found, return a vector filled with -999
-                // if (non_zero_veto) {
-                //     for (int i = 0; i < pt_values.size(); i++) {
-                //         pt_values_corrected.push_back(-999.0);
-                //     }
-                //     return pt_values_corrected;
-                // } 
 
                 if (non_zero_veto) {
                     for (int i = 0; i < pt_values.size(); i++) {
@@ -721,7 +709,7 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 return pt_values_corrected;
             };
         auto df1 = df.Define(corrected_jet_pt, JetEnergyCorrectionLambda,
-                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor, rho});
+                             {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor,jet_ID, rho});
         return df1;        
         // auto df1 = df.Define(
         //     corrected_jet_pt,

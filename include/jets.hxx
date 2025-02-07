@@ -51,7 +51,8 @@ ROOT::RDF::RNode
 JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                      const std::string &jet_pt, const std::string &jet_eta, const std::string &jet_phi,
                      const std::string &jet_area,
-                     const std::string &jet_rawFactor, const std::string &rho,
+                     const std::string &jet_rawFactor, const std::string &jet_ID,
+                     const std::string &rho,
                      const std::string &jec_file, const std::string &jes_tag,
                      const std::string &jec_algo, 
                      const std::string &jet_veto_map, const std::string &jet_veto_tag);
