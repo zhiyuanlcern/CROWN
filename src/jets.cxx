@@ -350,8 +350,8 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         jet_veto_tag);
     auto jet_veto_SF =
         [jet_veto_map_evaluator](const float eta, const float phi) {
-            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi}); 
-            else return 1.0;
+            if (std::abs(eta) < 5.19 && std::abs(phi) < 3.14159 ) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi});
+            else return 0.0;
     };
 
     // lambda run with dataframe
@@ -579,8 +579,8 @@ JetPtCorrection_data(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
         jet_veto_tag);
     auto jet_veto_SF =
         [jet_veto_map_evaluator](const float eta, const float phi) {
-            if (std::abs(eta) < 5.19) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi});
-            else return 1.0;
+            if (std::abs(eta) < 5.19 && std::abs(phi) < 3.14159 ) return jet_veto_map_evaluator->evaluate({ "jetvetomap", eta,  phi});
+            else return 0.0;
     };
 
     if (jes_tag != "") {
