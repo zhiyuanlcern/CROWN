@@ -12,7 +12,7 @@
 #include <Math/Vector4D.h>
 #include <Math/VectorUtil.h>
 #include <cmath>
-
+#include "correction.h"
 typedef std::bitset<20> IntBits;
 
 namespace met {
@@ -766,50 +766,86 @@ is only needed for WJets samples)
  */
 ROOT::RDF::RNode applyRecoilCorrections(
     ROOT::RDF::RNode df, const std::string &met, const std::string &genboson,
-    const std::string &jet_pt, const std::string &outputname,
+    const std::string &jet_pt, const std::string &jet_eta,  const std::string &outputname,
     const std::string &recoilfile, const std::string &systematicsfile,
     bool applyRecoilCorrections, bool resolution, bool response, bool shiftUp,
     bool shiftDown, bool isWjets) {
     if (applyRecoilCorrections) {
         Logger::get("RecoilCorrections")->debug("Will run recoil corrections");
-        const auto corrector = new RecoilCorrector(recoilfile);
-        const auto systematics = new MetSystematic(systematicsfile);
-        auto shiftType = MetSystematic::SysShift::Nominal;
-        if (shiftUp) {
-            shiftType = MetSystematic::SysShift::Up;
-        } else if (shiftDown) {
-            shiftType = MetSystematic::SysShift::Down;
-        }
-        auto sysType = MetSystematic::SysType::None;
-        if (response) {
-            sysType = MetSystematic::SysType::Response;
-        } else if (resolution) {
-            sysType = MetSystematic::SysType::Resolution;
-        }
-        auto RecoilCorrections = [sysType, systematics, shiftType, corrector,
+        // const auto corrector = new RecoilCorrector(recoilfile);
+        // const auto systematics = new MetSystematic(systematicsfile);
+        
+        auto evaluator = correction::CorrectionSet::from_file(recoilfile)->at("Recoil_correction_Rescaling");
+        auto evaluator_syst = correction::CorrectionSet::from_file(recoilfile)->at("Recoil_correction_Uncertainty");    
+
+        // auto shiftType = MetSystematic::SysShift::Nominal;
+        // if (shiftUp) {
+        //     shiftType = MetSystematic::SysShift::Up;
+        // } else if (shiftDown) {
+        //     shiftType = MetSystematic::SysShift::Down;
+        // }
+        // auto sysType = MetSystematic::SysType::None;
+        // if (response) {
+        //     sysType = MetSystematic::SysType::Response;
+        // } else if (resolution) {
+        //     sysType = MetSystematic::SysType::Resolution;
+        // }
+        auto RecoilCorrections = [resolution, response, shiftUp, shiftDown, evaluator, evaluator_syst,
                                   isWjets](
                                      ROOT::Math::PtEtaPhiMVector &met,
                                      std::pair<ROOT::Math::PtEtaPhiMVector,
                                                ROOT::Math::PtEtaPhiMVector>
                                          &genboson,
-                                     const ROOT::RVec<float> &jet_pt) {
+                                     const ROOT::RVec<float> &jet_pt, const ROOT::RVec<float> &jet_eta) {
             // TODO is this the correct number of jets ?
-            auto jets_above30 =
-                Filter(jet_pt, [](float pt) { return pt > 30; });
-            int nJets30 = jets_above30.size();
-            if (isWjets) {
-                nJets30 = nJets30 + 1;
-            }
             float MetX = met.Px();
             float MetY = met.Py();
+            float METpt = met.pt();
+            float METphi = met.phi();
             float correctedMetX = 0.;
             float correctedMetY = 0.;
+            float veto_met = -999.0;
             ROOT::Math::PtEtaPhiMVector genparticle;
             ROOT::Math::PtEtaPhiMVector corrected_met;
             float genPx = genboson.first.Px();  // generator Z(W) px
+            float FullGenPt = genboson.first.pt(); 
+            float FullGenPhi = genboson.first.phi(); 
             float genPy = genboson.first.Py();  // generator Z(W) py
+            float VisGenPt= genboson.second.pt(); 
+            float VisGenPhi= genboson.second.phi(); 
             float visPx = genboson.second.Px(); // visible (generator) Z(W) px
             float visPy = genboson.second.Py(); // visible (generator) Z(W) py
+            float nJets30 = 0;
+
+            // Loop through all jets
+            for (size_t i = 0; i < jet_pt.size(); ++i) {
+                const float pt = jet_pt[i];
+                const float eta = jet_eta[i];
+        
+
+                if (jet_pt[i] <= -900.0) {
+                    // jet vetoed is given pt -999, any events with vetoded jets should be vetoed as well
+                    // save this as -999
+                    corrected_met=ROOT::Math::PtEtaPhiMVector(veto_met, veto_met, veto_met,veto_met);
+                    return corrected_met;
+                }
+                // Check if jet satisfies the criteria
+                if ((pt > 30 && std::abs(eta) < 2.5) || (pt > 50)) {
+                    nJets30++;
+                }
+            }
+        
+            // Adjust for W+jets category
+            if (isWjets) {
+                nJets30 += 1;
+            }
+        
+            // Cap at 2
+            if (nJets30 >= 2) {
+                nJets30 = 2;
+            }
+
+  
             Logger::get("RecoilCorrections")->debug("Corrector Inputs");
             Logger::get("RecoilCorrections")->debug("nJets30 {} ", nJets30);
             Logger::get("RecoilCorrections")->debug("genPx {} ", genPx);
@@ -823,27 +859,143 @@ ROOT::RDF::RNode applyRecoilCorrections(
             Logger::get("RecoilCorrections")
                 ->debug("correctedMetY {} ", correctedMetY);
             Logger::get("RecoilCorrections")->debug("old met {} ", met.Pt());
-            corrector->CorrectWithHist(MetX, MetY, genPx, genPy, visPx, visPy,
-                                       nJets30, correctedMetX, correctedMetY);
-            // only apply shifts if the correpsonding variables are set
-            if (sysType != MetSystematic::SysType::None &&
-                shiftType != MetSystematic::SysShift::Nominal) {
-                Logger::get("RecoilCorrections")
-                    ->debug(" apply systematics {} {}", sysType, shiftType);
-                systematics->ApplyMetSystematic(
-                    correctedMetX, correctedMetY, genPx, genPy, visPx, visPy,
-                    nJets30, sysType, shiftType, correctedMetX, correctedMetY);
+            
+            
+            // define some helper functions
+            auto GetXYfromPTPHI = [](float pt, float phi) -> std::pair<float, float> {
+                return {pt * std::cos(phi), pt * std::sin(phi)};
+            };
+
+            auto GetPTPHIfromXY = [](float x, float y) -> std::pair<float, float> {
+                return {std::hypot(x, y), std::atan2(y, x)}; // return square root of square sum x, y
+            };
+
+            auto GetU = [&](float METpt, float METphi, 
+                            float FullVPt, float FullVPhi,
+                            float VisVPt, float VisVPhi) -> std::pair<float, float> {
+                auto [METx, METy] = GetXYfromPTPHI(METpt, METphi);
+                auto [FullVx, FullVy] = GetXYfromPTPHI(FullVPt, FullVPhi);
+                auto [VisVx, VisVy] = GetXYfromPTPHI(VisVPt, VisVPhi);
+                
+                float Ux = METx + VisVx - FullVx;
+                float Uy = METy + VisVy - FullVy;
+                auto [Upt, Uphi] = GetPTPHIfromXY(Ux, Uy);
+                auto [Upara, Uperp] = GetXYfromPTPHI(Upt, Uphi - FullVPhi);
+                return {Upara, Uperp};
+            };
+
+            auto GetMETfromU = [&](float Upara, float Uperp,
+                                float FullVPt, float FullVPhi,
+                                float VisVPt, float VisVPhi) -> std::pair<float, float> {
+                auto [FullVx, FullVy] = GetXYfromPTPHI(FullVPt, FullVPhi);
+                auto [VisVx, VisVy] = GetXYfromPTPHI(VisVPt, VisVPhi);
+                
+                auto [Upt, UphiMinusFullVPhi] = GetPTPHIfromXY(Upara, Uperp);
+                float Uphi = UphiMinusFullVPhi + FullVPhi;
+                auto [Ux, Uy] = GetXYfromPTPHI(Upt, Uphi);
+                
+                float METx = Ux - VisVx + FullVx;
+                float METy = Uy - VisVy + FullVy;
+                return GetPTPHIfromXY(METx, METy);
+            };
+
+            auto GetH = [&](float METpt, float METphi,
+                        float FullVPt, float FullVPhi,
+                        float VisVPt, float VisVPhi) -> std::pair<float, float> {
+                auto [METx, METy] = GetXYfromPTPHI(METpt, METphi);
+                auto [VisVx, VisVy] = GetXYfromPTPHI(VisVPt, VisVPhi);
+                
+                float Hx = -METx - VisVx;
+                float Hy = -METy - VisVy;
+                auto [Hpt, Hphi] = GetPTPHIfromXY(Hx, Hy);
+                auto [Hpara, Hperp] = GetXYfromPTPHI(Hpt, Hphi - FullVPhi);
+                return {Hpara, Hperp};
+            };
+
+            auto GetMETfromH = [&](float Hpara, float Hperp,
+                                float FullVPt, float FullVPhi,
+                                float VisVPt, float VisVPhi) -> std::pair<float, float> {
+                auto [VisVx, VisVy] = GetXYfromPTPHI(VisVPt, VisVPhi);
+                auto [Hpt, HphiMinusFullVPhi] = GetPTPHIfromXY(Hpara, Hperp);
+                float Hphi = HphiMinusFullVPhi + FullVPhi;
+                auto [Hx, Hy] = GetXYfromPTPHI(Hpt, Hphi);
+                
+                float METx = -Hx - VisVx;
+                float METy = -Hy - VisVy;
+                return GetPTPHIfromXY(METx, METy);
+            };
+            
+            
+            // corrector->CorrectWithHist(MetX, MetY, genPx, genPy, visPx, visPy,
+            //                            nJets30, correctedMetX, correctedMetY);
+            
+            auto [upara, uperp] = GetU(METpt, METphi, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+            float upara_new = evaluator->evaluate({"NLO", nJets30, FullGenPt, "Upara", upara});
+            float uperp_new = evaluator->evaluate({"NLO", nJets30, FullGenPt, "Uperp", uperp});
+            auto [METpt_new, METphi_new] = GetMETfromU(upara_new, uperp_new, FullGenPt, FullGenPhi,VisGenPt, VisGenPhi);
+            auto [hpara,hperp] = GetH(METpt_new, METphi_new, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+            if (resolution) {
+                if (shiftUp) {
+                    // Resolution Up variation
+                    auto hParaResoUp = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hpara", hpara, "ResolUp"});
+                    auto hPerpResoUp = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hperp", hperp, "ResolUp"});
+                    auto [METpt_ResoUp, METphi_ResoUp] = GetMETfromH(hParaResoUp, hPerpResoUp, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+                    corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_ResoUp, 0, METphi_ResoUp, 0);
+                } else if (shiftDown) {
+                    // Resolution Down variation
+                    auto hParaResoDn = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hpara", hpara, "ResolDown"});
+                    auto hPerpResoDn = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hperp", hperp, "ResolDown"});
+                    auto [METpt_ResoDn, METphi_ResoDn] = GetMETfromH(hParaResoDn, hPerpResoDn, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+                    corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_ResoDn, 0, METphi_ResoDn, 0);
+                } else {
+                    // Handle error: No shift direction specified for resolution
+                    // Example: Set MET to nominal or throw an exception
+                }
+            } else if (response){
+                // Handle response systematics
+                if (shiftUp) {
+                    // Response Up variation
+                    auto hParaRespUp = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hpara", hpara, "RespUp"});
+                    auto hPerpRespUp = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hperp", hperp, "RespUp"});
+                    auto [METpt_RespUp, METphi_RespUp] = GetMETfromH(hParaRespUp, hPerpRespUp, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+                    corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_RespUp, 0, METphi_RespUp, 0);
+                } else if (shiftDown) {
+                    // Response Down variation
+                    auto hParaRespDn = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hpara", hpara, "RespDown"});
+                    auto hPerpRespDn = evaluator_syst->evaluate({"NLO", nJets30, FullGenPt, "Hperp", hperp, "RespDown"});
+                    auto [METpt_RespDn, METphi_RespDn] = GetMETfromH(hParaRespDn, hPerpRespDn, FullGenPt, FullGenPhi, VisGenPt, VisGenPhi);
+                    corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_RespDn, 0, METphi_RespDn, 0);
+                } else {
+                    // Handle error: No shift direction specified for response
+                    // Example: Set MET to nominal or throw an exception
+                }
             }
-            corrected_met.SetPxPyPzE(correctedMetX, correctedMetY, 0,
-                                     std::sqrt(correctedMetX * correctedMetX +
-                                               correctedMetY * correctedMetY));
+            else{
+
+                // nominal
+                corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_new, 0, METphi_new, 0);
+            }
+
+            
+            // // only apply shifts if the correpsonding variables are set
+            // if (sysType != MetSystematic::SysType::None &&
+            //     shiftType != MetSystematic::SysShift::Nominal) {
+            //     Logger::get("RecoilCorrections")
+            //         ->debug(" apply systematics {} {}", sysType, shiftType);
+            //     systematics->ApplyMetSystematic(
+            //         correctedMetX, correctedMetY, genPx, genPy, visPx, visPy,
+            //         nJets30, sysType, shiftType, correctedMetX, correctedMetY);
+            // }
+            // corrected_met.SetPxPyPzE(correctedMetX, correctedMetY, 0,
+            //                          std::sqrt(correctedMetX * correctedMetX +
+            //                                    correctedMetY * correctedMetY));
             Logger::get("RecoilCorrections")
                 ->debug("shifted and corrected met {} ", corrected_met.Pt());
 
             return corrected_met;
         };
         return df.Define(outputname, RecoilCorrections,
-                         {met, genboson, jet_pt});
+                         {met, genboson, jet_pt, jet_eta});
     } else {
         // if we do not apply the recoil corrections, just rename the met
         // column to the new outputname and dont change anything else
