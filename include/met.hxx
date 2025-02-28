@@ -56,12 +56,12 @@ ROOT::RDF::RNode propagateJetsToMet(
     ROOT::RDF::RNode df, const std::string &met,
     const std::string &jet_pt_corrected, const std::string &jet_eta_corrected,
     const std::string &jet_phi_corrected, const std::string &jet_mass_corrected,
-    const std::string &jet_pt, const std::string &jet_eta,
+    const std::string &jet_pt, const std::string &jet_eta,  const std::string &veto_mask,
     const std::string &jet_phi, const std::string &jet_mass,
     const std::string &outputname, bool apply_propagation, float min_jet_pt);
 ROOT::RDF::RNode applyRecoilCorrections(
     ROOT::RDF::RNode df, const std::string &met, const std::string &genmet,
-    const std::string &jet_pt, const std::string &jet_eta, const std::string &outputname,
+    const std::string &jet_pt, const std::string &jet_eta, const std::string &veto_mask, const std::string &outputname,
     const std::string &recoilfile, const std::string &systematicsfile,
     bool applyRecoilCorrections, bool resolution, bool response, bool shiftUp,
     bool shiftDown, bool isWjets);

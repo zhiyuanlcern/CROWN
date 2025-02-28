@@ -659,8 +659,9 @@ ROOT::RDF::RNode propagateLeptonsToMet(ROOT::RDF::RNode df,
 ROOT::RDF::RNode propagateJetsToMet(
     ROOT::RDF::RNode df, const std::string &met,
     const std::string &jet_pt_corrected, const std::string &jet_eta_corrected,
-    const std::string &jet_phi_corrected, const std::string &jet_mass_corrected,
-    const std::string &jet_pt, const std::string &jet_eta,
+    const std::string &jet_phi_corrected, const std::string &veto_mask,
+    const std::string &jet_mass_corrected,
+    const std::string &jet_pt, const std::string &jet_eta, 
     const std::string &jet_phi, const std::string &jet_mass,
     const std::string &outputname, bool apply_propagation, float min_jet_pt) {
     // propagate jet corrections to met, since we can have an arbitrary
@@ -669,6 +670,7 @@ ROOT::RDF::RNode propagateJetsToMet(
                                  const ROOT::RVec<float> &jet_pt_corrected,
                                  const ROOT::RVec<float> &jet_eta_corrected,
                                  const ROOT::RVec<float> &jet_phi_corrected,
+                                 const ROOT::RVec<int> &veto_mask,
                                  const ROOT::RVec<float> &jet_mass_corrected,
                                  const ROOT::RVec<float> &jet_pt,
                                  const ROOT::RVec<float> &jet_eta,
@@ -685,6 +687,9 @@ ROOT::RDF::RNode propagateJetsToMet(
         Logger::get("propagateJetsToMet")
                     ->debug("Checking jet corrected pt size  {} ", jet_pt_corrected.size());  
         // now loop through all jets in the event
+        
+        
+        
         for (std::size_t index = 0; index < jet_pt.size(); ++index) {
 
             Logger::get("propagateJetsToMet")
@@ -692,7 +697,9 @@ ROOT::RDF::RNode propagateJetsToMet(
             Logger::get("propagateJetsToMet")
                     ->debug("Checking jet index {} pt {} ",index, jet_pt.at(index));
             Logger::get("propagateJetsToMet")
-                    ->debug("Checking jet corrected index {} pt {} ", index, jet_pt_corrected.at(index));                    
+                    ->debug("Checking jet corrected index {} pt {} ", index, jet_pt_corrected.at(index));     
+            Logger::get("propagateJetsToMet")
+                    ->debug("Checking jet corrected index {} mask {} ", index, veto_mask.at(index));                    
             // only propagate jets above the given pt threshold
             if (jet_pt_corrected.at(index) <= -900.0) {
                 // jet vetoed is given pt -999, any events with vetoded jets should be vetoed as well
@@ -700,19 +707,22 @@ ROOT::RDF::RNode propagateJetsToMet(
                 corrected_met=ROOT::Math::PtEtaPhiMVector(veto_met, veto_met, veto_met,veto_met);
                 return corrected_met;
             }
-            if (jet_pt_corrected.at(index) > min_jet_pt) {
-                // construct the uncorrected and the corrected lorentz
-                // vectors
-                corrected_jet = ROOT::Math::PtEtaPhiMVector(
-                    jet_pt_corrected.at(index), jet_eta_corrected.at(index),
-                    jet_phi_corrected.at(index), jet_mass_corrected.at(index));
-                uncorrected_jet = ROOT::Math::PtEtaPhiMVector(
-                    jet_pt.at(index), jet_eta.at(index), jet_phi.at(index),
-                    jet_mass.at(index));
-                // update the correction factors that are applied to the met
-                corr_x += uncorrected_jet.Px() - corrected_jet.Px();
-                corr_y += uncorrected_jet.Py() - corrected_jet.Py();
+            if (veto_mask.at(index) == 1){
+                if (jet_pt_corrected.at(index) > min_jet_pt) {
+                    // construct the uncorrected and the corrected lorentz
+                    // vectors
+                    corrected_jet = ROOT::Math::PtEtaPhiMVector(
+                        jet_pt_corrected.at(index), jet_eta_corrected.at(index),
+                        jet_phi_corrected.at(index), jet_mass_corrected.at(index));
+                    uncorrected_jet = ROOT::Math::PtEtaPhiMVector(
+                        jet_pt.at(index), jet_eta.at(index), jet_phi.at(index),
+                        jet_mass.at(index));
+                    // update the correction factors that are applied to the met
+                    corr_x += uncorrected_jet.Px() - corrected_jet.Px();
+                    corr_y += uncorrected_jet.Py() - corrected_jet.Py();
+                }
             }
+
         }
         float MetX = met.Px() + corr_x;
         float MetY = met.Py() + corr_y;
@@ -730,7 +740,7 @@ ROOT::RDF::RNode propagateJetsToMet(
     if (apply_propagation) {
         return df.Define(outputname, scaleMet,
                          {met, jet_pt_corrected, jet_eta_corrected,
-                          jet_phi_corrected, jet_mass_corrected, jet_pt,
+                          jet_phi_corrected, veto_mask, jet_mass_corrected, jet_pt,
                           jet_eta, jet_phi, jet_mass});
     } else {
         // if we do not apply the propagation, just rename the met column to
@@ -766,7 +776,7 @@ is only needed for WJets samples)
  */
 ROOT::RDF::RNode applyRecoilCorrections(
     ROOT::RDF::RNode df, const std::string &met, const std::string &genboson,
-    const std::string &jet_pt, const std::string &jet_eta,  const std::string &outputname,
+    const std::string &jet_pt, const std::string &jet_eta, const std::string &veto_mask,  const std::string &outputname,
     const std::string &recoilfile, const std::string &systematicsfile,
     bool applyRecoilCorrections, bool resolution, bool response, bool shiftUp,
     bool shiftDown, bool isWjets) {
@@ -796,7 +806,7 @@ ROOT::RDF::RNode applyRecoilCorrections(
                                      std::pair<ROOT::Math::PtEtaPhiMVector,
                                                ROOT::Math::PtEtaPhiMVector>
                                          &genboson,
-                                     const ROOT::RVec<float> &jet_pt, const ROOT::RVec<float> &jet_eta) {
+                                     const ROOT::RVec<float> &jet_pt, const ROOT::RVec<float> &jet_eta,  const ROOT::RVec<int> &veto_mask) {
             // TODO is this the correct number of jets ?
             float MetX = met.Px();
             float MetY = met.Py();
@@ -821,18 +831,29 @@ ROOT::RDF::RNode applyRecoilCorrections(
             for (size_t i = 0; i < jet_pt.size(); ++i) {
                 const float pt = jet_pt[i];
                 const float eta = jet_eta[i];
-        
+                const int mask = veto_mask[i];
+                
 
-                if (jet_pt[i] <= -900.0) {
+                Logger::get("RecoilCorrections")->debug("checking for jet with index {} ", i);
+                Logger::get("RecoilCorrections")->debug("jet pt {} ", pt);
+                Logger::get("RecoilCorrections")->debug("jet eta {} ", eta);
+                Logger::get("RecoilCorrections")->debug("jet veto mask {} ", mask );
+
+
+                if (pt <= -900.0) {
                     // jet vetoed is given pt -999, any events with vetoded jets should be vetoed as well
                     // save this as -999
                     corrected_met=ROOT::Math::PtEtaPhiMVector(veto_met, veto_met, veto_met,veto_met);
                     return corrected_met;
                 }
                 // Check if jet satisfies the criteria
-                if ((pt > 30 && std::abs(eta) < 2.5) || (pt > 50)) {
-                    nJets30++;
+                // veto mask 1: pass veto, not overlapping with leptons
+                if (mask == 1){
+                    if ((pt > 30 && std::abs(eta) < 2.5) || (pt > 50)) {
+                        nJets30++;
+                    }
                 }
+                
             }
         
             // Adjust for W+jets category
@@ -848,17 +869,18 @@ ROOT::RDF::RNode applyRecoilCorrections(
   
             Logger::get("RecoilCorrections")->debug("Corrector Inputs");
             Logger::get("RecoilCorrections")->debug("nJets30 {} ", nJets30);
-            Logger::get("RecoilCorrections")->debug("genPx {} ", genPx);
-            Logger::get("RecoilCorrections")->debug("genPy {} ", genPy);
-            Logger::get("RecoilCorrections")->debug("visPx {} ", visPx);
-            Logger::get("RecoilCorrections")->debug("visPy {} ", visPy);
-            Logger::get("RecoilCorrections")->debug("MetX {} ", MetX);
-            Logger::get("RecoilCorrections")->debug("MetY {} ", MetY);
-            Logger::get("RecoilCorrections")
-                ->debug("correctedMetX {} ", correctedMetX);
-            Logger::get("RecoilCorrections")
-                ->debug("correctedMetY {} ", correctedMetY);
+            Logger::get("RecoilCorrections")->debug("genPt {} ", FullGenPt);
+            Logger::get("RecoilCorrections")->debug("genPhi {} ", FullGenPhi);
+            Logger::get("RecoilCorrections")->debug("visPt {} ", VisGenPt);
+            Logger::get("RecoilCorrections")->debug("visPhi {} ", VisGenPhi);
+            // Logger::get("RecoilCorrections")->debug("MetX {} ", MetX);
+            // Logger::get("RecoilCorrections")->debug("MetY {} ", MetY);
+            // Logger::get("RecoilCorrections")
+            //     ->debug("correctedMetX {} ", correctedMetX);
+            // Logger::get("RecoilCorrections")
+            //     ->debug("correctedMetY {} ", correctedMetY);
             Logger::get("RecoilCorrections")->debug("old met {} ", met.Pt());
+            Logger::get("RecoilCorrections")->debug("old met phi {} ", met.Phi());
             
             
             // define some helper functions
@@ -973,6 +995,10 @@ ROOT::RDF::RNode applyRecoilCorrections(
             else{
 
                 // nominal
+                Logger::get("RecoilCorrections")
+                ->debug("setting for new nominal met {} ", METpt_new);
+                Logger::get("RecoilCorrections")
+                ->debug("setting for new nominal met phi {} ", METphi_new);
                 corrected_met= ROOT::Math::PtEtaPhiMVector(METpt_new, 0, METphi_new, 0);
             }
 
@@ -991,11 +1017,13 @@ ROOT::RDF::RNode applyRecoilCorrections(
             //                                    correctedMetY * correctedMetY));
             Logger::get("RecoilCorrections")
                 ->debug("shifted and corrected met {} ", corrected_met.Pt());
+            Logger::get("RecoilCorrections")
+                ->debug("shifted and corrected met {} ", corrected_met.Phi());
 
             return corrected_met;
         };
         return df.Define(outputname, RecoilCorrections,
-                         {met, genboson, jet_pt, jet_eta});
+                         {met, genboson, jet_pt, jet_eta, veto_mask});
     } else {
         // if we do not apply the recoil corrections, just rename the met
         // column to the new outputname and dont change anything else

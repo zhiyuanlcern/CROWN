@@ -106,6 +106,7 @@ VetoOverlappingJets(ROOT::RDF::RNode df, const std::string &output_col,
             Logger::get("VetoOverlappingJets")
                 ->debug("vetomask due to overlap: {}", mask);
             return mask;
+            // mask 0: fail veto mask 1: pass veto
         },
         {jet_eta, jet_phi, p4_1});
     return df1;
