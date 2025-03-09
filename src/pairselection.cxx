@@ -3,6 +3,7 @@
 
 #include "../include/utility/Logger.hxx"
 #include "../include/utility/utility.hxx"
+#include "../include/basefunctions.hxx"
 #include "ROOT/RDFHelpers.hxx"
 #include "ROOT/RDataFrame.hxx"
 #include "ROOT/RVec.hxx"
@@ -251,6 +252,14 @@ ROOT::RDF::RNode flagGoodPairs(ROOT::RDF::RNode df, const std::string &flagname,
         [](const ROOT::RVec<int> &pair) { return bool(Min(pair) >= 0); },
         {pairname});
 }
+// function to simply cut a quantity greater than given value and return a mask. 
+//  Why is CROWN not having this simple feature before??????
+ROOT::RDF::RNode flagCutMin(ROOT::RDF::RNode df, const std::string &flagname,
+    const std::string &quantity, const float &value) {
+    return df.Define(flagname, [value](float q) { return bool(q >= value); }, {quantity});
+    
+}
+
 
 /// Function used to sort two particles based on the isolation and the
 /// pt of the two particles. The function is used as the ordering

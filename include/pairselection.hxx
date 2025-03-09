@@ -32,6 +32,9 @@ buildtruegenpair(ROOT::RDF::RNode df, const std::string &statusflags,
                  const int daughter_1_pdgid, const int daughter_2_pdgid);
 ROOT::RDF::RNode flagGoodPairs(ROOT::RDF::RNode df, const std::string &flagname,
                                const std::string &pairname);
+
+ROOT::RDF::RNode flagCutMin(ROOT::RDF::RNode df, const std::string &flagname,
+                                const std::string &quantity, const float &value);                               
 auto compareForPairs(const ROOT::RVec<float> &lep1pt,
                      const ROOT::RVec<float> &lep1iso,
                      const ROOT::RVec<float> &lep2pt,

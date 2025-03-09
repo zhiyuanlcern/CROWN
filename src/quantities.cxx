@@ -463,7 +463,7 @@ ROOT::RDF::RNode pzetamissvis(ROOT::RDF::RNode df,
         auto dileptonsystem = p_1_p4.Vect() + p_2_p4.Vect();
         dileptonsystem.SetZ(0);
         auto pzetaVis = dileptonsystem.Dot(zeta);
-        return met_3dvec.Dot(zeta) - (alpha * pzetaVis);
+        return float(met_3dvec.Dot(zeta) - (alpha * pzetaVis));
     };
     return df.Define(outputname, calculate_pzetamissvis, {p_1_p4, p_2_p4, met});
 }
