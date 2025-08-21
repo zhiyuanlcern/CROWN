@@ -166,7 +166,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
             ->debug("eta (trg) Value: {}, eta (reco) Value: {}", triggerobject_etas[idx], abs(particle.eta()));
         Logger::get("CheckTriggerMatch")
             ->debug("-------------------------------------------------------");
-        if (deltaR && bit && id && pt && eta) {
+        if ((deltaR && bit && id && pt && eta) || (triggerbit_cut == -1) ) {
             // remove the matching object from the object vectors so it cant be
             // matched by the next particle as well (if there is one)
             triggerobject_ids.erase(triggerobject_ids.begin() + idx);

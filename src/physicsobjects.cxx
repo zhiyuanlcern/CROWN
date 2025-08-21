@@ -994,6 +994,49 @@ PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
         df.Define(corrected_pt, electron_pt_correction_lambda, {pt, eta});
     return df1;
 }
+
+
+/// Function to correct data electron pt
+///
+/// \param[in] df the input dataframe
+/// \param[out] corrected_pt name of the corrected electron pt to be calculated
+/// \param[in] deltaEtaSC name of the quantity: superCluster().eta()-eta()
+/// \param[in] pt name of the raw electron pt
+/// \param[in] eta the name of the raw electron eta
+
+/// \return a dataframe containing the new pt
+// scale_evaluator.evaluate("scale", data_run, data_electrons.ScEta, data_electrons.r9, data_electrons.pt, data_electrons.seedGain)
+ROOT::RDF::RNode
+PtCorrection_scaling(ROOT::RDF::RNode df, const std::string &corrected_pt,
+                    const std::string &sf_file, const std::string &jsonESname,
+                     const std::string &data_run,
+                     const std::string &deltaEtaSC, const std::string &eta,
+                     const std::string &r9, const std::string &pt, 
+                     const std::string &seedGain) {
+
+    auto evaluator = correction::CorrectionSet::from_file(sf_file)->at(jsonESname);
+    auto electron_pt_correction_lambda =
+        [evaluator](const int data_run, 
+                   const ROOT::RVec<float> &deltaEtaSC, const ROOT::RVec<float> &eta,
+                   const ROOT::RVec<float> &r9, const ROOT::RVec<float> &pt,
+                   const ROOT::RVec<float> &seedGain) {
+            ROOT::RVec<float> corrected_pt_values(pt.size());
+            for (int i = 0; i < pt.size(); i++) {
+                auto ScEta = deltaEtaSC.at(i) + eta.at(i); 
+                auto sf = evaluator->evaluate({"scale", data_run, ScEta,
+                                            r9.at(i), std::abs(ScEta),
+                                            pt.at(i), seedGain.at(i)});
+                corrected_pt_values[i] = pt.at(i) * sf;
+            }
+            return corrected_pt_values;
+        };
+    auto df1 =
+        df.Define(corrected_pt, electron_pt_correction_lambda, {data_run, deltaEtaSC, eta, r9, pt, seedGain});
+    return df1;
+}
+
+
+
 /// Function to cut electrons based on the electron MVA ID
 ///
 /// \param[in] df the input dataframe

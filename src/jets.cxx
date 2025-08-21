@@ -465,11 +465,14 @@ JetPtCorrection(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                pt_values_corrected.at(i);
                 pt_values_corrected.at(i) *= std::max(0.0, 1.0 + shift);
             } else {
-                Logger::get("JetEnergyResolution")
+                // jet horn JER issue: only apply JER to jets with genmatch or without genmatch, and outside jet horn region
+                if (abs(eta_values.at(i)) > 3.0 || abs(eta_values.at(i)) <2.5 )
+                {Logger::get("JetEnergyResolution")
                     ->debug("No gen jet found. Applying stochastic smearing.");
                 double shift = randm.Gaus(0, reso) *
                                std::sqrt(std::max(resoSF * resoSF - 1., 0.0));
-                pt_values_corrected.at(i) *= std::max(0.0, 1.0 + shift);
+                pt_values_corrected.at(i) *= std::max(0.0, 1.0 + shift);}
+                
             }
             Logger::get("JetEnergyResolution")
                 ->debug("Shifting jet pt from {} to {} ", corr_pt,

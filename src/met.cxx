@@ -707,8 +707,14 @@ ROOT::RDF::RNode propagateJetsToMet(
                 corrected_met=ROOT::Math::PtEtaPhiMVector(veto_met, veto_met, veto_met,veto_met);
                 return corrected_met;
             }
+            float min_jet_pt_tmp =0;
             if (veto_mask.at(index) == 1){
-                if (jet_pt_corrected.at(index) > min_jet_pt) {
+                if (abs(jet_eta_corrected.at(index)) > 3.0 || abs(jet_eta_corrected.at(index)) <2.5     ){
+                    min_jet_pt_tmp = 40.0;
+                }    
+                else min_jet_pt_tmp =50.0;
+                if (jet_pt_corrected.at(index) > min_jet_pt_tmp) {
+                
                     // construct the uncorrected and the corrected lorentz
                     // vectors
                     corrected_jet = ROOT::Math::PtEtaPhiMVector(
@@ -720,9 +726,10 @@ ROOT::RDF::RNode propagateJetsToMet(
                     // update the correction factors that are applied to the met
                     corr_x += uncorrected_jet.Px() - corrected_jet.Px();
                     corr_y += uncorrected_jet.Py() - corrected_jet.Py();
+                // }
+                // }
                 }
-            }
-
+            }    
         }
         float MetX = met.Px() + corr_x;
         float MetY = met.Py() + corr_y;
@@ -786,8 +793,8 @@ ROOT::RDF::RNode applyRecoilCorrections(
         // const auto systematics = new MetSystematic(systematicsfile);
         
         auto evaluator = correction::CorrectionSet::from_file(recoilfile)->at("Recoil_correction_Rescaling");
-        auto evaluator_syst = correction::CorrectionSet::from_file(recoilfile)->at("Recoil_correction_Uncertainty");    
-
+        auto evaluator_syst = correction::CorrectionSet::from_file(recoilfile)->at("Recoil_correction_Uncertainty"); 
+        // warning!!!!!!!!! only for testing, put back recoil correction uncertainty once ready!!!    
         // auto shiftType = MetSystematic::SysShift::Nominal;
         // if (shiftUp) {
         //     shiftType = MetSystematic::SysShift::Up;
