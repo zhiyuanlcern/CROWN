@@ -107,6 +107,14 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
        const std::string &jet_veto_mask, const std::string &variation,
        const std::string &sf_output, const std::string &sf_file,
        const std::string &corr_algorithm);
+ROOT::RDF::RNode
+btagSF_FixedWP(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
+        const std::string &btag_discr, const std::string &flavor,
+        const std::string &jet_mask, const std::string &bjet_mask,
+        const std::string &jet_veto_mask, const std::string &variation,
+        const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
+        const std::string &year, const std::string &channel, const float &btag_cut);
+
 } // namespace jet
 namespace embedding {
 ROOT::RDF::RNode

@@ -154,6 +154,21 @@ PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
                      const std::string &pt, const std::string &eta,
                      const float &sf_barrel, const float &sf_endcap);
 
+ROOT::RDF::RNode
+PtCorrection_scaling(ROOT::RDF::RNode df, const std::string &corrected_pt,
+                    const std::string &sf_file, const std::string &jsonESname,
+                    const std::string &data_run,
+                    const std::string &deltaEtaSC, const std::string &eta,
+                    const std::string &r9, const std::string &pt, 
+                    const std::string &seedGain);
+
+ROOT::RDF::RNode
+PtCorrection_smearing(ROOT::RDF::RNode df, const std::string &corrected_pt,
+    const std::string &sf_file, const std::string &jsonESname, 
+    const std::string &Smear_variation,
+    const std::string &pt, const std::string &r9,
+    const std::string &deltaEtaSC, const std::string &eta);                     
+
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID);
 ROOT::RDF::RNode CutCBID(ROOT::RDF::RNode df, const std::string &maskname,

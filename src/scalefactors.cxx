@@ -994,6 +994,86 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
         {pt, eta, btag_discr, flavor, jet_mask, bjet_mask, jet_veto_mask});
     return df1;
 }
+
+
+
+/**
+ * @brief Function used to evaluate b-tagging scale factors of jets with
+ * correctionlib, configurations:
+ * - [UL2018 b-tagging
+ * ID](https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_2018_UL.html)
+ * - [UL2017 b-tagging
+ * ID](https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_2017_UL.html)
+ * - [UL2016preVFP b-tagging
+ * ID](https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_2016preVFP_UL.html)
+ * - [UL2016postVFP b-tagging
+ * ID](https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_2016postVFP_UL.html)
+ * @param df The input dataframe
+ * @param pt jet pt
+ * @param eta jet eta
+ * @param btag_discr btag value of a jet based on a b-jet tagger (e.g. DeepJet)
+ * @param flavor flavor of the jet
+ * @param jet_mask mask for good/selected jets
+ * @param bjet_mask mask for good/selected b jets
+ * @param jet_veto_mask veto mask for overlapping jets
+ * @param variation id for the variation of the scale factor. Available Values:
+ * central, down_*, up_* (* name of variation)
+ * @param sf_output name of the scale factor column
+ * @param sf_file path to the file with the btagging scale factors
+ * @return a new dataframe containing the new column
+ */
+ ROOT::RDF::RNode
+ btagSF_FixedWP(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
+        const std::string &btag_discr, const std::string &flavor,
+        const std::string &jet_mask, const std::string &bjet_mask,
+        const std::string &jet_veto_mask, const std::string &variation,
+        const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
+        const std::string &year, const std::string &channel, const float &btag_cut) {
+     
+     auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
+     auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
+     auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
+     
+ 
+     auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff,variation, year, channel, btag_cut](const ROOT::RVec<float> &pt_values,
+                                      const ROOT::RVec<float> &eta_values,
+                                      const ROOT::RVec<float> &btag_values,
+                                      const ROOT::RVec<UChar_t> &flavors,
+                                      const ROOT::RVec<int> &jet_mask,
+                                      const ROOT::RVec<int> &bjet_mask,
+                                      const ROOT::RVec<int> &jet_veto_mask) {
+         Logger::get("btagSF")->debug("Vatiation - Name {}", variation);
+         float sf = 1.;
+         for (int i = 0; i < pt_values.size(); i++) {
+             Logger::get("btagSF")->debug(
+                 "jet masks - jet {}, bjet {}, jet veto {}", jet_mask.at(i),
+                 bjet_mask.at(i), jet_veto_mask.at(i));
+             // considering only good jets/bjets, this is needed since jets and
+             // bjets might have different cuts depending on the analysis
+             if ((jet_mask.at(i) || bjet_mask.at(i)) && jet_veto_mask.at(i) && pt_values.at(i) >= 20.0 && pt_values.at(i) < 10000.0 && std::abs(eta_values.at(i)) < 2.5 &&  btag_values.at(i) > 0 ) {
+                auto bjet_sf = 1.0;
+                auto pt_tmp = 0.0;
+                if ( pt_values.at(i) >= 200) {pt_tmp = 199.99; } else pt_tmp=  pt_values.at(i) ;
+                if ( flavors.at(i) == 0) {
+                    bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                else {
+                    bjet_sf = evaluator_bc->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+
+                auto  bjet_eff =  btag_eff->evaluate({year, "btagging-eff", channel, pt_tmp, eta_values.at(i), flavors.at(i)  });
+                if (btag_values.at(i) > btag_cut) { sf *= (bjet_sf * bjet_eff/bjet_eff); }
+                else{  sf *= ( (1 - bjet_sf * bjet_eff) /(1 - bjet_eff));   }
+             }
+         };
+         
+         return sf;
+     };
+     auto df1 = df.Define(
+         sf_output, btagSF_lambda,
+         {pt, eta, btag_discr, flavor, jet_mask, bjet_mask, jet_veto_mask});
+     return df1;
+     } 
+
+
 } // namespace jet
 
 namespace embedding {
