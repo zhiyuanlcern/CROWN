@@ -1054,10 +1054,21 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                 auto bjet_sf = 1.0;
                 auto pt_tmp = 0.0;
                 if ( pt_values.at(i) >= 200) {pt_tmp = 199.99; } else pt_tmp=  pt_values.at(i) ;
-                if ( flavors.at(i) == 0) {
-                    bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+
+
+                // for difference case: if evaluate light variation, use light SF and light flavor, vice versa. 
+                if (variation.find("light") != std::string::npos) {
+                    if ( flavors.at(i) == 0) {
+                        bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                    else {
+                        bjet_sf = evaluator_bc->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                }   
                 else {
-                    bjet_sf = evaluator_bc->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                    if ( flavors.at(i) == 0) {
+                        bjet_sf = evaluator_light->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                    else {
+                        bjet_sf = evaluator_bc->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                }
 
                 auto  bjet_eff =  btag_eff->evaluate({year, "btagging-eff", channel, pt_tmp, eta_values.at(i), flavors.at(i)  });
                 if (btag_values.at(i) > btag_cut) { sf *= (bjet_sf * bjet_eff/bjet_eff); }
