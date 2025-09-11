@@ -1268,7 +1268,14 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                 return sf;
             }
             else{
-                sf = extrapolation_factor * evaluator->evaluate({year, correctiontype, trigger, eta, pt});
+
+                if (pt > 1000){
+                    sf = sf = extrapolation_factor * evaluator->evaluate({year, correctiontype, trigger, eta, 999.99});
+                }
+                else {
+                    sf = extrapolation_factor * evaluator->evaluate({year, correctiontype, trigger, eta, pt}); 
+                }
+                
             }
             Logger::get("EmbeddingElectronSF")->debug("sf {}", sf);
             return sf;
