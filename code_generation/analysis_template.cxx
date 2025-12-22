@@ -60,7 +60,9 @@ int main(int argc, char *argv[]) {
     }
     std::vector<std::string> input_files;
     int nevents = 0;
+    Int_t nLHEScaleSumw;
     Double_t sumofweight = 0;
+    std::vector<Double_t> current(9, 0.0);
     Logger::get("main")->info("Checking input files");
     std::string basetree = "Events";
     for (int i = 2; i < argc; i++) {
@@ -79,12 +81,25 @@ int main(int argc, char *argv[]) {
         nevents += t1->GetEntries();
         TTree *t2 = (TTree *)f1->Get("Runs");
         Double_t variable;
+        
         t2->SetBranchAddress("genEventSumw", &variable);
-
+        t2->SetBranchAddress("nLHEScaleSumw", &nLHEScaleSumw); 
+        
+        TLeaf *leaf_lhe = t2->GetLeaf("LHEScaleSumw");
         Long64_t nentries = t2->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t2->GetEntry(j);
             sumofweight += variable;
+            if (nLHEScaleSumw >= 9) {
+                for (int k = 0; k < 9; k++) {
+                    Double_t lhe_val = leaf_lhe->GetValue(k);
+                    current[k] += lhe_val; 
+                }
+            } else {
+                Logger::get("main")->info("File {}: Runs entry {} has only {} LHEScaleSumw entries (expected 9)",
+                                           argv[i], j, nLHEScaleSumw);
+            }
+
         }        
 
         Logger::get("main")->info("input_file {}: {} - {} Events", i - 1,
@@ -132,6 +147,7 @@ int main(int argc, char *argv[]) {
     const std::string sample = {SAMPLETAG};
     const std::string commit_hash = {COMMITHASH};
     const std::string genEventSumw = "genEventSumw";
+    
     bool setup_clean = {CROWN_IS_CLEAN};
     const std::string analysis_commit_hash = {ANALYSIS_COMMITHASH};
     bool analysis_setup_clean = {ANALYSIS_IS_CLEAN};
@@ -156,6 +172,7 @@ int main(int argc, char *argv[]) {
         conditions_meta.Branch(era.c_str(), &setup_clean);
         conditions_meta.Branch(sample.c_str(), &setup_clean);
         conditions_meta.Branch(genEventSumw.c_str(), &sumofweight);
+        conditions_meta.Branch("LHEScaleSumw", &current); 
         conditions_meta.Fill();
         conditions_meta.Write();
         TTree commit_meta = TTree("commit", "commit");
