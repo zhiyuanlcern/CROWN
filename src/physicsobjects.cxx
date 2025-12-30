@@ -1110,7 +1110,7 @@ PtCorrection_scaling(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     static_cast<double>(seedGain[i]) // double
                 };
                 double sf = 1;
-                if (pt[i] > 0) {
+                if (pt[i] > 0 && data_run > 0 && ScEta > -9.0) {
                     sf = evaluator->evaluate(inputs);
                 }
                 
@@ -1169,7 +1169,11 @@ PtCorrection_smearing(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     static_cast<double>(r9[i]),     // double
                     std::abs(ScEta)                 // double
                 };
-                double smear_factor = evaluator->evaluate(nominal_inputs);
+                double smear_factor = 1;
+                if (pt[i] > 0 && ScEta > -9.0) {
+                   smear_factor = evaluator->evaluate(nominal_inputs);
+                }
+                
                 
                 // Generate random number from normal distribution
                 double random_gauss = rng.Gaus(0.0, 1.0);
@@ -1183,7 +1187,10 @@ PtCorrection_smearing(ROOT::RDF::RNode df, const std::string &corrected_pt,
                         static_cast<double>(r9[i]),  // double
                         std::abs(ScEta)             // double
                     };
-                    double unc_smear = evaluator->evaluate(syst_inputs);
+                    double unc_smear = 0;
+                    if (pt[i] > 0 && ScEta > -9.0) {
+                        unc_smear = evaluator->evaluate(syst_inputs); 
+                    }
                     
                     // Apply variation
                     if (Smear_variation.find("Up") != std::string::npos) {
@@ -1201,7 +1208,10 @@ PtCorrection_smearing(ROOT::RDF::RNode df, const std::string &corrected_pt,
                         static_cast<double>(r9[i]),  // double
                         std::abs(ScEta)             // double
                     };
-                    double unc_smear = evaluator->evaluate(syst_inputs);
+                    double unc_smear = 0;
+                    if (pt[i] > 0 && ScEta > -9.0) {
+                        unc_smear = evaluator->evaluate(syst_inputs); 
+                    }
                    
                     // Apply variation
                     if (Smear_variation.find("Up") != std::string::npos) {

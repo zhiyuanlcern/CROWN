@@ -1162,8 +1162,11 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
                          }
          
                          auto  bjet_eff =  btag_eff_evaluator->evaluate({year, "btagging-eff",  pt_tmp, eta_values.at(i), flavors.at(i)  });
+                         
                          if (btag_values.at(i) > btag_cut) { sf *= (bjet_sf * bjet_eff/bjet_eff); }
                          else{  sf *= ( (1 - bjet_sf * bjet_eff) /(1 - bjet_eff));   }
+                         Logger::get("btagSF")->debug(
+                          "btag SF, btag eff, bjet flavour, updated SF - sf {}, eff  {}, jet flavour {}, updated SF {}", bjet_sf, bjet_eff, flavors.at(i), sf);
                       }
                   };
                   
