@@ -83,19 +83,27 @@ int main(int argc, char *argv[]) {
         Double_t variable;
         
         t2->SetBranchAddress("genEventSumw", &variable);
-        t2->SetBranchAddress("nLHEScaleSumw", &nLHEScaleSumw); 
         
-        TLeaf *leaf_lhe = t2->GetLeaf("LHEScaleSumw");
+        // Check if LHEScaleSumw branch exists
+        bool hasLHEScaleSumw = (t2->GetBranch("LHEScaleSumw") != nullptr);
+        TLeaf *leaf_lhe = nullptr;
+        if (hasLHEScaleSumw) {
+            t2->SetBranchAddress("nLHEScaleSumw", &nLHEScaleSumw);
+            leaf_lhe = t2->GetLeaf("LHEScaleSumw");
+        } else {
+            Logger::get("main")->info("File {}: LHEScaleSumw branch not found in Runs tree, skipping LHE scale sumw collection", argv[i]);
+        }
+        
         Long64_t nentries = t2->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t2->GetEntry(j);
             sumofweight += variable;
-            if (nLHEScaleSumw >= 9) {
+            if (hasLHEScaleSumw && nLHEScaleSumw >= 9) {
                 for (int k = 0; k < 9; k++) {
                     Double_t lhe_val = leaf_lhe->GetValue(k);
                     current[k] += lhe_val; 
                 }
-            } else {
+            } else if (hasLHEScaleSumw) {
                 Logger::get("main")->info("File {}: Runs entry {} has only {} LHEScaleSumw entries (expected 9)",
                                            argv[i], j, nLHEScaleSumw);
             }
