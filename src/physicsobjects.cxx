@@ -1109,8 +1109,11 @@ PtCorrection_scaling(ROOT::RDF::RNode df, const std::string &corrected_pt,
                     static_cast<double>(pt[i]),     // double
                     static_cast<double>(seedGain[i]) // double
                 };
+                double sf = 1;
+                if (pt[i] > 0) {
+                    sf = evaluator->evaluate(inputs);
+                }
                 
-                double sf = evaluator->evaluate(inputs);
                 corrected_pt_values[i] = pt[i] * sf;
             }
             return corrected_pt_values;

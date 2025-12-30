@@ -1085,99 +1085,73 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
      } 
 
 
-ROOT::RDF::RNode
+     ROOT::RDF::RNode
 btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
-                 const std::string &btag_discr, const std::string &flavor,
-                 const std::string &jet_mask, const std::string &bjet_mask,
-                 const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
-                 const std::string &variation,
-                 const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-                 const std::string &year, const float &btag_cut) {
-              
-              auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
-              auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
-             //  auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
-             std::map<float, std::shared_ptr<const correction::Correction>> btag_eff;
+            const std::string &btag_discr, const std::string &flavor,
+            const std::string &jet_mask, const std::string &bjet_mask,
+            const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
+            const std::string &variation,
+            const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
+            const std::string &year, const std::string &channel, const float &btag_cut) {
+         
+         auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
+         auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
+         auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
+         
+     
+         auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff,variation, year, channel, btag_cut](const ROOT::RVec<float> &pt_values,
+                                          const ROOT::RVec<float> &eta_values,
+                                          const ROOT::RVec<float> &btag_values,
+                                          const ROOT::RVec<UChar_t> &flavors,
+                                          const ROOT::RVec<int> &jet_mask,
+                                          const ROOT::RVec<int> &bjet_mask,
+                                          const ROOT::RVec<int> &jet_veto_mask, 
+                                          const ROOT::RVec<float> &gen_higgs_mass
+                                        ) {
+             Logger::get("btagSF")->debug("Vatiation - Name {}", variation);
+             float sf = 1.;
+             float higgs_mass = gen_higgs_mass.at(0);
              
-             std::vector<int> mass_points = {60, 80, 100, 120};
-     
-             for (int mass : mass_points) {
-                 std::string modified_eff_file = eff_file;
-                 // Replace .json with _mass.json (equivalent to Python's f"eff_file".replace(".json", key))
-                 size_t pos = modified_eff_file.find(".json");
-                 if (pos != std::string::npos) {
-                     modified_eff_file = modified_eff_file.substr(0, pos) + "_ggH_" + std::to_string(mass) + ".json";
-                 }
-                 btag_eff[mass] = correction::CorrectionSet::from_file(modified_eff_file)->at("Btagging effciency[pt,eta,flavor]");
-             }
-              
-          
-             auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff, variation, year, btag_cut]
-                 (const ROOT::RVec<float> &pt_values,
-                 const ROOT::RVec<float> &eta_values,
-                 const ROOT::RVec<float> &btag_values,
-                 const ROOT::RVec<UChar_t> &flavors,
-                 const ROOT::RVec<int> &jet_mask,
-                 const ROOT::RVec<int> &bjet_mask,
-                 const ROOT::RVec<int> &jet_veto_mask, 
-                 const float &gen_higgs_mass
-               ) {
-                 Logger::get("btagSF")->debug("Vatiation - Name {}", variation);
-                 float sf = 1.;
-                 float higgs_mass = gen_higgs_mass;
-     
-                 // Find the nearest mass point in btag_eff
-                 auto nearest_mass = std::min_element(
-                    btag_eff.begin(), btag_eff.end(),
-                    [higgs_mass](const auto& a, const auto& b) {return std::abs(a.first - higgs_mass) < std::abs(b.first - higgs_mass);
+             for (int i = 0; i < pt_values.size(); i++) {
+                 Logger::get("btagSF")->debug(
+                     "jet masks - jet {}, bjet {}, jet veto {}", jet_mask.at(i),
+                     bjet_mask.at(i), jet_veto_mask.at(i));
+                 // considering only good jets/bjets, this is needed since jets and
+                 // bjets might have different cuts depending on the analysis
+                 if ((jet_mask.at(i) || bjet_mask.at(i)) && jet_veto_mask.at(i) && pt_values.at(i) >= 20.0 && pt_values.at(i) < 10000.0 && std::abs(eta_values.at(i)) < 2.5 &&  btag_values.at(i) > 0 ) {
+                    auto bjet_sf = 1.0;
+                    auto pt_tmp = 0.0;
+                    if ( pt_values.at(i) >= 200) {pt_tmp = 199.99; } else pt_tmp=  pt_values.at(i) ;
+    
+    
+                    // for difference case: if evaluate light variation, use light SF and light flavor, vice versa. 
+                    if (variation.find("light") != std::string::npos) {
+                        if ( flavors.at(i) == 0) {
+                            bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                        else {
+                            bjet_sf = evaluator_bc->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                    }   
+                    else {
+                        if ( flavors.at(i) == 0) {
+                            bjet_sf = evaluator_light->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
+                        else {
+                            bjet_sf = evaluator_bc->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
                     }
-                );
-     
-                 auto btag_eff_evaluator = nearest_mass->second;
-     
-                  for (int i = 0; i < pt_values.size(); i++) {
-                      Logger::get("btagSF")->debug(
-                          "jet masks - jet {}, bjet {}, jet veto {}", jet_mask.at(i),
-                          bjet_mask.at(i), jet_veto_mask.at(i));
-                      // considering only good jets/bjets, this is needed since jets and
-                      // bjets might have different cuts depending on the analysis
-                      if ((jet_mask.at(i) || bjet_mask.at(i)) && jet_veto_mask.at(i) && pt_values.at(i) >= 20.0 && pt_values.at(i) < 10000.0 && std::abs(eta_values.at(i)) < 2.5 &&  btag_values.at(i) > 0 ) {
-                         auto bjet_sf = 1.0;
-                         auto pt_tmp = 0.0;
-                         if ( pt_values.at(i) >= 200) {pt_tmp = 199.99; } else pt_tmp=  pt_values.at(i) ;
-         
-         
-                         // for difference case: if evaluate light variation, use light SF and light flavor, vice versa. 
-                         if (variation.find("light") != std::string::npos) {
-                             if ( flavors.at(i) == 0) {
-                                 bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
-                             else {
-                                 bjet_sf = evaluator_bc->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
-                         }   
-                         else {
-                             if ( flavors.at(i) == 0) {
-                                 bjet_sf = evaluator_light->evaluate({"central", "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
-                             else {
-                                 bjet_sf = evaluator_bc->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
-                         }
-         
-                         auto  bjet_eff =  btag_eff_evaluator->evaluate({year, "btagging-eff",  pt_tmp, eta_values.at(i), flavors.at(i)  });
-                         if (btag_values.at(i) > btag_cut) { sf *= (bjet_sf * bjet_eff/bjet_eff); }
-                         else{  sf *= ( (1 - bjet_sf * bjet_eff) /(1 - bjet_eff));   }
-                      }
-                  };
-                  
-                  return sf;
-              };
-              auto df1 = df.Define(
-                  sf_output, btagSF_lambda,
-                  {pt, eta, btag_discr, flavor, jet_mask, bjet_mask, jet_veto_mask, gen_higgs_mass});
-              return df1;
-     } 
-     
-     
-
-
+    
+                    auto  bjet_eff =  btag_eff->evaluate({year, "btagging-eff", channel, pt_tmp, eta_values.at(i), flavors.at(i)  });
+                    if (btag_values.at(i) > btag_cut) { sf *= (bjet_sf * bjet_eff/bjet_eff); }
+                    else{  sf *= ( (1 - bjet_sf * bjet_eff) /(1 - bjet_eff));   }
+                 }
+             };
+             
+             return sf;
+         };
+         auto df1 = df.Define(
+             sf_output, btagSF_lambda,
+             {pt, eta, btag_discr, flavor, jet_mask, bjet_mask, jet_veto_mask});
+         return df1;
+         } 
+    
 
 } // namespace jet
 
