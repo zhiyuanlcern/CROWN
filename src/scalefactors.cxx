@@ -1028,14 +1028,14 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
         const std::string &jet_mask, const std::string &bjet_mask,
         const std::string &jet_veto_mask, const std::string &variation,
         const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-        const std::string &year, const std::string &channel, const float &btag_cut) {
+        const std::string &year, const std::string &channel, const float &btag_cut, const std::string &btag_sf_flavour) {
      
      auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
      auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
      auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
      
  
-     auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff,variation, year, channel, btag_cut](const ROOT::RVec<float> &pt_values,
+     auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff,variation, year, channel, btag_cut,btag_sf_flavour](const ROOT::RVec<float> &pt_values,
                                       const ROOT::RVec<float> &eta_values,
                                       const ROOT::RVec<float> &btag_values,
                                       const ROOT::RVec<UChar_t> &flavors,
@@ -1057,7 +1057,7 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
 
 
                 // for difference case: if evaluate light variation, use light SF and light flavor, vice versa. 
-                if (variation.find("light") != std::string::npos) {
+                if (btag_sf_flavour.find("light") != std::string::npos) {
                     if ( flavors.at(i) == 0) {
                         bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
                     else {
@@ -1092,7 +1092,7 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
                  const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
                  const std::string &variation,
                  const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-                 const std::string &year, const float &btag_cut) {
+                 const std::string &year, const float &btag_cut,  const std::string &btag_sf_flavour) {
               
               auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
               auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
@@ -1112,7 +1112,7 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
              }
               
           
-             auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff, variation, year, btag_cut]
+             auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff, variation, year, btag_cut,btag_sf_flavour]
                  (const ROOT::RVec<float> &pt_values,
                  const ROOT::RVec<float> &eta_values,
                  const ROOT::RVec<float> &btag_values,
@@ -1148,7 +1148,7 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
          
          
                          // for difference case: if evaluate light variation, use light SF and light flavor, vice versa. 
-                         if (variation.find("light") != std::string::npos) {
+                         if (btag_sf_flavour.find("light") != std::string::npos) {
                              if ( flavors.at(i) == 0) {
                                  bjet_sf = evaluator_light->evaluate({variation, "M", flavors.at(i), std::abs(eta_values.at(i)), pt_values.at(i)  });}
                              else {

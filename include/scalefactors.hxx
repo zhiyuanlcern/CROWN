@@ -113,7 +113,7 @@ btagSF_FixedWP(ROOT::RDF::RNode df, const std::string &pt, const std::string &et
         const std::string &jet_mask, const std::string &bjet_mask,
         const std::string &jet_veto_mask, const std::string &variation,
         const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-        const std::string &year, const std::string &channel, const float &btag_cut);
+        const std::string &year, const std::string &channel, const float &btag_cut,  const std::string &btag_sf_flavour);
 ROOT::RDF::RNode
 btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
                     const std::string &btag_discr, const std::string &flavor,
@@ -121,7 +121,7 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
                     const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
                     const std::string &variation,
                     const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-                    const std::string &year,  const float &btag_cut); 
+                    const std::string &year,  const float &btag_cut, const std::string &btag_sf_flavour); 
 } // namespace jet
 namespace embedding {
 ROOT::RDF::RNode
