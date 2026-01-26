@@ -1067,12 +1067,17 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
         const std::string &btag_discr, const std::string &flavor,
         const std::string &jet_mask, const std::string &bjet_mask,
         const std::string &jet_veto_mask, const std::string &variation,
-        const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
+        const std::string &sf_output, const std::string &sf_file, const std::string &eff_file, const std::string &btag_eff_type,
         const std::string &year, const std::string &channel, const float &btag_cut, const std::string &btag_sf_flavour) {
+     
+     
+
+     
+     std::string eff_file_local = eff_file + "/" + btag_eff_type + "/btagging_effciency.json";
      
      auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
      auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
-     auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
+     auto btag_eff = correction::CorrectionSet::from_file(eff_file_local)->at("Btagging effciency[pt,eta,flavor]");
      
  
      auto btagSF_lambda = [evaluator_bc, evaluator_light, btag_eff,variation, year, channel, btag_cut,btag_sf_flavour](const ROOT::RVec<float> &pt_values,
