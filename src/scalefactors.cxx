@@ -9,8 +9,48 @@
 #include "RooWorkspace.h"
 #include "TFile.h"
 #include "correction.h"
+#include <bitset>
+#include <Math/Vector3D.h>
+#include <Math/VectorUtil.h>
 /// namespace used for scale factor related functions
 namespace scalefactor {
+
+/**
+ * @brief Function used to try and match a object with a trigger object.
+ * Copied from triggers.cxx to avoid namespace issues.
+ */
+// Non-modifying version of matchParticle for use in RDataFrame lambdas
+// This version does NOT erase elements from the vectors to avoid memory corruption
+inline bool matchParticleNoModify(const ROOT::Math::PtEtaPhiMVector &particle,
+                                   const ROOT::RVec<float> &triggerobject_pts,
+                                   const ROOT::RVec<float> &triggerobject_etas,
+                                   const ROOT::RVec<float> &triggerobject_phis,
+                                   ROOT::RVec<ULong64_t> &triggerobject_bits,
+                                   const ROOT::RVec<UShort_t> &triggerobject_ids,
+                                   const float &matchDeltaR,
+                                   const float &pt_cut,
+                                   const float &eta_cut,
+                                   const UShort_t &trigger_particle_id_cut,
+                                   const int &triggerbit_cut) {
+    for (std::size_t idx = 0; idx < triggerobject_pts.size(); ++idx) {
+        auto triggerobject = ROOT::Math::RhoEtaPhiVectorF(
+            0, triggerobject_etas[idx], triggerobject_phis[idx]);
+        bool deltaR = ROOT::Math::VectorUtil::DeltaR(triggerobject, particle) <
+                      matchDeltaR;
+        bool bit = (triggerbit_cut == -1) ||
+                   (std::bitset<30>(triggerobject_bits[idx]).test(triggerbit_cut));
+        bool id = triggerobject_ids[idx] == trigger_particle_id_cut;
+        bool pt = particle.pt() > pt_cut;
+        bool eta = abs(particle.eta()) < eta_cut;
+        
+        if ((deltaR && bit && id && pt && eta) || (triggerbit_cut == -1)) {
+            // Return true WITHOUT erasing elements to avoid memory corruption in RDataFrame
+            return true;
+        }
+    }
+    return false;
+}
+
 namespace muon {
 /**
  * @brief Function used to evaluate id scale factors from muons
@@ -1413,7 +1453,7 @@ ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
     // tauTriggerSF is the only correction set in the file for now, might change
     // with official sf release -> change into additional input parameter
     auto evaluator =
-        correction::CorrectionSet::from_file(sf_file)->at("tauTriggerSF");
+        correction::CorrectionSet::from_file(sf_file)->at("tau_trigger");
     Logger::get("ditau_trigger")->debug("WP {} - trigger type {}, systematic {}", wp, type, syst);
     auto trigger_sf_calculator = [evaluator, wp, type, corrtype,
                                   syst](const float &pt, const UChar_t &decaymode) {
@@ -1443,5 +1483,576 @@ ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
     return df1;
 }
 } // namespace embedding
+
+namespace trigger {
+/**
+ * @brief Function used to evaluate OR trigger scale factor for single electron trigger OR electron-tau cross trigger
+ *
+ * This function computes trigger scale factors for electron-tau channel using
+ * the OR method. It first calculates single electron and cross trigger
+ * flags internally, then applies the OR trigger SF formula.
+ *
+ * Formula:
+ * OR_eff_mc = (passSingle * single_ele_effMc
+ *              - passCross * passSingle * min(single_ele_effMc, ele_leg_effMc) * tau_leg_effMc
+ *              + passCross * ele_leg_effMc * tau_leg_effMc)
+ * OR_eff_data = (passSingle * single_ele_effData
+ *                - passCross * passSingle * min(single_ele_effData, ele_leg_effData) * tau_leg_effData
+ *                + passCross * ele_leg_effData * tau_leg_effData)
+ * trigger_sf = OR_eff_data / OR_eff_mc
+ *
+ * @param df The input dataframe
+ * @param ele_p4 name of electron 4-momentum column
+ * @param tau_p4 name of tau 4-momentum column
+ * @param triggerobject_bits name of trigger object bits column
+ * @param triggerobject_id name of trigger object id column
+ * @param triggerobject_pt name of trigger object pt column
+ * @param triggerobject_eta name of trigger object eta column
+ * @param triggerobject_phi name of trigger object phi column
+ * @param tau_dm name of tau decay mode column
+ * @param sf_output name of output scale factor column
+ * @param single_ele_eff_file path to single electron trigger SF file
+ * @param ele_leg_file path to electron leg of cross trigger SF file
+ * @param tau_leg_file path to tau leg of cross trigger SF file
+ * @param tau_wp tau ID working point
+ * @param single_ele_hlt_path HLT path for single electron trigger
+ * @param cross_ele_hlt_path HLT path for cross e-tau trigger
+ * @return a new dataframe containing the scale factor column
+ */
+ROOT::RDF::RNode
+et_or_trigger_sf(ROOT::RDF::RNode df,
+               const std::string &ele_p4, const std::string &tau_p4,
+               const std::string &triggerobject_bits,
+               const std::string &triggerobject_id,
+               const std::string &triggerobject_pt,
+               const std::string &triggerobject_eta,
+               const std::string &triggerobject_phi,
+               const std::string &tau_dm,
+               const std::string &sf_output,
+               const std::string &ele_sf_year_id,
+               const std::string &ele_leg_file,
+               const std::string &tau_leg_file,
+               const std::string &single_ele_eff_file,
+               const std::string &tau_wp,
+               const std::string &single_ele_hlt_path,
+               const std::string &cross_ele_hlt_path) {
+
+    Logger::get("et_or_trigger_sf")->info("Setting up e-tau OR trigger SF function");
+    Logger::get("et_or_trigger_sf")->info("HLT paths: single={}, cross={}",
+                                        single_ele_hlt_path, cross_ele_hlt_path);
+
+    auto evaluator_single_ele_mc =
+        correction::CorrectionSet::from_file(single_ele_eff_file)->at("Electron-HLT-McEff");
+    auto evaluator_single_ele_data =
+        correction::CorrectionSet::from_file(single_ele_eff_file)->at("Electron-HLT-DataEff");
+    auto evaluator_ele_leg_mc =
+        correction::CorrectionSet::from_file(ele_leg_file)->at("Electron-HLT-McEff");
+    auto evaluator_ele_leg_data =
+        correction::CorrectionSet::from_file(ele_leg_file)->at("Electron-HLT-DataEff");
+    auto evaluator_tau_leg =
+        correction::CorrectionSet::from_file(tau_leg_file)->at("tau_trigger");
+
+    // First, calculate single electron trigger flag internally
+    auto single_ele_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &ele_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result = false;
+            if (hltpath_match) {
+                match_result = matchParticleNoModify(
+                    ele_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 31.0, 2.5, 11, 1);
+            }
+            result = hltpath_match && match_result;
+            return result;
+        };
+
+    ROOT::RDF::RNode df1 = df.Define("trg_single_ele28_tmp", single_ele_match_calculator,
+                       {single_ele_hlt_path, ele_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Then, calculate cross trigger flag internally
+    auto cross_ele_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &ele_p4,
+           const ROOT::Math::PtEtaPhiMVector &tau_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result_ele = false;
+            bool match_result_tau = false;
+            if (hltpath_match) {
+                match_result_ele = matchParticleNoModify(
+                    ele_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 25.0, 2.5, 11, 1);
+                match_result_tau = matchParticleNoModify(
+                    tau_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 32.0, 2.5, 15, 12);
+            }
+            result = hltpath_match && match_result_ele && match_result_tau;
+            return result;
+        };
+
+    ROOT::RDF::RNode df2 = df1.Define("trg_cross_ele25tau27_hps_tmp", cross_ele_match_calculator,
+                       {cross_ele_hlt_path, ele_p4,
+                        tau_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Now calculate the OR trigger SF
+    auto et_or_trigger_sf_calculator = [evaluator_single_ele_mc, evaluator_single_ele_data,
+                                      evaluator_ele_leg_mc, evaluator_ele_leg_data,
+                                      evaluator_tau_leg, tau_wp,ele_sf_year_id](
+                                                                     const ROOT::Math::PtEtaPhiMVector &ele_p4,
+                                                                     const ROOT::Math::PtEtaPhiMVector &tau_p4,
+                                                                     const UChar_t &tau_dm_val,
+                                                                     const bool &passSingle_val,
+                                                                     const bool &passCross_val) {
+        float sf = 1.0;
+        float tau_pt_val = tau_p4.pt();
+        float ele_pt_val = ele_p4.pt();
+        float ele_eta_val = ele_p4.eta();
+
+        // Get MC efficiencies
+        // etau tau threshold: pt 25
+        // etau electron threshold: pt 28
+        // etau electron eta threshold: abs(eta) < 2.1
+        if (tau_pt_val < 25.0) {
+            tau_pt_val = 25.0;
+        }
+        if (ele_pt_val < 25.0) {
+            ele_pt_val = 25.0;
+        }
+        if (std::abs(ele_eta_val) > 2.1) {
+            ele_eta_val = std::abs(ele_eta_val) < 2.1 ? ele_eta_val : 2.1 * ele_eta_val / std::abs(ele_eta_val);
+        }
+        float single_ele_effMc = evaluator_single_ele_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
+        float ele_leg_effMc = evaluator_ele_leg_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_mc", "nom"});
+
+        // Get Data efficiencies - use "nominal_DATAeff" for data eff
+        float single_ele_effData = evaluator_single_ele_data->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
+        float ele_leg_effData = evaluator_ele_leg_data->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_data", "nom"});
+
+        // Calculate OR efficiency for MC
+        float OR_eff_mc = (passSingle_val * single_ele_effMc
+                          - passCross_val * passSingle_val * std::min(single_ele_effMc, ele_leg_effMc) * tau_leg_effMc
+                          + passCross_val * ele_leg_effMc * tau_leg_effMc);
+
+        // Calculate OR efficiency for Data
+        float OR_eff_data = (passSingle_val * single_ele_effData
+                            - passCross_val * passSingle_val * std::min(single_ele_effData, ele_leg_effData) * tau_leg_effData
+                            + passCross_val * ele_leg_effData * tau_leg_effData);
+
+        // Calculate scale factor
+        if (OR_eff_mc > 0) {
+            sf = OR_eff_data / OR_eff_mc;
+        }
+
+        Logger::get("et_or_trigger_sf")->debug("ele_pt={}, ele_eta={}, tau_pt={}, tau_dm={}, passSingle={}, passCross={}, sf={}",
+                                           ele_pt_val, ele_eta_val, tau_pt_val, tau_dm_val, passSingle_val, passCross_val, sf);
+        return sf;
+    };
+
+    auto df3 = df2.Define(sf_output, et_or_trigger_sf_calculator,
+                        {ele_p4, tau_p4, tau_dm, "trg_single_ele28_tmp", "trg_cross_ele25tau27_hps_tmp"});
+    return df3;
+}
+
+/**
+ * @brief Function to calculate mu-tau OR trigger scale factor
+ *
+ * This function computes trigger scale factors for mu-tau channel using
+ * the OR method. It first calculates single muon and cross trigger
+ * flags internally, then applies the OR trigger SF formula.
+ *
+ * @param df The input dataframe
+ * @param muon_p4 name of muon 4-momentum column
+ * @param triggerobject_bits name of trigger object bits column
+ * @param triggerobject_id name of trigger object id column
+ * @param triggerobject_pt name of trigger object pt column
+ * @param triggerobject_eta name of trigger object eta column
+ * @param triggerobject_phi name of trigger object phi column
+ * @param mu_pt name of muon pt column
+ * @param mu_eta name of muon eta column
+ * @param tau_pt name of tau pt column
+ * @param tau_dm name of tau decay mode column
+ * @param sf_output name of output scale factor column
+ * @param single_mu_file path to single muon trigger SF file
+ * @param mu_leg_file path to muon leg trigger SF file
+ * @param tau_leg_file path to tau leg trigger SF file
+ * @param tau_wp tau ID working point
+ * @return a new dataframe containing the scale factor column
+ */
+ROOT::RDF::RNode
+mt_or_trigger_sf(ROOT::RDF::RNode df, 
+               const std::string &muon_p4, const std::string &tau_p4,
+               const std::string &triggerobject_bits,
+               const std::string &triggerobject_id,
+               const std::string &triggerobject_pt,
+               const std::string &triggerobject_eta,
+               const std::string &triggerobject_phi,
+               const std::string &tau_dm,
+               const std::string &sf_output,
+               const std::string &mu_leg_file,
+               const std::string &tau_leg_file, 
+               const std::string &single_mu_eff_file, 
+               const std::string &tau_wp, const std::string &single_mu_hlt_path,
+               const std::string &cross_mu_hlt_path) {
+
+    Logger::get("mt_or_trigger_sf")->info("Setting up mu-tau OR trigger SF function");
+    Logger::get("mt_or_trigger_sf")->info("HLT paths: single={}, cross={}",
+                                        single_mu_hlt_path, cross_mu_hlt_path);
+
+    auto evaluator_single_mu_mc =
+        correction::CorrectionSet::from_file(single_mu_eff_file)->at("NUM_IsoMu24_DEN_CutBasedIdMedium_and_PFIsoMedium");
+    auto evaluator_single_mu_data =
+        correction::CorrectionSet::from_file(single_mu_eff_file)->at("NUM_IsoMu24_DEN_CutBasedIdMedium_and_PFIsoMedium");
+    auto evaluator_mu_leg_mc =
+        correction::CorrectionSet::from_file(mu_leg_file)->at("NUM_IsoMu20_DEN_CutBasedIdMedium_and_PFIsoMedium_MCeff");
+    auto evaluator_mu_leg_data =
+        correction::CorrectionSet::from_file(mu_leg_file)->at("NUM_IsoMu20_DEN_CutBasedIdMedium_and_PFIsoMedium_DATAeff");
+    auto evaluator_tau_leg =
+        correction::CorrectionSet::from_file(tau_leg_file)->at("tau_trigger");
+
+
+    // First, calculate single muon trigger flag internally
+    auto single_mu_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &muon_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result = false;
+            if (hltpath_match) {
+                match_result = matchParticleNoModify(
+                    muon_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 25.0, 2.4, 13, 3);
+            }
+            result = hltpath_match && match_result;
+            return result;
+        };
+
+    ROOT::RDF::RNode df1 = df.Define("trg_single_mu24_tmp", single_mu_match_calculator,
+                       {single_mu_hlt_path, muon_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Then, calculate cross trigger flag internally
+    auto cross_mu_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &muon_p4,
+           const ROOT::Math::PtEtaPhiMVector &tau_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result_mu = false;
+            bool match_result_tau = false;
+            if (hltpath_match) {
+                match_result_mu = matchParticleNoModify(
+                    muon_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 20.0, 2.4, 13, 3);
+                match_result_tau = matchParticleNoModify(
+                    tau_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 27.0, 2.5, 15, 13);
+            }
+            result = hltpath_match && match_result_mu && match_result_tau;
+            return result;
+        };
+
+    ROOT::RDF::RNode df2 = df1.Define("trg_cross_mu20tau27_hps_tmp", cross_mu_match_calculator,
+                       {cross_mu_hlt_path, muon_p4,
+                        tau_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Now calculate the OR trigger SF
+
+    auto mt_or_trigger_sf_calculator = [evaluator_single_mu_mc, evaluator_single_mu_data,
+                                      evaluator_mu_leg_mc, evaluator_mu_leg_data,
+                                      evaluator_tau_leg,   tau_wp](
+                                                                     const ROOT::Math::PtEtaPhiMVector &muon_p4,
+                                                                     const ROOT::Math::PtEtaPhiMVector &tau_p4,
+                                                                     const UChar_t &tau_dm_val,
+                                                                     const bool &passSingle_val,
+                                                                     const bool &passCross_val) {
+        float sf = 1.0;
+        float tau_pt_val = tau_p4.pt();
+        float mu_pt_val = muon_p4.pt();
+        float mu_eta_val = muon_p4.eta();
+
+        // Get MC efficiencies
+        // the evaluate 
+        // Get MC efficiencies - order: eta, pt, scale_factors
+        /// mutau tau threshold: pt 25
+        /// etau tau thresold: pt 25
+        /// ditau tau threshold: pt 35
+        /// mutau mu threshold: pt 26
+        /// mutau mu eta threshold: abs(eta) < 2.1
+        if (tau_pt_val < 25.0) {
+            tau_pt_val = 25.0;
+        }
+        if (mu_pt_val < 26.0) {
+            mu_pt_val = 26.0;
+        }
+        if (std::abs(mu_eta_val) > 2.1) {
+            mu_eta_val = std::abs(mu_eta_val) < 2.1 ? mu_eta_val : 2.1 * mu_eta_val / std::abs(mu_eta_val);
+        }
+        float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, "nominal"});
+        float mu_leg_effMc = evaluator_mu_leg_mc->evaluate({std::abs(mu_eta_val), mu_pt_val, "nominal"});
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_mc", "nom"});
+
+        // Get Data efficiencies - use "nominal_DATAeff" for data eff
+        float single_mu_effData = evaluator_single_mu_data->evaluate({mu_eta_val, mu_pt_val, "nominal_DATAeff"});
+        float mu_leg_effData = evaluator_mu_leg_data->evaluate({std::abs(mu_eta_val), mu_pt_val, "nominal"});
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_data", "nom"});                                                                    
+        // Calculate OR efficiency for MC
+        float OR_eff_mc = (passSingle_val * single_mu_effMc
+                          - passCross_val * passSingle_val * std::min(single_mu_effMc, mu_leg_effMc) * tau_leg_effMc
+                          + passCross_val * mu_leg_effMc * tau_leg_effMc);
+
+        // Calculate OR efficiency for Data
+        float OR_eff_data = (passSingle_val * single_mu_effData
+                            - passCross_val * passSingle_val * std::min(single_mu_effData, mu_leg_effData) * tau_leg_effData
+                            + passCross_val * mu_leg_effData * tau_leg_effData);
+            
+        // Calculate scale factor
+        if (OR_eff_mc > 0) {
+            sf = OR_eff_data / OR_eff_mc;
+        }
+
+        Logger::get("mt_or_trigger_sf")->debug("mu_pt={}, mu_eta={}, tau_pt={}, tau_dm={}, passSingle={}, passCross={}, sf={}",
+                                           mu_pt_val, mu_eta_val, tau_pt_val, tau_dm_val, passSingle_val, passCross_val, sf);
+        return sf;
+    };
+
+    auto df3 = df2.Define(sf_output, mt_or_trigger_sf_calculator,
+                        {muon_p4, tau_p4, tau_dm, "trg_single_mu24_tmp", "trg_cross_mu20tau27_hps_tmp"});
+    return df3;
+}
+
+/**
+ * @brief Function to calculate ditau OR trigger scale factor
+ *
+ * This function computes trigger scale factors for ditau channel using
+ * the OR method. It calculates ditau and ditau+jet trigger flags
+ * internally, then applies the OR trigger SF formula.
+ *
+ * Formula:
+ * OR_eff_mc = (passDiTau * eff_tautau
+ *              - passDiTau * passDiTauJet * min(eff_tautau_ditaujetTrg, eff_tautau_ditauTrg) * eff_jet_ditaujetTrg
+ *              + passDiTauJet * eff_tautau_ditaujetTrg * eff_jet_ditaujetTrg)
+ * OR_eff_data = (passDiTau * eff_tautau_data
+ *                - passDiTau * passDiTauJet * min(eff_tautau_ditaujetTrg, eff_tautau_ditauTrg) * eff_jet_ditaujetTrg
+ *                + passDiTauJet * eff_tautau_ditaujetTrg * eff_jet_ditaujetTrg)
+ * trigger_sf = OR_eff_data / OR_eff_mc
+ *
+ * @param df The input dataframe
+ * @param tau1_p4 name of first tau 4-momentum column
+ * @param tau2_p4 name of second tau 4-momentum column
+ * @param triggerobject_bits name of trigger object bits column
+ * @param triggerobject_id name of trigger object id column
+ * @param triggerobject_pt name of trigger object pt column
+ * @param triggerobject_eta name of trigger object eta column
+ * @param triggerobject_phi name of trigger object phi column
+ * @param tau1_dm name of first tau decay mode column
+ * @param tau2_dm name of second tau decay mode column
+ * @param jet_pt name of jet pt column
+ * @param sf_output name of output scale factor column
+ * @param ditau_eff_file path to ditau trigger SF file
+ * @param ditaujet_eff_file path to ditau+jet trigger SF file
+ * @param tau_wp tau ID working point
+ * @param ditau_hlt_path HLT path for ditau trigger
+ * @param ditaujet_hlt_path HLT path for ditau+jet trigger
+ * @return a new dataframe containing the scale factor column
+ */
+ROOT::RDF::RNode
+ditau_or_trigger_sf(ROOT::RDF::RNode df,
+                 const std::string &tau1_p4, const std::string &tau2_p4,
+                 const std::string &jet_p4,
+                 const std::string &triggerobject_bits,
+                 const std::string &triggerobject_id,
+                 const std::string &triggerobject_pt,
+                 const std::string &triggerobject_eta,
+                 const std::string &triggerobject_phi,
+                 const std::string &tau1_dm,
+                 const std::string &tau2_dm,
+                 const std::string &sf_output,
+                 const std::string &ditau_eff_file,
+                 const std::string &ditaujet_eff_file,
+                 const std::string &tau_wp,
+                 const std::string &ditau_hlt_path,
+                 const std::string &ditaujet_hlt_path) {
+
+    Logger::get("ditau_or_trigger_sf")->info("Setting up ditau OR trigger SF function");
+    Logger::get("ditau_or_trigger_sf")->info("HLT paths: ditau={}, ditau+jet={}",
+                                        ditau_hlt_path, ditaujet_hlt_path);
+
+    auto evaluator_ditau_mc =
+        correction::CorrectionSet::from_file(ditau_eff_file)->at("tau_trigger");
+    auto evaluator_ditau_data =
+        correction::CorrectionSet::from_file(ditau_eff_file)->at("tau_trigger");
+    auto evaluator_ditaujet_mc =
+        correction::CorrectionSet::from_file(ditaujet_eff_file)->at("jetlegSFs");
+    auto evaluator_ditaujet_data =
+        correction::CorrectionSet::from_file(ditaujet_eff_file)->at("jetlegSFs");
+
+
+    // First, calculate ditau trigger flag internally
+    auto ditau_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &tau1_p4,
+           const ROOT::Math::PtEtaPhiMVector &tau2_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result_tau1 = false;
+            bool match_result_tau2 = false;
+            if (hltpath_match) {
+                match_result_tau1 = matchParticleNoModify(
+                    tau1_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 40.0, 2.5, 15, 11);
+                match_result_tau2 = matchParticleNoModify(
+                    tau2_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 40.0, 2.5, 15, 11);
+            }
+            result = hltpath_match && match_result_tau1 && match_result_tau2;
+            return result;
+        };
+
+    ROOT::RDF::RNode df1 = df.Define("trg_ditau_tmp", ditau_match_calculator,
+                       {ditau_hlt_path, tau1_p4, tau2_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Then, calculate ditau+jet trigger flag internally
+    auto ditaujet_match_calculator =
+        [](bool hltpath_match,
+           const ROOT::Math::PtEtaPhiMVector &tau1_p4,
+           const ROOT::Math::PtEtaPhiMVector &tau2_p4,
+           const ROOT::Math::PtEtaPhiMVector &jet_p4,
+           ROOT::RVec<ULong64_t> &triggerobject_bits,
+           const ROOT::RVec<UShort_t> &triggerobject_ids,
+           const ROOT::RVec<float> &triggerobject_pts,
+           const ROOT::RVec<float> &triggerobject_etas,
+           const ROOT::RVec<float> &triggerobject_phis) {
+            bool result = false;
+            bool match_result_tau1 = false;
+            bool match_result_tau2 = false;
+            bool match_result_jet = false;
+            if (hltpath_match) {
+                match_result_tau1 = matchParticleNoModify(
+                    tau1_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 35.0, 2.5, 15, 14);
+                match_result_tau2 = matchParticleNoModify(
+                    tau2_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 35.0, 2.5, 15, 14);
+                match_result_jet = matchParticleNoModify(
+                    jet_p4, triggerobject_pts, triggerobject_etas,
+                    triggerobject_phis, triggerobject_bits, triggerobject_ids,
+                    0.4, 30.0, 2.5, 1, 17);
+            }
+            
+            // result = hltpath_match && match_result_tau1 && match_result_tau2 && match_result_jet;
+            result = hltpath_match && match_result_tau1 && match_result_tau2 ; // the jet matching is not done in trigger setup, only match for ditau
+            return result;
+        };
+
+    ROOT::RDF::RNode df2 = df1.Define("trg_ditaujet_tmp", ditaujet_match_calculator,
+                       {ditaujet_hlt_path, tau1_p4, tau2_p4, jet_p4,
+                        triggerobject_bits, triggerobject_id, triggerobject_pt,
+                        triggerobject_eta, triggerobject_phi});
+
+    // Now calculate the OR trigger SF
+    auto ditau_or_trigger_sf_calculator = [evaluator_ditau_mc, evaluator_ditau_data,
+                                       evaluator_ditaujet_mc, evaluator_ditaujet_data,
+                                       tau_wp](
+                                                                     const ROOT::Math::PtEtaPhiMVector &tau1_p4,
+                                                                     const ROOT::Math::PtEtaPhiMVector &tau2_p4,
+                                                                     const ROOT::Math::PtEtaPhiMVector &jet_p4,
+                                                                     const UChar_t &tau1_dm_val,
+                                                                     const UChar_t &tau2_dm_val,
+                                                                     const bool &passDiTau_val,
+                                                                     const bool &passDiTauJet_val) {
+        float sf = 1.0;
+        float tau1_pt_val = tau1_p4.pt();
+        float tau2_pt_val = tau2_p4.pt();
+        float jet_pt_val = jet_p4.pt();
+        float jet_eta_val = std::abs(jet_p4.eta());
+
+        // Get MC efficiencies
+        // ditau tau threshold: pt 35 (first), pt 40 (second for ditau+jet)
+        if (tau1_pt_val < 40.0) {
+            tau1_pt_val = 40.0;
+        }
+        if (tau2_pt_val < 40.0) {
+            tau2_pt_val = 40.0;
+        }
+        if (jet_pt_val < 30.0) {
+            jet_pt_val = 30.0;
+        }
+        float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, tau1_dm_val, "ditau", tau_wp,  "eff_mc", "nom"}) * evaluator_ditau_mc->evaluate({tau2_pt_val, tau2_dm_val, "ditau", tau_wp, "eff_mc", "nom"});
+        float eff_ditaujetTrg_mc = evaluator_ditaujet_mc->evaluate({jet_pt_val, jet_eta_val, "nom", "mc"}) * eff_tautau_mc;
+
+        // Get Data efficiencies
+        float eff_tautau_data = evaluator_ditau_data->evaluate({tau1_pt_val, tau1_dm_val, "ditau",tau_wp, "eff_data", "nom"}) * evaluator_ditau_data->evaluate({tau2_pt_val, tau2_dm_val, "ditau",tau_wp, "eff_data", "nom"});
+        float eff_ditaujetTrg_data = evaluator_ditaujet_data->evaluate({jet_pt_val, jet_eta_val, "nom", "data"}) * eff_tautau_data;
+      
+        // Calculate OR efficiency for MC
+        float OR_eff_mc = (passDiTau_val * eff_tautau_mc
+                          - passDiTau_val * passDiTauJet_val * std::min(eff_ditaujetTrg_mc, eff_tautau_mc) * eff_ditaujetTrg_mc
+                          + passDiTauJet_val * eff_ditaujetTrg_mc );
+
+        // Calculate OR efficiency for Data
+        float OR_eff_data = (passDiTau_val * eff_tautau_data
+                            - passDiTau_val * passDiTauJet_val * std::min(eff_ditaujetTrg_data, eff_tautau_data) * eff_ditaujetTrg_data
+                            + passDiTauJet_val * eff_ditaujetTrg_data );
+
+        // Calculate scale factor
+        if (OR_eff_mc > 0) {
+            sf = OR_eff_data / OR_eff_mc;
+        }
+
+        Logger::get("ditau_or_trigger_sf")->debug("tau1_pt={}, tau2_pt={}, jet_pt={}, tau1_dm={}, tau2_dm={}, passDiTau={}, passDiTauJet={}, sf={}",
+                                           tau1_pt_val, tau2_pt_val, jet_pt_val, tau1_dm_val, tau2_dm_val, passDiTau_val, passDiTauJet_val, sf);
+        return sf;
+    };
+
+    auto df3 = df2.Define(sf_output, ditau_or_trigger_sf_calculator,
+                        {tau1_p4, tau2_p4, jet_p4, tau1_dm, tau2_dm, "trg_ditau_tmp", "trg_ditaujet_tmp"});
+    return df3;
+}
+
+} // namespace trigger
 } // namespace scalefactor
+
 #endif /* GUARD_SCALEFACTORS_H */

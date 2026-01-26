@@ -155,5 +155,59 @@ ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
                  const std::string &type, const std::string &corrtype,
                  const std::string &syst);
 } // namespace embedding
+
+namespace trigger {
+ROOT::RDF::RNode
+et_or_trigger_sf(ROOT::RDF::RNode df,
+                const std::string &ele_p4, const std::string &tau_p4,
+                const std::string &triggerobject_bits,
+                const std::string &triggerobject_id,
+                const std::string &triggerobject_pt,
+                const std::string &triggerobject_eta,
+                const std::string &triggerobject_phi,
+                const std::string &tau_dm,
+                const std::string &sf_output,
+                const std::string &ele_sf_year_id,
+                const std::string &ele_leg_file,
+                const std::string &tau_leg_file,
+                const std::string &single_ele_eff_file,
+                const std::string &tau_wp,
+                const std::string &single_ele_hlt_path,
+                const std::string &cross_ele_hlt_path);
+
+ROOT::RDF::RNode
+mt_or_trigger_sf(ROOT::RDF::RNode df, 
+                const std::string &muon_p4, const std::string &tau_p4,
+                const std::string &triggerobject_bits,
+                const std::string &triggerobject_id,
+                const std::string &triggerobject_pt,
+                const std::string &triggerobject_eta,
+                const std::string &triggerobject_phi,
+                const std::string &tau_dm,
+                const std::string &sf_output,
+                const std::string &mu_leg_file,
+                const std::string &tau_leg_file, const std::string &single_mu_eff_file, 
+                const std::string &tau_wp, const std::string &single_mu_hlt_path,
+                const std::string &cross_mu_hlt_path);
+
+ROOT::RDF::RNode
+ditau_or_trigger_sf(ROOT::RDF::RNode df,
+                const std::string &tau1_p4, const std::string &tau2_p4,
+                const std::string &jet_p4,
+                const std::string &triggerobject_bits,
+                const std::string &triggerobject_id,
+                const std::string &triggerobject_pt,
+                const std::string &triggerobject_eta,
+                const std::string &triggerobject_phi,
+                const std::string &tau1_dm,
+                const std::string &tau2_dm,
+                const std::string &sf_output,
+                const std::string &ditau_eff_file,
+                const std::string &ditaujet_eff_file,
+                const std::string &tau_wp,
+                const std::string &ditau_hlt_path,
+                const std::string &ditaujet_hlt_path) ;
+} // namespace trigger
+
 } // namespace scalefactor
 #endif /* GUARD_SCALEFACTORS_H */

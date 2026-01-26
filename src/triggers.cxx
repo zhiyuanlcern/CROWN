@@ -115,7 +115,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
                    ROOT::RVec<float> &triggerobject_pts,
                    ROOT::RVec<float> &triggerobject_etas,
                    ROOT::RVec<float> &triggerobject_phis,
-                   ROOT::RVec<int> &triggerobject_bits,
+                   ROOT::RVec<ULong64_t> &triggerobject_bits,
                    ROOT::RVec<UShort_t> &triggerobject_ids, const float &matchDeltaR,
                    const float &pt_cut, const float &eta_cut,
                    const UShort_t &trigger_particle_id_cut,
@@ -126,7 +126,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
     for (std::size_t idx = 0; idx < triggerobject_pts.size(); ++idx) {
         Logger::get("CheckTriggerMatch")->debug("Triggerobject Nr. {}", idx);
         Logger::get("CheckTriggerMatch")
-            ->debug("bit Value: {}", IntBits(triggerobject_bits[idx]));
+            ->debug("bit Value: {}", IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])));
         Logger::get("CheckTriggerMatch")
             ->debug("bit Value: {}", triggerobject_bits[idx]);
         auto triggerobject = ROOT::Math::RhoEtaPhiVectorF(
@@ -140,10 +140,10 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
         Logger::get("CheckTriggerMatch")
             ->debug("bit Value: {}", triggerobject_bits[idx]);
         bool bit = (triggerbit_cut == -1) ||
-                   (IntBits(triggerobject_bits[idx]).test(triggerbit_cut));
+                   (IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])).test(triggerbit_cut));
         bool id = triggerobject_ids[idx] == trigger_particle_id_cut;
-        bool pt = particle.pt() > pt_cut;
-        bool eta = abs(particle.eta()) < eta_cut;
+        bool pt = triggerobject_pts[idx] > pt_cut;
+        bool eta = std::abs(triggerobject_etas[idx]) < eta_cut;
         Logger::get("CheckTriggerMatch")
             ->debug("Partice Lorentz Vector: {}, {}, {}, {}", particle.pt(), particle.eta(), particle.phi(), particle.mass());
         Logger::get("CheckTriggerMatch")
@@ -157,7 +157,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
             ->debug("id Value: {}", triggerobject_ids[idx]);
         Logger::get("CheckTriggerMatch")->debug("bit/triggerbit_cut Check: {}/{}", bit, triggerbit_cut);
         Logger::get("CheckTriggerMatch")
-            ->debug("bit Value: {}", IntBits(triggerobject_bits[idx]));
+            ->debug("bit Value: {}", IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])));
         Logger::get("CheckTriggerMatch")->debug("pt/pt_cut Check: {}/{}", pt, pt_cut);
         Logger::get("CheckTriggerMatch")
             ->debug("pt Value (trg): {}, pt Value (reco): {}", triggerobject_pts[idx], particle.pt());
@@ -223,7 +223,7 @@ ROOT::RDF::RNode GenerateSingleTriggerFlag(
         [DeltaR_threshold, pt_cut, eta_cut, trigger_particle_id_cut,
          triggerbit_cut, hltpath](bool hltpath_match,
                          const ROOT::Math::PtEtaPhiMVector &particle_p4,
-                         ROOT::RVec<int> triggerobject_bits,
+                         ROOT::RVec<ULong64_t> triggerobject_bits,
                          ROOT::RVec<UShort_t> triggerobject_ids,
                          ROOT::RVec<float> triggerobject_pts,
                          ROOT::RVec<float> triggerobject_etas,
@@ -358,7 +358,7 @@ ROOT::RDF::RNode GenerateDoubleTriggerFlag(
                             bool hltpath_match,
                             const ROOT::Math::PtEtaPhiMVector &particle1_p4,
                             const ROOT::Math::PtEtaPhiMVector &particle2_p4,
-                            ROOT::RVec<int> triggerobject_bits,
+                            ROOT::RVec<ULong64_t> triggerobject_bits,
                             ROOT::RVec<UShort_t> triggerobject_ids,
                             ROOT::RVec<float> triggerobject_pts,
                             ROOT::RVec<float> triggerobject_etas,
@@ -373,17 +373,24 @@ ROOT::RDF::RNode GenerateDoubleTriggerFlag(
             Logger::get("GenerateDoubleTriggerFlag")
                 ->debug("Checking Triggerobject match with particles ....");
             Logger::get("GenerateDoubleTriggerFlag")->debug("First particle");
+            Logger::get("GenerateDoubleTriggerFlag")->debug("Triggerobject vectors sizes before P1 match: bits={}, ids={}, pts={}, etas={}, phis={}", triggerobject_bits.size(), triggerobject_ids.size(), triggerobject_pts.size(), triggerobject_etas.size(), triggerobject_phis.size());
+            Logger::get("GenerateDoubleTriggerFlag")->debug("P1 cuts: pt_cut={}, eta_cut={}, id_cut={}, bit_cut={}", p1_pt_cut, p1_eta_cut, p1_trigger_particle_id_cut, p1_triggerbit_cut);
+            Logger::get("GenerateDoubleTriggerFlag")->debug("P1 particle p4: pt={}, eta={}, phi={}, mass={}", particle1_p4.pt(), particle1_p4.eta(), particle1_p4.phi(), particle1_p4.mass());
             match_result_p1 = matchParticle(
                 particle1_p4, triggerobject_pts, triggerobject_etas,
                 triggerobject_phis, triggerobject_bits, triggerobject_ids,
                 DeltaR_threshold, p1_pt_cut, p1_eta_cut,
                 p1_trigger_particle_id_cut, p1_triggerbit_cut);
+            Logger::get("GenerateDoubleTriggerFlag")->debug("Match result P1: {}. Triggerobject vectors sizes after P1 match: bits={}, ids={}, pts={}, etas={}, phis={}", match_result_p1, triggerobject_bits.size(), triggerobject_ids.size(), triggerobject_pts.size(), triggerobject_etas.size(), triggerobject_phis.size());
             Logger::get("GenerateDoubleTriggerFlag")->debug("Second particle");
+            Logger::get("GenerateDoubleTriggerFlag")->debug("P2 cuts: pt_cut={}, eta_cut={}, id_cut={}, bit_cut={}", p2_pt_cut, p2_eta_cut, p2_trigger_particle_id_cut, p2_triggerbit_cut);
+            Logger::get("GenerateDoubleTriggerFlag")->debug("P2 particle p4: pt={}, eta={}, phi={}, mass={}", particle2_p4.pt(), particle2_p4.eta(), particle2_p4.phi(), particle2_p4.mass());
             match_result_p2 = matchParticle(
                 particle2_p4, triggerobject_pts, triggerobject_etas,
                 triggerobject_phis, triggerobject_bits, triggerobject_ids,
                 DeltaR_threshold, p2_pt_cut, p2_eta_cut,
                 p2_trigger_particle_id_cut, p2_triggerbit_cut);
+            Logger::get("GenerateDoubleTriggerFlag")->debug("Match result P2: {}. Triggerobject vectors sizes after P2 match: bits={}, ids={}, pts={}, etas={}, phis={}", match_result_p2, triggerobject_bits.size(), triggerobject_ids.size(), triggerobject_pts.size(), triggerobject_etas.size(), triggerobject_phis.size());
         }
         result = hltpath_match & match_result_p1 & match_result_p2;
         Logger::get("GenerateDoubleTriggerFlag")
@@ -498,7 +505,7 @@ ROOT::RDF::RNode MatchDoubleTriggerObject(
          p1_triggerbit_cut,
          p2_triggerbit_cut](const ROOT::Math::PtEtaPhiMVector &particle1_p4,
                             const ROOT::Math::PtEtaPhiMVector &particle2_p4,
-                            ROOT::RVec<int> triggerobject_bits,
+                            ROOT::RVec<ULong64_t> triggerobject_bits,
                             ROOT::RVec<UShort_t> triggerobject_ids,
                             ROOT::RVec<float> triggerobject_pts,
                             ROOT::RVec<float> triggerobject_etas,
@@ -574,12 +581,12 @@ ROOT::RDF::RNode MatchSingleTriggerObject(
     auto triggermatch = [DeltaR_threshold, pt_cut, eta_cut,
                          trigger_particle_id_cut, triggerbit_cut](
                             const ROOT::Math::PtEtaPhiMVector &particle_p4,
-                            ROOT::RVec<int> triggerobject_bits,
+                            ROOT::RVec<ULong64_t> triggerobject_bits,
                             ROOT::RVec<UShort_t> triggerobject_ids,
                             ROOT::RVec<float> triggerobject_pts,
                             ROOT::RVec<float> triggerobject_etas,
                             ROOT::RVec<float> triggerobject_phis) {
-        Logger::get("MatchSingleTriggerObject")->debug("Checking Trigger");
+            Logger::get("MatchSingleTriggerObject")->debug("Checking Trigger");
         Logger::get("MatchSingleTriggerObject")
             ->debug("Checking Triggerobject match with particles ....");
         bool match_result =
@@ -635,7 +642,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
                    ROOT::RVec<float> &triggerobject_pts,
                    ROOT::RVec<float> &triggerobject_etas,
                    ROOT::RVec<float> &triggerobject_phis,
-                   ROOT::RVec<int> &triggerobject_bits,
+                   ROOT::RVec<ULong64_t> &triggerobject_bits,
                    ROOT::RVec<UShort_t> &triggerobject_ids, const float &matchDeltaR,
                    const float &pt_cut, const float &eta_cut,
                    const UShort_t &trigger_particle_id_cut,
@@ -647,7 +654,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
     for (std::size_t idx = 0; idx < triggerobject_pts.size(); ++idx) {
         Logger::get("CheckTriggerMatch")->debug("Triggerobject Nr. {}", idx);
         Logger::get("CheckTriggerMatch")
-            ->debug("bit Value: {}", IntBits(triggerobject_bits[idx]));
+            ->debug("bit Value: {}", IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])));
         Logger::get("CheckTriggerMatch")
             ->debug("bit Value: {}", triggerobject_bits[idx]);
         auto triggerobject = ROOT::Math::RhoEtaPhiVectorF(
@@ -661,7 +668,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
         Logger::get("CheckTriggerMatch")
             ->debug("bit Value: {}", triggerobject_bits[idx]);
         bool bit = (triggerbit_cut == -1) ||
-                   (IntBits(triggerobject_bits[idx]).test(triggerbit_cut));
+                   (IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])).test(triggerbit_cut));
         bool id = triggerobject_ids[idx] == trigger_particle_id_cut;
         bool pt = particle.pt() > pt_cut;
         bool eta = abs(particle.eta()) < eta_cut;
@@ -681,7 +688,7 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
             ->debug("id Value: {}", triggerobject_ids[idx]);
         Logger::get("CheckTriggerMatch")->debug("bit/triggerbit_cut Check: {}/{}", bit, triggerbit_cut);
         Logger::get("CheckTriggerMatch")
-            ->debug("bit Value: {}", IntBits(triggerobject_bits[idx]));
+            ->debug("bit Value: {}", IntBits(static_cast<unsigned long long>(triggerobject_bits[idx])));
         Logger::get("CheckTriggerMatch")->debug("pt/pt_cut Check: {}/{}", pt, pt_cut);
         Logger::get("CheckTriggerMatch")
             ->debug("pt Value (trg): {}, pt Value (reco): {}", triggerobject_pts[idx], particle.pt());
@@ -745,7 +752,7 @@ ROOT::RDF::RNode MatchSingleTriggerObject(
     auto triggermatch = [DeltaR_threshold, pt_cut, eta_cut,
                          trigger_particle_id_cut, triggerbit_cut, trigger_particle_pt_cut](
                             const ROOT::Math::PtEtaPhiMVector &particle_p4,
-                            ROOT::RVec<int> triggerobject_bits,
+                            ROOT::RVec<ULong64_t> triggerobject_bits,
                             ROOT::RVec<UShort_t> triggerobject_ids,
                             ROOT::RVec<float> triggerobject_pts,
                             ROOT::RVec<float> triggerobject_etas,
@@ -814,7 +821,7 @@ ROOT::RDF::RNode GenerateSingleTriggerFlag(
         [DeltaR_threshold, pt_cut, eta_cut, trigger_particle_id_cut,
          triggerbit_cut, trigger_particle_pt_cut, hltpath](
             bool hltpath_match, const ROOT::Math::PtEtaPhiMVector &particle_p4,
-            ROOT::RVec<int> triggerobject_bits,
+            ROOT::RVec<ULong64_t> triggerobject_bits,
             ROOT::RVec<UShort_t> triggerobject_ids,
             ROOT::RVec<float> triggerobject_pts,
             ROOT::RVec<float> triggerobject_etas,
@@ -955,7 +962,7 @@ ROOT::RDF::RNode GenerateDoubleTriggerFlag(
                             bool hltpath_match,
                             const ROOT::Math::PtEtaPhiMVector &particle1_p4,
                             const ROOT::Math::PtEtaPhiMVector &particle2_p4,
-                            ROOT::RVec<int> triggerobject_bits,
+                            ROOT::RVec<ULong64_t> triggerobject_bits,
                             ROOT::RVec<UShort_t> triggerobject_ids,
                             ROOT::RVec<float> triggerobject_pts,
                             ROOT::RVec<float> triggerobject_etas,
