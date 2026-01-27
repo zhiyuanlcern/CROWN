@@ -1643,6 +1643,9 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
         if (std::abs(ele_eta_val) > 2.1) {
             ele_eta_val = std::abs(ele_eta_val) < 2.1 ? ele_eta_val : 2.1 * ele_eta_val / std::abs(ele_eta_val);
         }
+        // single ele: nom, up,down
+        // ele leg: nom, up, down
+        // tau leg: nom, up, down
         float single_ele_effMc = evaluator_single_ele_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
         float ele_leg_effMc = evaluator_ele_leg_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
         float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_mc", "nom"});
@@ -1825,7 +1828,11 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
         if (std::abs(mu_eta_val) > 2.1) {
             mu_eta_val = std::abs(mu_eta_val) < 2.1 ? mu_eta_val : 2.1 * mu_eta_val / std::abs(mu_eta_val);
         }
-        float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, "nominal"});
+
+        // tau: nom, up, down
+        // muon leg: systup, systdown, nominal
+        // single mu: systup_DATAeff, systdown_DATAeff, nominal_DATAeff, nominal_MCeff, systup_MCeff, systdown_MCeff
+        float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, "nominal_MCeff"});
         float mu_leg_effMc = evaluator_mu_leg_mc->evaluate({std::abs(mu_eta_val), mu_pt_val, "nominal"});
         float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_mc", "nom"});
 
@@ -2025,6 +2032,9 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
         if (jet_pt_val < 30.0) {
             jet_pt_val = 30.0;
         }
+
+        // tau: nom, up, down
+        // tau+jet: nom, up, down
         float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, tau1_dm_val, "ditau", tau_wp,  "eff_mc", "nom"}) * evaluator_ditau_mc->evaluate({tau2_pt_val, tau2_dm_val, "ditau", tau_wp, "eff_mc", "nom"});
         float eff_ditaujetTrg_mc = evaluator_ditaujet_mc->evaluate({jet_pt_val, jet_eta_val, "nom", "mc"}) * eff_tautau_mc;
 
