@@ -1074,7 +1074,6 @@ btagSF(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
 
      
      std::string eff_file_local = eff_file + "/" + btag_eff_type + "/btagging_effciency.json";
-     
      auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
      auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
      auto btag_eff = correction::CorrectionSet::from_file(eff_file_local)->at("Btagging effciency[pt,eta,flavor]");
@@ -1137,22 +1136,22 @@ btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::str
                  const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
                  const std::string &variation,
                  const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-                 const std::string &year, const float &btag_cut,  const std::string &btag_sf_flavour) {
+                 const std::string &year, const float &btag_cut,  const std::string &btag_sf_flavour, 
+                 const std::string &btag_eff_type) {
               
               auto evaluator_bc = correction::CorrectionSet::from_file(sf_file)->at("particleNet_comb");
               auto evaluator_light = correction::CorrectionSet::from_file(sf_file)->at("particleNet_light");
              //  auto btag_eff = correction::CorrectionSet::from_file(eff_file)->at("Btagging effciency[pt,eta,flavor]");
              std::map<float, std::shared_ptr<const correction::Correction>> btag_eff;
              
-             std::vector<int> mass_points = {60, 80, 100, 120};
+             std::vector<int> mass_points = {100,1000,105,110,1100,115,120,1200,125,130,135,140,1400,160,1600,180,1800,200,
+                2000,2300,250,2600,2900,300,3200,350,3500,400,450,500,60,600,65,70,700,75,80,800,85,90,900,95};
      
+             std::string prefix = btag_eff_type;
+             if (btag_eff_type.find("ggh") != std::string::npos) prefix = "ggH";
+             else if (btag_eff_type.find("vbf") != std::string::npos) prefix = "bbH";
              for (int mass : mass_points) {
-                 std::string modified_eff_file = eff_file;
-                 // Replace .json with _mass.json (equivalent to Python's f"eff_file".replace(".json", key))
-                 size_t pos = modified_eff_file.find(".json");
-                 if (pos != std::string::npos) {
-                     modified_eff_file = modified_eff_file.substr(0, pos) + "_ggH_" + std::to_string(mass) + ".json";
-                 }
+                 std::string modified_eff_file = eff_file + "/" + prefix + "_" + std::to_string(mass) + "/btagging_effciency.json";
                  btag_eff[mass] = correction::CorrectionSet::from_file(modified_eff_file)->at("Btagging effciency[pt,eta,flavor]");
              }
               
@@ -1540,7 +1539,9 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
                const std::string &single_ele_eff_file,
                const std::string &tau_wp,
                const std::string &single_ele_hlt_path,
-               const std::string &cross_ele_hlt_path) {
+               const std::string &cross_ele_hlt_path, 
+               const std::string &syst
+            ) {
 
     Logger::get("et_or_trigger_sf")->info("Setting up e-tau OR trigger SF function");
     Logger::get("et_or_trigger_sf")->info("HLT paths: single={}, cross={}",
@@ -1578,10 +1579,17 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df1 = df.Define("trg_single_ele28_tmp", single_ele_match_calculator,
+    std::string single_tmp_name = "trg_single_ele28_tmp";
+    if (syst != "nom") single_tmp_name += std::string("_") + syst;
+    auto available_cols0 = df.GetColumnNames();
+    bool has_single_col = (std::find(available_cols0.begin(), available_cols0.end(), single_tmp_name) != available_cols0.end());
+    ROOT::RDF::RNode df1 = df;
+    if (!has_single_col) {
+        df1 = df.Define(single_tmp_name, single_ele_match_calculator,
                        {single_ele_hlt_path, ele_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Then, calculate cross trigger flag internally
     auto cross_ele_match_calculator =
@@ -1610,16 +1618,23 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df2 = df1.Define("trg_cross_ele25tau27_hps_tmp", cross_ele_match_calculator,
+    std::string cross_tmp_name = "trg_cross_ele25tau27_hps_tmp";
+    if (syst != "nom") cross_tmp_name += std::string("_") + syst;
+    auto available_cols1 = df1.GetColumnNames();
+    bool has_cross_col = (std::find(available_cols1.begin(), available_cols1.end(), cross_tmp_name) != available_cols1.end());
+    ROOT::RDF::RNode df2 = df1;
+    if (!has_cross_col) {
+        df2 = df1.Define(cross_tmp_name, cross_ele_match_calculator,
                        {cross_ele_hlt_path, ele_p4,
                         tau_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Now calculate the OR trigger SF
     auto et_or_trigger_sf_calculator = [evaluator_single_ele_mc, evaluator_single_ele_data,
                                       evaluator_ele_leg_mc, evaluator_ele_leg_data,
-                                      evaluator_tau_leg, tau_wp,ele_sf_year_id](
+                                      evaluator_tau_leg, tau_wp,ele_sf_year_id, syst](
                                                                      const ROOT::Math::PtEtaPhiMVector &ele_p4,
                                                                      const ROOT::Math::PtEtaPhiMVector &tau_p4,
                                                                      const UChar_t &tau_dm_val,
@@ -1643,17 +1658,32 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
         if (std::abs(ele_eta_val) > 2.1) {
             ele_eta_val = std::abs(ele_eta_val) < 2.1 ? ele_eta_val : 2.1 * ele_eta_val / std::abs(ele_eta_val);
         }
-        // single ele: nom, up,down
-        // ele leg: nom, up, down
-        // tau leg: nom, up, down
-        float single_ele_effMc = evaluator_single_ele_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
-        float ele_leg_effMc = evaluator_ele_leg_mc->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
-        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_mc", "nom"});
+        // single ele / ele leg / tau leg syst mapping
+        std::string syst_single_ele;
+        std::string syst_ele_leg;
+        std::string syst_tau_leg;
+        if (syst == "up") {
+            syst_single_ele = "up";
+            syst_ele_leg = "up";
+            syst_tau_leg = "up";
+        } else if (syst == "down") {
+            syst_single_ele = "down";
+            syst_ele_leg = "down";
+            syst_tau_leg = "down";
+        } else {
+            syst_single_ele = "nom";
+            syst_ele_leg = "nom";
+            syst_tau_leg = "nom";
+        }
 
-        // Get Data efficiencies - use "nominal_DATAeff" for data eff
-        float single_ele_effData = evaluator_single_ele_data->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
-        float ele_leg_effData = evaluator_ele_leg_data->evaluate({ele_sf_year_id, "nom", "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
-        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_data", "nom"});
+        float single_ele_effMc = evaluator_single_ele_mc->evaluate({ele_sf_year_id, syst_single_ele, "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
+        float ele_leg_effMc = evaluator_ele_leg_mc->evaluate({ele_sf_year_id, syst_ele_leg, "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_mc", syst_tau_leg});
+
+        // Get Data efficiencies
+        float single_ele_effData = evaluator_single_ele_data->evaluate({ele_sf_year_id, syst_single_ele, "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
+        float ele_leg_effData = evaluator_ele_leg_data->evaluate({ele_sf_year_id, syst_ele_leg, "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_data", syst_tau_leg});
 
         // Calculate OR efficiency for MC
         float OR_eff_mc = (passSingle_val * single_ele_effMc
@@ -1669,14 +1699,21 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
         if (OR_eff_mc > 0) {
             sf = OR_eff_data / OR_eff_mc;
         }
-
+        if (OR_eff_data <= 0) {
+            sf = 1.0;
+        }
         Logger::get("et_or_trigger_sf")->debug("ele_pt={}, ele_eta={}, tau_pt={}, tau_dm={}, passSingle={}, passCross={}, sf={}",
                                            ele_pt_val, ele_eta_val, tau_pt_val, tau_dm_val, passSingle_val, passCross_val, sf);
         return sf;
     };
 
-    auto df3 = df2.Define(sf_output, et_or_trigger_sf_calculator,
-                        {ele_p4, tau_p4, tau_dm, "trg_single_ele28_tmp", "trg_cross_ele25tau27_hps_tmp"});
+    auto available_cols2 = df2.GetColumnNames();
+    bool has_sf_col = (std::find(available_cols2.begin(), available_cols2.end(), sf_output) != available_cols2.end());
+    ROOT::RDF::RNode df3 = df2;
+    if (!has_sf_col) {
+        df3 = df2.Define(sf_output, et_or_trigger_sf_calculator,
+                        {ele_p4, tau_p4, tau_dm, single_tmp_name, cross_tmp_name});
+    }
     return df3;
 }
 
@@ -1719,7 +1756,9 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
                const std::string &tau_leg_file, 
                const std::string &single_mu_eff_file, 
                const std::string &tau_wp, const std::string &single_mu_hlt_path,
-               const std::string &cross_mu_hlt_path) {
+               const std::string &cross_mu_hlt_path,
+               const std::string &syst
+            ) {
 
     Logger::get("mt_or_trigger_sf")->info("Setting up mu-tau OR trigger SF function");
     Logger::get("mt_or_trigger_sf")->info("HLT paths: single={}, cross={}",
@@ -1758,10 +1797,17 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df1 = df.Define("trg_single_mu24_tmp", single_mu_match_calculator,
+    std::string single_mu_tmp = "trg_single_mu24_tmp";
+    if (syst != "nom") single_mu_tmp += std::string("_") + syst;
+    auto available_cols0 = df.GetColumnNames();
+    bool has_singlemu_col = (std::find(available_cols0.begin(), available_cols0.end(), single_mu_tmp) != available_cols0.end());
+    ROOT::RDF::RNode df1 = df;
+    if (!has_singlemu_col) {
+        df1 = df.Define(single_mu_tmp, single_mu_match_calculator,
                        {single_mu_hlt_path, muon_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Then, calculate cross trigger flag internally
     auto cross_mu_match_calculator =
@@ -1790,17 +1836,24 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df2 = df1.Define("trg_cross_mu20tau27_hps_tmp", cross_mu_match_calculator,
+    std::string cross_mu_tmp = "trg_cross_mu20tau27_hps_tmp";
+    if (syst != "nom") cross_mu_tmp += std::string("_") + syst;
+    auto available_cols1 = df1.GetColumnNames();
+    bool has_crossmu_col = (std::find(available_cols1.begin(), available_cols1.end(), cross_mu_tmp) != available_cols1.end());
+    ROOT::RDF::RNode df2 = df1;
+    if (!has_crossmu_col) {
+        df2 = df1.Define(cross_mu_tmp, cross_mu_match_calculator,
                        {cross_mu_hlt_path, muon_p4,
                         tau_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Now calculate the OR trigger SF
 
     auto mt_or_trigger_sf_calculator = [evaluator_single_mu_mc, evaluator_single_mu_data,
                                       evaluator_mu_leg_mc, evaluator_mu_leg_data,
-                                      evaluator_tau_leg,   tau_wp](
+                                      evaluator_tau_leg,   tau_wp, syst](
                                                                      const ROOT::Math::PtEtaPhiMVector &muon_p4,
                                                                      const ROOT::Math::PtEtaPhiMVector &tau_p4,
                                                                      const UChar_t &tau_dm_val,
@@ -1832,14 +1885,36 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
         // tau: nom, up, down
         // muon leg: systup, systdown, nominal
         // single mu: systup_DATAeff, systdown_DATAeff, nominal_DATAeff, nominal_MCeff, systup_MCeff, systdown_MCeff
-        float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, "nominal_MCeff"});
-        float mu_leg_effMc = evaluator_mu_leg_mc->evaluate({std::abs(mu_eta_val), mu_pt_val, "nominal"});
-        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_mc", "nom"});
 
-        // Get Data efficiencies - use "nominal_DATAeff" for data eff
-        float single_mu_effData = evaluator_single_mu_data->evaluate({mu_eta_val, mu_pt_val, "nominal_DATAeff"});
-        float mu_leg_effData = evaluator_mu_leg_data->evaluate({std::abs(mu_eta_val), mu_pt_val, "nominal"});
-        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_data", "nom"});                                                                    
+        std::string syst_single_mu_mc;
+        std::string syst_single_mu_data;
+        std::string syst_mu_leg;
+        std::string syst_tau_leg;
+        if (syst == "up") {
+            syst_single_mu_mc = "systup_MCeff";
+            syst_single_mu_data = "systup_DATAeff";
+            syst_mu_leg = "systup";
+            syst_tau_leg = "up";
+        } else if (syst == "down") {
+            syst_single_mu_mc = "systdown_MCeff";
+            syst_single_mu_data = "systdown_DATAeff";
+            syst_mu_leg = "systdown";
+            syst_tau_leg = "down";
+        } else {
+            syst_single_mu_mc = "nominal_MCeff";
+            syst_single_mu_data = "nominal_DATAeff";
+            syst_mu_leg = "nominal";
+            syst_tau_leg = "nom";
+        }
+
+        float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, syst_single_mu_mc});
+        float mu_leg_effMc = evaluator_mu_leg_mc->evaluate({std::abs(mu_eta_val), mu_pt_val, syst_mu_leg});
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_mc", syst_tau_leg});
+
+        // Get Data efficiencies - use mapped DATAeff key
+        float single_mu_effData = evaluator_single_mu_data->evaluate({mu_eta_val, mu_pt_val, syst_single_mu_data});
+        float mu_leg_effData = evaluator_mu_leg_data->evaluate({std::abs(mu_eta_val), mu_pt_val, syst_mu_leg});
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_data", syst_tau_leg});                                                                    
         // Calculate OR efficiency for MC
         float OR_eff_mc = (passSingle_val * single_mu_effMc
                           - passCross_val * passSingle_val * std::min(single_mu_effMc, mu_leg_effMc) * tau_leg_effMc
@@ -1854,14 +1929,21 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
         if (OR_eff_mc > 0) {
             sf = OR_eff_data / OR_eff_mc;
         }
-
+        if (OR_eff_data <= 0) {
+            sf = 1.0;
+        }
         Logger::get("mt_or_trigger_sf")->debug("mu_pt={}, mu_eta={}, tau_pt={}, tau_dm={}, passSingle={}, passCross={}, sf={}",
                                            mu_pt_val, mu_eta_val, tau_pt_val, tau_dm_val, passSingle_val, passCross_val, sf);
         return sf;
     };
 
-    auto df3 = df2.Define(sf_output, mt_or_trigger_sf_calculator,
-                        {muon_p4, tau_p4, tau_dm, "trg_single_mu24_tmp", "trg_cross_mu20tau27_hps_tmp"});
+    auto available_cols2 = df2.GetColumnNames();
+    bool has_sf_col = (std::find(available_cols2.begin(), available_cols2.end(), sf_output) != available_cols2.end());
+    ROOT::RDF::RNode df3 = df2;
+    if (!has_sf_col) {
+        df3 = df2.Define(sf_output, mt_or_trigger_sf_calculator,
+                        {muon_p4, tau_p4, tau_dm, single_mu_tmp, cross_mu_tmp});
+    }
     return df3;
 }
 
@@ -1903,7 +1985,7 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
 ROOT::RDF::RNode
 ditau_or_trigger_sf(ROOT::RDF::RNode df,
                  const std::string &tau1_p4, const std::string &tau2_p4,
-                 const std::string &jet_p4,
+                 const std::string &jet_p4, const std::string &good_jets_mask,
                  const std::string &triggerobject_bits,
                  const std::string &triggerobject_id,
                  const std::string &triggerobject_pt,
@@ -1916,7 +1998,9 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
                  const std::string &ditaujet_eff_file,
                  const std::string &tau_wp,
                  const std::string &ditau_hlt_path,
-                 const std::string &ditaujet_hlt_path) {
+                 const std::string &ditaujet_hlt_path,
+                 const std::string &syst
+                ) {
 
     Logger::get("ditau_or_trigger_sf")->info("Setting up ditau OR trigger SF function");
     Logger::get("ditau_or_trigger_sf")->info("HLT paths: ditau={}, ditau+jet={}",
@@ -1959,10 +2043,17 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df1 = df.Define("trg_ditau_tmp", ditau_match_calculator,
+    std::string ditau_tmp = "trg_ditau_tmp";
+    if (syst != "nom") ditau_tmp += std::string("_") + syst;
+    auto available_cols0 = df.GetColumnNames();
+    bool has_ditau_col = (std::find(available_cols0.begin(), available_cols0.end(), ditau_tmp) != available_cols0.end());
+    ROOT::RDF::RNode df1 = df;
+    if (!has_ditau_col) {
+        df1 = df.Define(ditau_tmp, ditau_match_calculator,
                        {ditau_hlt_path, tau1_p4, tau2_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Then, calculate ditau+jet trigger flag internally
     auto ditaujet_match_calculator =
@@ -1999,22 +2090,30 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
             return result;
         };
 
-    ROOT::RDF::RNode df2 = df1.Define("trg_ditaujet_tmp", ditaujet_match_calculator,
+    std::string ditaujet_tmp = "trg_ditaujet_tmp";
+    if (syst != "nom") ditaujet_tmp += std::string("_") + syst;
+    auto available_cols1 = df1.GetColumnNames();
+    bool has_ditaujet_col = (std::find(available_cols1.begin(), available_cols1.end(), ditaujet_tmp) != available_cols1.end());
+    ROOT::RDF::RNode df2 = df1;
+    if (!has_ditaujet_col) {
+        df2 = df1.Define(ditaujet_tmp, ditaujet_match_calculator,
                        {ditaujet_hlt_path, tau1_p4, tau2_p4, jet_p4,
                         triggerobject_bits, triggerobject_id, triggerobject_pt,
                         triggerobject_eta, triggerobject_phi});
+    }
 
     // Now calculate the OR trigger SF
     auto ditau_or_trigger_sf_calculator = [evaluator_ditau_mc, evaluator_ditau_data,
                                        evaluator_ditaujet_mc, evaluator_ditaujet_data,
-                                       tau_wp](
+                                       tau_wp, syst](
                                                                      const ROOT::Math::PtEtaPhiMVector &tau1_p4,
                                                                      const ROOT::Math::PtEtaPhiMVector &tau2_p4,
                                                                      const ROOT::Math::PtEtaPhiMVector &jet_p4,
                                                                      const UChar_t &tau1_dm_val,
                                                                      const UChar_t &tau2_dm_val,
                                                                      const bool &passDiTau_val,
-                                                                     const bool &passDiTauJet_val) {
+                                                                     const bool &passDiTauJet_val,
+                                                                     const ROOT::RVec<int> &good_jets_mask) {
         float sf = 1.0;
         float tau1_pt_val = tau1_p4.pt();
         float tau2_pt_val = tau2_p4.pt();
@@ -2035,35 +2134,56 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
 
         // tau: nom, up, down
         // tau+jet: nom, up, down
-        float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, tau1_dm_val, "ditau", tau_wp,  "eff_mc", "nom"}) * evaluator_ditau_mc->evaluate({tau2_pt_val, tau2_dm_val, "ditau", tau_wp, "eff_mc", "nom"});
-        float eff_ditaujetTrg_mc = evaluator_ditaujet_mc->evaluate({jet_pt_val, jet_eta_val, "nom", "mc"}) * eff_tautau_mc;
+        // if syst == "up" or "down", apply the corresponding variation
+
+        float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, tau1_dm_val, "ditau", tau_wp,  "eff_mc", syst}) * evaluator_ditau_mc->evaluate({tau2_pt_val, tau2_dm_val, "ditau", tau_wp, "eff_mc", syst});
+        float eff_ditaujetTrg_mc = evaluator_ditaujet_mc->evaluate({jet_pt_val, jet_eta_val, syst, "mc"}); // jet leg data eff
+        //  * eff_tautau_mc;
 
         // Get Data efficiencies
-        float eff_tautau_data = evaluator_ditau_data->evaluate({tau1_pt_val, tau1_dm_val, "ditau",tau_wp, "eff_data", "nom"}) * evaluator_ditau_data->evaluate({tau2_pt_val, tau2_dm_val, "ditau",tau_wp, "eff_data", "nom"});
-        float eff_ditaujetTrg_data = evaluator_ditaujet_data->evaluate({jet_pt_val, jet_eta_val, "nom", "data"}) * eff_tautau_data;
+        float eff_tautau_data = evaluator_ditau_data->evaluate({tau1_pt_val, tau1_dm_val, "ditau",tau_wp, "eff_data", syst}) * evaluator_ditau_data->evaluate({tau2_pt_val, tau2_dm_val, "ditau",tau_wp, "eff_data", syst});
+        float eff_ditaujetTrg_data = evaluator_ditaujet_data->evaluate({jet_pt_val, jet_eta_val, syst, "data"}); // jet leg data eff
+        // * eff_tautau_data;
       
+        // Adjust passDiTauJet: require first good_jets_mask bit to be true
+        bool passDiTauJet_adj = passDiTauJet_val && (good_jets_mask.size() > 0 ? (good_jets_mask[0] != 0) : false);
+
         // Calculate OR efficiency for MC
         float OR_eff_mc = (passDiTau_val * eff_tautau_mc
-                          - passDiTau_val * passDiTauJet_val * std::min(eff_ditaujetTrg_mc, eff_tautau_mc) * eff_ditaujetTrg_mc
-                          + passDiTauJet_val * eff_ditaujetTrg_mc );
+                  - passDiTau_val * passDiTauJet_adj * std::min(eff_ditaujetTrg_mc * eff_tautau_mc, eff_tautau_mc) * eff_ditaujetTrg_mc
+                  + passDiTauJet_adj * eff_ditaujetTrg_mc * eff_tautau_mc );
 
         // Calculate OR efficiency for Data
         float OR_eff_data = (passDiTau_val * eff_tautau_data
-                            - passDiTau_val * passDiTauJet_val * std::min(eff_ditaujetTrg_data, eff_tautau_data) * eff_ditaujetTrg_data
-                            + passDiTauJet_val * eff_ditaujetTrg_data );
+                    - passDiTau_val * passDiTauJet_adj * std::min(eff_ditaujetTrg_data * eff_tautau_data, eff_tautau_data) * eff_ditaujetTrg_data
+                    + passDiTauJet_adj * eff_ditaujetTrg_data * eff_tautau_data );
 
         // Calculate scale factor
         if (OR_eff_mc > 0) {
             sf = OR_eff_data / OR_eff_mc;
         }
-
+        if (OR_eff_data <= 0) {
+            sf = 1.0;
+        }
+        // If SF is very small but non-zero, print selected variables at INFO level for diagnosis
+        // if (sf > 0.0f && sf < 0.1f) {
+        //     Logger::get("ditau_or_trigger_sf")->info(
+        //         "LowSF: sf={:.6f}, OR_eff_mc={:.6f}, OR_eff_data={:.6f}, eff_tautau_mc={:.6f}, eff_ditaujetTrg_mc={:.6f}, eff_ditaujetTrg_data={:.6f},passDiTau={}, passDiTauJet={}, tau1_pt={:.3f}, tau2_pt={:.3f}, jet_pt={:.3f} , raw jet_pt={:.3f}",
+        //         sf, OR_eff_mc, OR_eff_data, eff_tautau_mc, eff_ditaujetTrg_mc, eff_ditaujetTrg_data, passDiTau_val, passDiTauJet_adj, tau1_pt_val, tau2_pt_val, jet_pt_val, jet_p4.pt());
+            
+        // }
         Logger::get("ditau_or_trigger_sf")->debug("tau1_pt={}, tau2_pt={}, jet_pt={}, tau1_dm={}, tau2_dm={}, passDiTau={}, passDiTauJet={}, sf={}",
                                            tau1_pt_val, tau2_pt_val, jet_pt_val, tau1_dm_val, tau2_dm_val, passDiTau_val, passDiTauJet_val, sf);
         return sf;
     };
 
-    auto df3 = df2.Define(sf_output, ditau_or_trigger_sf_calculator,
-                        {tau1_p4, tau2_p4, jet_p4, tau1_dm, tau2_dm, "trg_ditau_tmp", "trg_ditaujet_tmp"});
+    auto available_cols2 = df2.GetColumnNames();
+    bool has_sf_col = (std::find(available_cols2.begin(), available_cols2.end(), sf_output) != available_cols2.end());
+    ROOT::RDF::RNode df3 = df2;
+    if (!has_sf_col) {
+        df3 = df2.Define(sf_output, ditau_or_trigger_sf_calculator,
+                        {tau1_p4, tau2_p4, jet_p4, tau1_dm, tau2_dm, ditau_tmp, ditaujet_tmp, good_jets_mask});
+    }
     return df3;
 }
 

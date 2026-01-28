@@ -116,12 +116,13 @@ btagSF_FixedWP(ROOT::RDF::RNode df, const std::string &pt, const std::string &et
         const std::string &year, const std::string &channel, const float &btag_cut, const std::string &btag_sf_flavour);
 ROOT::RDF::RNode
 btagSF_FixedWP_signal(ROOT::RDF::RNode df, const std::string &pt, const std::string &eta,
-                    const std::string &btag_discr, const std::string &flavor,
-                    const std::string &jet_mask, const std::string &bjet_mask,
-                    const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
-                    const std::string &variation,
-                    const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
-                    const std::string &year,  const float &btag_cut, const std::string &btag_sf_flavour); 
+                 const std::string &btag_discr, const std::string &flavor,
+                 const std::string &jet_mask, const std::string &bjet_mask,
+                 const std::string &jet_veto_mask, const std::string &gen_higgs_mass,  
+                 const std::string &variation,
+                 const std::string &sf_output, const std::string &sf_file, const std::string &eff_file,
+                 const std::string &year, const float &btag_cut,  const std::string &btag_sf_flavour, 
+                 const std::string &btag_eff_type);  
 } // namespace jet
 namespace embedding {
 ROOT::RDF::RNode
@@ -173,7 +174,8 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
                 const std::string &single_ele_eff_file,
                 const std::string &tau_wp,
                 const std::string &single_ele_hlt_path,
-                const std::string &cross_ele_hlt_path);
+                const std::string &cross_ele_hlt_path,
+                const std::string &syst);
 
 ROOT::RDF::RNode
 mt_or_trigger_sf(ROOT::RDF::RNode df, 
@@ -188,25 +190,28 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
                 const std::string &mu_leg_file,
                 const std::string &tau_leg_file, const std::string &single_mu_eff_file, 
                 const std::string &tau_wp, const std::string &single_mu_hlt_path,
-                const std::string &cross_mu_hlt_path);
+                const std::string &cross_mu_hlt_path,
+            const std::string &syst);
 
 ROOT::RDF::RNode
 ditau_or_trigger_sf(ROOT::RDF::RNode df,
-                const std::string &tau1_p4, const std::string &tau2_p4,
-                const std::string &jet_p4,
-                const std::string &triggerobject_bits,
-                const std::string &triggerobject_id,
-                const std::string &triggerobject_pt,
-                const std::string &triggerobject_eta,
-                const std::string &triggerobject_phi,
-                const std::string &tau1_dm,
-                const std::string &tau2_dm,
-                const std::string &sf_output,
-                const std::string &ditau_eff_file,
-                const std::string &ditaujet_eff_file,
-                const std::string &tau_wp,
-                const std::string &ditau_hlt_path,
-                const std::string &ditaujet_hlt_path) ;
+                 const std::string &tau1_p4, const std::string &tau2_p4,
+                 const std::string &jet_p4, const std::string & good_jets_mask,
+                 const std::string &triggerobject_bits,
+                 const std::string &triggerobject_id,
+                 const std::string &triggerobject_pt,
+                 const std::string &triggerobject_eta,
+                 const std::string &triggerobject_phi,
+                 const std::string &tau1_dm,
+                 const std::string &tau2_dm,
+                 const std::string &sf_output,
+                 const std::string &ditau_eff_file,
+                 const std::string &ditaujet_eff_file,
+                 const std::string &tau_wp,
+                 const std::string &ditau_hlt_path,
+                 const std::string &ditaujet_hlt_path,
+                 const std::string &syst
+                );
 } // namespace trigger
 
 } // namespace scalefactor
