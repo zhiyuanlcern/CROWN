@@ -264,8 +264,8 @@ double Likelihood::metTF(const LorentzVector &metP4, const LorentzVector &nuP4,
     double covDet = invCovMETxx * invCovMETyy - invCovMETxy * invCovMETyx;
 
     if (std::abs(covDet) < 1E-10) {
-        std::cerr << "Error: Cannot invert MET covariance Matrix (det=0) !!"
-                  << "METx: " << aMETy << " METy: " << aMETy << std::endl;
+        // std::cerr << "Error: Cannot invert MET covariance Matrix (det=0) !!"
+        //           << "METx: " << aMETy << " METy: " << aMETy << std::endl;
         return 0;
     }
     double const_MET = 1. / (2. * M_PI * TMath::Sqrt(covDet));
