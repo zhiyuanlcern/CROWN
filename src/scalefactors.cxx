@@ -1678,12 +1678,13 @@ et_or_trigger_sf(ROOT::RDF::RNode df,
 
         float single_ele_effMc = evaluator_single_ele_mc->evaluate({ele_sf_year_id, syst_single_ele, "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
         float ele_leg_effMc = evaluator_ele_leg_mc->evaluate({ele_sf_year_id, syst_ele_leg, "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
-        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_mc", syst_tau_leg});
+        int etm = (tau_dm_val == 0 || tau_dm_val == 1 || tau_dm_val == 10 || tau_dm_val == 11) ? static_cast<int>(tau_dm_val) : -1;
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, etm, "etau", tau_wp, "eff_mc", syst_tau_leg});
 
         // Get Data efficiencies
         float single_ele_effData = evaluator_single_ele_data->evaluate({ele_sf_year_id, syst_single_ele, "HLT_SF_Ele30_TightID", ele_eta_val, ele_pt_val});
         float ele_leg_effData = evaluator_ele_leg_data->evaluate({ele_sf_year_id, syst_ele_leg, "HLT_SF_Ele24_TightID", ele_eta_val, ele_pt_val});
-        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "etau", tau_wp, "eff_data", syst_tau_leg});
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, etm, "etau", tau_wp, "eff_data", syst_tau_leg});
 
         // Calculate OR efficiency for MC
         float OR_eff_mc = (passSingle_val * single_ele_effMc
@@ -1909,12 +1910,13 @@ mt_or_trigger_sf(ROOT::RDF::RNode df,
 
         float single_mu_effMc = evaluator_single_mu_mc->evaluate({mu_eta_val, mu_pt_val, syst_single_mu_mc});
         float mu_leg_effMc = evaluator_mu_leg_mc->evaluate({std::abs(mu_eta_val), mu_pt_val, syst_mu_leg});
-        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_mc", syst_tau_leg});
+        int mtm = (tau_dm_val == 0 || tau_dm_val == 1 || tau_dm_val == 10 || tau_dm_val == 11) ? static_cast<int>(tau_dm_val) : -1;
+        float tau_leg_effMc = evaluator_tau_leg->evaluate({tau_pt_val, mtm, "mutau", tau_wp, "eff_mc", syst_tau_leg});
 
         // Get Data efficiencies - use mapped DATAeff key
         float single_mu_effData = evaluator_single_mu_data->evaluate({mu_eta_val, mu_pt_val, syst_single_mu_data});
         float mu_leg_effData = evaluator_mu_leg_data->evaluate({std::abs(mu_eta_val), mu_pt_val, syst_mu_leg});
-        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, tau_dm_val, "mutau", tau_wp, "eff_data", syst_tau_leg});                                                                    
+        float tau_leg_effData = evaluator_tau_leg->evaluate({tau_pt_val, mtm, "mutau", tau_wp, "eff_data", syst_tau_leg});                                                                    
         // Calculate OR efficiency for MC
         float OR_eff_mc = (passSingle_val * single_mu_effMc
                           - passCross_val * passSingle_val * std::min(single_mu_effMc, mu_leg_effMc) * tau_leg_effMc
@@ -2136,12 +2138,14 @@ ditau_or_trigger_sf(ROOT::RDF::RNode df,
         // tau+jet: nom, up, down
         // if syst == "up" or "down", apply the corresponding variation
 
-        float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, tau1_dm_val, "ditau", tau_wp,  "eff_mc", syst}) * evaluator_ditau_mc->evaluate({tau2_pt_val, tau2_dm_val, "ditau", tau_wp, "eff_mc", syst});
+        int dm1 = (tau1_dm_val == 0 || tau1_dm_val == 1 || tau1_dm_val == 10 || tau1_dm_val == 11) ? static_cast<int>(tau1_dm_val) : -1;
+        int dm2 = (tau2_dm_val == 0 || tau2_dm_val == 1 || tau2_dm_val == 10 || tau2_dm_val == 11) ? static_cast<int>(tau2_dm_val) : -1;
+        float eff_tautau_mc = evaluator_ditau_mc->evaluate({tau1_pt_val, dm1, "ditau", tau_wp,  "eff_mc", syst}) * evaluator_ditau_mc->evaluate({tau2_pt_val, dm2, "ditau", tau_wp, "eff_mc", syst});
         float eff_ditaujetTrg_mc = evaluator_ditaujet_mc->evaluate({jet_pt_val, jet_eta_val, syst, "mc"}); // jet leg data eff
         //  * eff_tautau_mc;
 
         // Get Data efficiencies
-        float eff_tautau_data = evaluator_ditau_data->evaluate({tau1_pt_val, tau1_dm_val, "ditau",tau_wp, "eff_data", syst}) * evaluator_ditau_data->evaluate({tau2_pt_val, tau2_dm_val, "ditau",tau_wp, "eff_data", syst});
+        float eff_tautau_data = evaluator_ditau_data->evaluate({tau1_pt_val, dm1, "ditau",tau_wp, "eff_data", syst}) * evaluator_ditau_data->evaluate({tau2_pt_val, dm2, "ditau",tau_wp, "eff_data", syst});
         float eff_ditaujetTrg_data = evaluator_ditaujet_data->evaluate({jet_pt_val, jet_eta_val, syst, "data"}); // jet leg data eff
         // * eff_tautau_data;
       
