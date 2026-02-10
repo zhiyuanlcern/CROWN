@@ -50,8 +50,8 @@ ROOT::RDF::RNode CutPt_Run3(ROOT::RDF::RNode df, const std::string &pt, const st
     auto lambda = [ptThreshold](const ROOT::RVec<float> &pt,
                                          const ROOT::RVec<float> &eta) {
         ROOT::RVec<int> mask =
-            (((abs(eta) < 2.5) && abs(eta) >3 && (pt >= ptThreshold)  ) ||
-             ((abs(eta) >= 2.5) && abs(eta) <=3 && (pt >= 50) ));
+            (((abs(eta) < 2.5 || abs(eta) > 3.0) && (pt >= ptThreshold)) ||
+             ((abs(eta) >= 2.5 && abs(eta) <= 3.0) && (pt >= 50)));
         return mask;
     };
 
