@@ -113,17 +113,23 @@ ROOT::RDF::RNode topptreweighting(ROOT::RDF::RNode df,
                         "two top quarks. Probably due to wrong sample type.");
             throw std::runtime_error("Bad number of top quarks.");
         }
-        if (top_pts[0] > 472.0)
-            top_pts[0] = 472.0;
-        if (top_pts[1] > 472.0)
-            top_pts[1] = 472.0;
-        const float parameter_a = 0.088;
-        const float parameter_b = -0.00087;
-        const float parameter_c = 0.00000092;
-        return sqrt(exp(parameter_a + parameter_b * top_pts[0] +
-                        parameter_c * top_pts[0] * top_pts[0]) *
-                    exp(parameter_a + parameter_b * top_pts[1] +
-                        parameter_c * top_pts[1] * top_pts[1]));
+          auto computeSF = [](float pT) {
+              // 13.0TeV factor
+              float sf_13p0 = 0.103f * std::exp(-0.0118f * pT) - 0.000134f * pT + 0.973f;
+              
+              // 13.6TeV extrapolation factor
+              float extrapolation_sf_13p6 = 0.991f + 0.000075f * pT;
+              
+              // 
+              return sf_13p0 * extrapolation_sf_13p6;
+          };
+  
+          // 计算两个 top 的 sf
+          float sf1 = computeSF(top_pts[0]);
+          float sf2 = computeSF(top_pts[1]);
+  
+          // 事件最终权重：sqrt(sf1 * sf2) → 和 Python 完全一致
+          return std::sqrt(sf1 * sf2);
     };
     auto df1 = df.Define(weightname, ttbarreweightlambda,
                          {gen_pdgids, gen_status, gen_pt});
